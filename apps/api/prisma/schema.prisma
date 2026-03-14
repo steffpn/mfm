@@ -8,20 +8,22 @@ datasource db {
 }
 
 model Station {
-  id            Int       @id @default(autoincrement())
-  name          String
-  streamUrl     String    @map("stream_url")
-  stationType   String    @map("station_type")
-  country       String    @default("RO")
-  status        String    @default("inactive")
-  lastHeartbeat DateTime? @map("last_heartbeat")
-  restartCount  Int       @default(0) @map("restart_count")
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
+  id               Int       @id @default(autoincrement())
+  name             String
+  streamUrl        String    @map("stream_url")
+  stationType      String    @map("station_type")
+  acrcloudStreamId String    @unique @map("acrcloud_stream_id")
+  country          String    @default("RO")
+  status           String    @default("inactive")
+  lastHeartbeat    DateTime? @map("last_heartbeat")
+  restartCount     Int       @default(0) @map("restart_count")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
 
-  detections    Detection[]
-  airplayEvents AirplayEvent[]
-  snippets      AudioSnippet[]
+  detections       Detection[]
+  airplayEvents    AirplayEvent[]
+  snippets         AudioSnippet[]
+  noMatchCallbacks NoMatchCallback[]
 
   @@map("stations")
 }
@@ -58,6 +60,7 @@ model AirplayEvent {
   songTitle   String   @map("song_title")
   artistName  String   @map("artist_name")
   isrc        String?
+  confidence  Float    @default(0) @map("confidence")
   playCount   Int      @default(1) @map("play_count")
   snippetUrl  String?  @map("snippet_url")
   createdAt   DateTime @default(now()) @map("created_at")
@@ -67,6 +70,20 @@ model AirplayEvent {
   @@index([stationId, startedAt])
   @@index([artistName, startedAt])
   @@map("airplay_events")
+}
+
+model NoMatchCallback {
+  id         Int      @id @default(autoincrement())
+  stationId  Int      @map("station_id")
+  callbackAt DateTime @map("callback_at")
+  statusCode Int      @map("status_code")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  station    Station  @relation(fields: [stationId], references: [id])
+
+  @@index([stationId, callbackAt])
+  @@index([createdAt])
+  @@map("no_match_callbacks")
 }
 
 model User {
