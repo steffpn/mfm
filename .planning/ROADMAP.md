@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Project Foundation** - Dev environment, database schema with TimescaleDB, project scaffolding (completed 2026-03-14)
 - [x] **Phase 2: Stream Recording Infrastructure** - FFmpeg process supervisor recording 200+ streams 24/7 (completed 2026-03-15)
-- [ ] **Phase 3: Detection Pipeline** - ACRCloud webhook receiver, detection storage, deduplication
+- [x] **Phase 3: Detection Pipeline** - ACRCloud webhook receiver, detection storage, deduplication (completed 2026-03-15)
 - [ ] **Phase 4: Audio Snippet System** - 5-second snippet capture, R2 storage, presigned URL serving
 - [ ] **Phase 5: Authentication & User Management** - Invite-only auth, JWT sessions, RBAC, admin user ops
 - [ ] **Phase 6: Core iOS App & Dashboard** - iOS app with auth flow, dashboard, detection browsing, search, playback
@@ -69,10 +69,10 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 03-01-PLAN.md -- Schema migration, normalization utilities, station route update for acrcloudStreamId
-- [ ] 03-02-PLAN.md -- ACRCloud webhook route with TypeBox validation and BullMQ enqueue (TDD)
-- [ ] 03-03-PLAN.md -- Detection processing worker with gap-tolerance deduplication (TDD)
-- [ ] 03-04-PLAN.md -- Supervisor integration, no-match cleanup, end-to-end verification
+- [x] 03-01-PLAN.md -- Schema migration, normalization utilities, station route update for acrcloudStreamId
+- [x] 03-02-PLAN.md -- ACRCloud webhook route with TypeBox validation and BullMQ enqueue (TDD)
+- [x] 03-03-PLAN.md -- Detection processing worker with gap-tolerance deduplication (TDD)
+- [x] 03-04-PLAN.md -- Supervisor integration, no-match cleanup, end-to-end verification
 
 ### Phase 4: Audio Snippet System
 **Goal**: The system captures a 5-second audio clip from the recorded stream at the exact moment of each detection and makes it available for playback
@@ -171,7 +171,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9
 |-------|----------------|--------|-----------|
 | 1. Project Foundation | 3/3 | Complete   | 2026-03-14 |
 | 2. Stream Recording Infrastructure | 3/3 | Complete | 2026-03-15 |
-| 3. Detection Pipeline | 3/4 | In Progress|  |
+| 3. Detection Pipeline | 4/4 | Complete | 2026-03-15 |
 | 4. Audio Snippet System | 0/TBD | Not started | - |
 | 5. Authentication & User Management | 0/TBD | Not started | - |
 | 6. Core iOS App & Dashboard | 0/TBD | Not started | - |
