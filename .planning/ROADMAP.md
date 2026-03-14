@@ -53,7 +53,7 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 02-01-PLAN.md -- Station CRUD REST API with Redis pub/sub event publishing
+- [x] 02-01-PLAN.md -- Station CRUD REST API with Redis pub/sub event publishing
 - [ ] 02-02-PLAN.md -- FFmpeg process supervisor with watchdog, backoff, and staggered startup
 - [ ] 02-03-PLAN.md -- BullMQ segment cleanup worker, Docker infrastructure, end-to-end verification
 
@@ -168,7 +168,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Project Foundation | 3/3 | Complete   | 2026-03-14 |
-| 2. Stream Recording Infrastructure | 0/3 | Not started | - |
+| 2. Stream Recording Infrastructure | 1/3 | In progress | - |
 | 3. Detection Pipeline | 0/TBD | Not started | - |
 | 4. Audio Snippet System | 0/TBD | Not started | - |
 | 5. Authentication & User Management | 0/TBD | Not started | - |
