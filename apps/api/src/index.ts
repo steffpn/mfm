@@ -1,12 +1,40 @@
 import Fastify from "fastify";
+import { prisma } from "./lib/prisma.js";
+import { redis } from "./lib/redis.js";
 
-const server = Fastify({
-  logger: true,
-});
+const server = Fastify({ logger: true });
 
+// Health check -- verifies DB and Redis connections
 server.get("/health", async () => {
-  return { status: "ok" };
+  const dbOk = await prisma
+    .$queryRaw`SELECT 1 as ok`
+    .then(() => true)
+    .catch(() => false);
+  const redisOk = await redis
+    .ping()
+    .then((r) => r === "PONG")
+    .catch(() => false);
+  return {
+    status: dbOk && redisOk ? "ok" : "degraded",
+    db: dbOk ? "connected" : "disconnected",
+    redis: redisOk ? "connected" : "disconnected",
+  };
 });
+
+// Graceful shutdown
+const shutdown = async () => {
+  await prisma.$disconnect();
+  redis.disconnect();
+  await server.close();
+};
+
+process.on("SIGTERM", shutdown);
+process.on("SIGINT", shutdown);
+
+// API v1 routes will be registered as plugins in later phases
+// server.register(import("./routes/v1/index.js"), { prefix: "/api/v1" });
+
+export { server };
 
 const start = async () => {
   try {
@@ -17,4 +45,7 @@ const start = async () => {
   }
 };
 
-start();
+// Only start if this is the main module (not imported by tests)
+if (import.meta.url === `file://${process.argv[1]}`) {
+  start();
+}
