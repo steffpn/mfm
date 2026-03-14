@@ -66,11 +66,13 @@ Plans:
   2. Each detection record contains: station, timestamp, song title, artist, duration, ISRC, and confidence score
   3. Multiple callbacks for the same song on the same station within a short window are aggregated into a single airplay event (play counts are accurate, not inflated 18-36x)
   4. Raw detection callbacks and aggregated airplay events are stored as separate data, preserving both granular and summarized views
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 03-01: TBD
-- [ ] 03-02: TBD
+- [ ] 03-01-PLAN.md -- Schema migration, normalization utilities, station route update for acrcloudStreamId
+- [ ] 03-02-PLAN.md -- ACRCloud webhook route with TypeBox validation and BullMQ enqueue (TDD)
+- [ ] 03-03-PLAN.md -- Detection processing worker with gap-tolerance deduplication (TDD)
+- [ ] 03-04-PLAN.md -- Supervisor integration, no-match cleanup, end-to-end verification
 
 ### Phase 4: Audio Snippet System
 **Goal**: The system captures a 5-second audio clip from the recorded stream at the exact moment of each detection and makes it available for playback
@@ -169,7 +171,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9
 |-------|----------------|--------|-----------|
 | 1. Project Foundation | 3/3 | Complete   | 2026-03-14 |
 | 2. Stream Recording Infrastructure | 3/3 | Complete | 2026-03-15 |
-| 3. Detection Pipeline | 0/TBD | Not started | - |
+| 3. Detection Pipeline | 0/4 | Not started | - |
 | 4. Audio Snippet System | 0/TBD | Not started | - |
 | 5. Authentication & User Management | 0/TBD | Not started | - |
 | 6. Core iOS App & Dashboard | 0/TBD | Not started | - |
