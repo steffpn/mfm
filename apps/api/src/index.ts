@@ -31,8 +31,8 @@ const shutdown = async () => {
 process.on("SIGTERM", shutdown);
 process.on("SIGINT", shutdown);
 
-// API v1 routes will be registered as plugins in later phases
-// server.register(import("./routes/v1/index.js"), { prefix: "/api/v1" });
+// API v1 routes
+server.register(import("./routes/v1/index.js"), { prefix: "/api/v1" });
 
 export { server };
 

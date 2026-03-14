@@ -14,11 +14,13 @@
     "@myfuckingmusic/shared": "workspace:*",
     "@prisma/adapter-pg": "^7.3.0",
     "@prisma/client": "^7.3.0",
+    "@sinclair/typebox": "^0.34.48",
     "bullmq": "^5.71.0",
     "dotenv": "^16.4.0",
     "fastify": "^5.8.0",
     "ioredis": "^5.4.0",
-    "pg": "^8.13.0"
+    "pg": "^8.13.0",
+    "pino": "^10.3.0"
   },
   "devDependencies": {
     "@myfuckingmusic/tsconfig": "workspace:*",
