@@ -21,6 +21,7 @@ const logger = pino({ name: "cleanup-worker" });
 const CLEANUP_QUEUE = "segment-cleanup";
 const DATA_DIR = path.resolve("./data/streams");
 const MAX_AGE_MS = 3 * 60 * 1000; // 3 minutes per user decision
+const NO_MATCH_MAX_AGE_DAYS = 7;
 
 /**
  * Core cleanup logic -- exported for direct testing.
@@ -93,6 +94,24 @@ export async function cleanupSegments(): Promise<void> {
 }
 
 /**
+ * Clean up old no-match callback records.
+ *
+ * Deletes NoMatchCallback records older than NO_MATCH_MAX_AGE_DAYS (7 days).
+ * Runs on a 6-hour schedule via the same BullMQ cleanup queue.
+ */
+export async function cleanupNoMatchCallbacks(): Promise<void> {
+  const cutoff = new Date(
+    Date.now() - NO_MATCH_MAX_AGE_DAYS * 24 * 60 * 60 * 1000,
+  );
+  const result = await prisma.noMatchCallback.deleteMany({
+    where: { createdAt: { lt: cutoff } },
+  });
+  if (result.count > 0) {
+    logger.info({ deleted: result.count }, "Cleaned up old no-match callbacks");
+  }
+}
+
+/**
  * Start the cleanup worker with BullMQ job scheduler.
  *
  * Registers a scheduler that runs every 30 seconds and creates a worker
@@ -115,12 +134,25 @@ export async function startCleanupWorker(): Promise<{
     { name: "cleanup-segments", data: {} },
   );
 
+  // No-match callback cleanup: every 6 hours
+  await queue.upsertJobScheduler(
+    "no-match-cleanup-scheduler",
+    { every: 6 * 60 * 60 * 1000 },
+    { name: "cleanup-no-match", data: {} },
+  );
+
   const worker = new Worker(
     CLEANUP_QUEUE,
-    async () => {
-      logger.debug("Running segment cleanup");
-      await cleanupSegments();
-      logger.debug("Segment cleanup complete");
+    async (job) => {
+      if (job.name === "cleanup-no-match") {
+        logger.debug("Running no-match callback cleanup");
+        await cleanupNoMatchCallbacks();
+        logger.debug("No-match callback cleanup complete");
+      } else {
+        logger.debug("Running segment cleanup");
+        await cleanupSegments();
+        logger.debug("Segment cleanup complete");
+      }
     },
     { connection: createRedisConnection() },
   );

@@ -16,6 +16,7 @@ import { StreamManager } from "./stream-manager.js";
 import { Watchdog } from "./watchdog.js";
 import { DATA_DIR } from "./ffmpeg.js";
 import { startCleanupWorker } from "../../workers/cleanup.js";
+import { startDetectionWorker } from "../../workers/detection.js";
 
 const logger = pino({ name: "supervisor" });
 
@@ -92,6 +93,10 @@ export async function startSupervisor(): Promise<{
   // --- Start cleanup worker ---
   const { queue: cleanupQueue, worker: cleanupWorker } =
     await startCleanupWorker();
+
+  // --- Start detection worker ---
+  const { queue: detectionQueue, worker: detectionWorker } =
+    await startDetectionWorker();
 
   // --- Redis pub/sub subscriber ---
   const subscriber = createRedisConnection();
@@ -177,6 +182,8 @@ export async function startSupervisor(): Promise<{
   const shutdown = async () => {
     logger.info("Shutting down supervisor");
     watchdog.stop();
+    await detectionWorker.close();
+    await detectionQueue.close();
     await cleanupWorker.close();
     await cleanupQueue.close();
     await streamManager.stopAll();
