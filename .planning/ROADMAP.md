@@ -50,11 +50,12 @@ Plans:
   3. When a stream dies or hangs, the watchdog detects the failure and automatically restarts it within 60 seconds
   4. Admin can view stream health status (up/down, last heartbeat, restart count) for all monitored stations
   5. System sustains 200+ concurrent FFmpeg recording processes without degradation
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 02-01: TBD
-- [ ] 02-02: TBD
+- [ ] 02-01-PLAN.md -- Station CRUD REST API with Redis pub/sub event publishing
+- [ ] 02-02-PLAN.md -- FFmpeg process supervisor with watchdog, backoff, and staggered startup
+- [ ] 02-03-PLAN.md -- BullMQ segment cleanup worker, Docker infrastructure, end-to-end verification
 
 ### Phase 3: Detection Pipeline
 **Goal**: ACRCloud detection results flow into the system, are deduplicated into meaningful airplay events, and stored with full metadata
@@ -167,7 +168,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Project Foundation | 3/3 | Complete   | 2026-03-14 |
-| 2. Stream Recording Infrastructure | 0/TBD | Not started | - |
+| 2. Stream Recording Infrastructure | 0/3 | Not started | - |
 | 3. Detection Pipeline | 0/TBD | Not started | - |
 | 4. Audio Snippet System | 0/TBD | Not started | - |
 | 5. Authentication & User Management | 0/TBD | Not started | - |
