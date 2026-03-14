@@ -1,0 +1,5 @@
+{
+  "extends": "@myfuckingmusic/tsconfig/api.json",
+  "include": ["src/**/*", "prisma.config.ts"],
+  "exclude": ["node_modules", "dist", "generated"]
+}

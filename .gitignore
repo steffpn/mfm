@@ -1,0 +1,10 @@
+node_modules
+dist
+generated
+.env
+.turbo
+*.tsbuildinfo
+coverage
+.DS_Store
+apps/ios/myFuckingMusic.xcodeproj/project.xcworkspace/xcuserdata
+apps/ios/myFuckingMusic.xcodeproj/xcuserdata
