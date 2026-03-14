@@ -45,6 +45,7 @@ describe("TimescaleDB Hypertable Setup", () => {
         name: "Test Radio",
         streamUrl: "https://stream.test.ro/live",
         stationType: "radio",
+        acrcloudStreamId: "test-hypertable-" + Date.now(),
       },
     });
 

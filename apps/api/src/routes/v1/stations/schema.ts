@@ -6,6 +6,7 @@ export const StationCreateSchema = Type.Object({
   name: Type.String({ minLength: 1 }),
   streamUrl: Type.String({ format: "uri" }),
   stationType: Type.Union([Type.Literal("radio"), Type.Literal("tv")]),
+  acrcloudStreamId: Type.String({ minLength: 1 }),
   country: Type.Optional(Type.String({ default: "RO" })),
 });
 
@@ -23,6 +24,7 @@ export const StationUpdateSchema = Type.Object({
   stationType: Type.Optional(
     Type.Union([Type.Literal("radio"), Type.Literal("tv")]),
   ),
+  acrcloudStreamId: Type.Optional(Type.String({ minLength: 1 })),
 });
 
 export type StationUpdateBody = Static<typeof StationUpdateSchema>;
@@ -40,6 +42,7 @@ export const StationResponseSchema = Type.Object({
   name: Type.String(),
   streamUrl: Type.String(),
   stationType: Type.String(),
+  acrcloudStreamId: Type.String(),
   country: Type.String(),
   status: Type.String(),
   lastHeartbeat: Type.Union([Type.String(), Type.Null()]),

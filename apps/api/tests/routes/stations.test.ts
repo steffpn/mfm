@@ -35,6 +35,7 @@ describe("Station CRUD Routes", () => {
           name: "Radio Test",
           streamUrl: "http://example.com/stream",
           stationType: "radio",
+          acrcloudStreamId: "test-stream-1",
         },
       });
 
@@ -43,6 +44,7 @@ describe("Station CRUD Routes", () => {
       expect(body.name).toBe("Radio Test");
       expect(body.streamUrl).toBe("http://example.com/stream");
       expect(body.stationType).toBe("radio");
+      expect(body.acrcloudStreamId).toBe("test-stream-1");
       expect(body.status).toBe("ACTIVE");
       expect(body.country).toBe("RO");
       expect(body.id).toBeDefined();
@@ -54,7 +56,22 @@ describe("Station CRUD Routes", () => {
         url: "/api/v1/stations",
         payload: {
           name: "Radio Test",
-          // missing streamUrl and stationType
+          // missing streamUrl, stationType, and acrcloudStreamId
+        },
+      });
+
+      expect(response.statusCode).toBe(400);
+    });
+
+    it("returns 400 when acrcloudStreamId is missing", async () => {
+      const response = await server.inject({
+        method: "POST",
+        url: "/api/v1/stations",
+        payload: {
+          name: "Radio Test",
+          streamUrl: "http://example.com/stream",
+          stationType: "radio",
+          // missing acrcloudStreamId
         },
       });
 
@@ -69,6 +86,7 @@ describe("Station CRUD Routes", () => {
           name: "",
           streamUrl: "http://example.com/stream",
           stationType: "radio",
+          acrcloudStreamId: "test-stream-empty",
         },
       });
 
@@ -92,6 +110,7 @@ describe("Station CRUD Routes", () => {
           name: "PubSub Test Station",
           streamUrl: "http://example.com/stream",
           stationType: "radio",
+          acrcloudStreamId: "test-stream-pubsub",
         },
       });
 
@@ -111,6 +130,7 @@ describe("Station CRUD Routes", () => {
           name: "Radio France",
           streamUrl: "http://example.fr/stream",
           stationType: "radio",
+          acrcloudStreamId: "test-stream-fr",
           country: "FR",
         },
       });
@@ -130,11 +150,13 @@ describe("Station CRUD Routes", () => {
           name: "Station A",
           streamUrl: "http://example.com/a",
           stationType: "radio",
+          acrcloudStreamId: "test-stream-a",
         },
         {
           name: "Station B",
           streamUrl: "http://example.com/b",
           stationType: "tv",
+          acrcloudStreamId: "test-stream-b",
         },
       ];
 
@@ -149,8 +171,10 @@ describe("Station CRUD Routes", () => {
       expect(body).toHaveLength(2);
       expect(body[0].name).toBe("Station A");
       expect(body[0].status).toBe("ACTIVE");
+      expect(body[0].acrcloudStreamId).toBe("test-stream-a");
       expect(body[1].name).toBe("Station B");
       expect(body[1].stationType).toBe("tv");
+      expect(body[1].acrcloudStreamId).toBe("test-stream-b");
     });
 
     it("publishes station:added for each created station", async () => {
@@ -173,11 +197,13 @@ describe("Station CRUD Routes", () => {
             name: "Bulk A",
             streamUrl: "http://example.com/a",
             stationType: "radio",
+            acrcloudStreamId: "test-bulk-a",
           },
           {
             name: "Bulk B",
             streamUrl: "http://example.com/b",
             stationType: "radio",
+            acrcloudStreamId: "test-bulk-b",
           },
         ],
       });
@@ -204,7 +230,7 @@ describe("Station CRUD Routes", () => {
   // --- GET /api/v1/stations ---
 
   describe("GET /api/v1/stations", () => {
-    it("returns array of all stations with health fields", async () => {
+    it("returns array of all stations with health fields and acrcloudStreamId", async () => {
       // Create test stations
       await prisma.station.createMany({
         data: [
@@ -212,12 +238,14 @@ describe("Station CRUD Routes", () => {
             name: "Radio 1",
             streamUrl: "http://example.com/1",
             stationType: "radio",
+            acrcloudStreamId: "test-list-1",
             status: "ACTIVE",
           },
           {
             name: "TV 1",
             streamUrl: "http://example.com/2",
             stationType: "tv",
+            acrcloudStreamId: "test-list-2",
             status: "INACTIVE",
           },
         ],
@@ -232,12 +260,13 @@ describe("Station CRUD Routes", () => {
       const body = JSON.parse(response.payload);
       expect(body).toHaveLength(2);
 
-      // Check health fields are present
+      // Check health fields and acrcloudStreamId are present
       const station = body[0];
       expect(station.id).toBeDefined();
       expect(station.name).toBeDefined();
       expect(station.streamUrl).toBeDefined();
       expect(station.stationType).toBeDefined();
+      expect(station.acrcloudStreamId).toBeDefined();
       expect(station.status).toBeDefined();
       expect("lastHeartbeat" in station).toBe(true);
       expect("restartCount" in station).toBe(true);
@@ -253,6 +282,7 @@ describe("Station CRUD Routes", () => {
           name: "Single Station",
           streamUrl: "http://example.com/single",
           stationType: "radio",
+          acrcloudStreamId: "test-single",
           status: "ACTIVE",
         },
       });
@@ -287,6 +317,7 @@ describe("Station CRUD Routes", () => {
           name: "Update Test",
           streamUrl: "http://example.com/old",
           stationType: "radio",
+          acrcloudStreamId: "test-update",
           status: "ACTIVE",
         },
       });
@@ -310,6 +341,7 @@ describe("Station CRUD Routes", () => {
           name: "PubSub Update",
           streamUrl: "http://example.com/pubsub",
           stationType: "radio",
+          acrcloudStreamId: "test-pubsub-update",
           status: "ACTIVE",
         },
       });
@@ -361,6 +393,7 @@ describe("Station CRUD Routes", () => {
           name: "Delete Test",
           streamUrl: "http://example.com/delete",
           stationType: "radio",
+          acrcloudStreamId: "test-delete",
           status: "ACTIVE",
         },
       });
@@ -388,6 +421,7 @@ describe("Station CRUD Routes", () => {
           name: "PubSub Delete",
           streamUrl: "http://example.com/pubsub-del",
           stationType: "radio",
+          acrcloudStreamId: "test-pubsub-delete",
           status: "ACTIVE",
         },
       });
