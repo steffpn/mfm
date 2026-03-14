@@ -1,0 +1,126 @@
+# Requirements: myFuckingMusic
+
+**Defined:** 2026-03-14
+**Core Value:** Artists and labels can see exactly where, when, and how often their music is being played across Romanian radio and TV — with audio proof.
+
+## v1 Requirements
+
+Requirements for initial release. Each maps to roadmap phases.
+
+### Infrastructure
+
+- [ ] **INFR-01**: Backend monitors 200+ Romanian radio/TV streams 24/7 via FFmpeg process supervisor
+- [ ] **INFR-02**: Admin can add, edit, and remove stations with stream URLs
+- [ ] **INFR-03**: System captures 5-second audio snippets from recorded stream at moment of detection
+- [ ] **INFR-04**: Snippets stored in cloud storage (Cloudflare R2) with AAC 128kbps encoding
+- [ ] **INFR-05**: Stream health monitoring with per-stream watchdog and automatic restart on failure
+
+### Detection
+
+- [ ] **DETC-01**: System receives and processes ACRCloud detection callbacks via webhook endpoint
+- [ ] **DETC-02**: Each detection stores: station, timestamp, song, artist, duration, ISRC, confidence score
+- [ ] **DETC-03**: Raw callbacks are deduplicated into single airplay events (gap-tolerance aggregation)
+- [ ] **DETC-04**: User can query historical detections by date range
+- [ ] **DETC-05**: Detection data is time-partitioned (TimescaleDB) for query performance at scale
+
+### Authentication
+
+- [ ] **AUTH-01**: User can create account via admin-issued invitation code
+- [ ] **AUTH-02**: User session persists across app launches (JWT access + refresh tokens)
+- [ ] **AUTH-03**: User can log out from any screen
+- [ ] **AUTH-04**: Four roles (Admin, Artist, Label, Station) with scoped data access
+
+### User Management
+
+- [ ] **USER-01**: Admin can create and send invitation codes with assigned role and scope
+- [ ] **USER-02**: Admin can view all users and their roles
+- [ ] **USER-03**: Admin can deactivate user accounts
+
+### Dashboard & Analytics
+
+- [ ] **DASH-01**: User sees aggregated play counts (daily/weekly/monthly) on dashboard
+- [ ] **DASH-02**: User sees top stations playing their music
+- [ ] **DASH-03**: User sees station-level breakdown with trend data over time
+- [ ] **DASH-04**: User can search by song title, artist name, or ISRC
+- [ ] **DASH-05**: User can filter results by date range and station
+
+### Live Feed
+
+- [ ] **LIVE-01**: User sees real-time detection feed via WebSocket/SSE
+- [ ] **LIVE-02**: Live feed filters by user's role and scope
+
+### Playback
+
+- [ ] **PLAY-01**: User can tap a detection to play the 5-second audio snippet in-app
+- [ ] **PLAY-02**: Snippet plays without leaving the current view (inline player)
+
+### Export & Reporting
+
+- [ ] **EXPT-01**: User can export filtered detection data as CSV
+- [ ] **EXPT-02**: User can generate branded PDF airplay report for a date range
+
+### Notifications
+
+- [ ] **NOTF-01**: User receives daily digest push notification with summary stats
+- [ ] **NOTF-02**: User receives weekly digest push notification with summary stats
+- [ ] **NOTF-03**: User can configure notification preferences (daily/weekly/off)
+
+### Station Intelligence
+
+- [ ] **STIN-01**: Station-role user can view what competitor stations are playing
+- [ ] **STIN-02**: Station-role user can see top songs on competitor stations
+
+## v2 Requirements
+
+Deferred to future release. Tracked but not in current roadmap.
+
+### Platform Expansion
+
+- **PLAT-01**: Android app for Android users
+- **PLAT-02**: Responsive web dashboard (serves non-iOS users)
+- **PLAT-03**: Public API for third-party integrations
+
+### Business
+
+- **BUSI-01**: Subscription tiers and payment processing
+- **BUSI-02**: International expansion beyond Romania
+
+### Integrations
+
+- **INTG-01**: CMO integration (UCMR-ADA, CREDIDAM) for direct royalty reporting
+- **INTG-02**: Self-registration with email/password (replace invite-only)
+
+### Analytics
+
+- **ANLT-01**: AI/ML trend predictions (requires 6+ months of data)
+- **ANLT-02**: Advanced filtering by station type, city, format
+- **ANLT-03**: Team collaboration features for labels with multiple members
+
+## Out of Scope
+
+Explicitly excluded. Documented to prevent scope creep.
+
+| Feature | Reason |
+|---------|--------|
+| Per-detection push notifications | Notification fatigue — popular artists get 50+ detections/day |
+| Full song playback | Copyright violation — no legitimate platform offers this |
+| Automatic stream discovery/scraping | Unreliable URLs, ghost stations, data pollution |
+| Real-time charts/rankings | Editorial product, not monitoring feature — invites methodology disputes |
+| Apple Sign In / Google / OAuth | v1 is invite-only; auth providers add complexity without value |
+
+## Traceability
+
+Which phases cover which requirements. Updated during roadmap creation.
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| — | — | Pending roadmap creation |
+
+**Coverage:**
+- v1 requirements: 33 total
+- Mapped to phases: 0
+- Unmapped: 33 ⚠️
+
+---
+*Requirements defined: 2026-03-14*
+*Last updated: 2026-03-14 after initial definition*
