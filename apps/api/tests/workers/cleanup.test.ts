@@ -1,12 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import path from "node:path";
 
-// Mock fs/promises
+// Mock fs/promises - use proxy pattern so vi.clearAllMocks doesn't break factory
 const mockReaddir = vi.fn();
 const mockStat = vi.fn();
 const mockUnlink = vi.fn();
 const mockRmdir = vi.fn();
-const mockAccess = vi.fn();
 
 vi.mock("node:fs/promises", () => ({
   default: {
@@ -14,33 +12,29 @@ vi.mock("node:fs/promises", () => ({
     stat: (...args: unknown[]) => mockStat(...args),
     unlink: (...args: unknown[]) => mockUnlink(...args),
     rmdir: (...args: unknown[]) => mockRmdir(...args),
-    access: (...args: unknown[]) => mockAccess(...args),
   },
 }));
 
-// Mock BullMQ
+// Mock BullMQ - use proxy pattern for Queue and Worker
 const mockQueueUpsertJobScheduler = vi.fn().mockResolvedValue({});
 const mockQueueClose = vi.fn().mockResolvedValue(undefined);
 const mockWorkerClose = vi.fn().mockResolvedValue(undefined);
-
-let capturedWorkerProcessor: ((job: unknown) => Promise<void>) | null = null;
+const mockWorkerOn = vi.fn();
 
 vi.mock("bullmq", () => ({
   Queue: vi.fn().mockImplementation(() => ({
-    upsertJobScheduler: mockQueueUpsertJobScheduler,
-    close: mockQueueClose,
+    upsertJobScheduler: (...args: unknown[]) =>
+      mockQueueUpsertJobScheduler(...args),
+    close: (...args: unknown[]) => mockQueueClose(...args),
   })),
   Worker: vi.fn().mockImplementation(
     (
       _name: string,
-      processor: (job: unknown) => Promise<void>,
-    ) => {
-      capturedWorkerProcessor = processor;
-      return {
-        close: mockWorkerClose,
-        on: vi.fn(),
-      };
-    },
+      _processor: (job: unknown) => Promise<void>,
+    ) => ({
+      close: (...args: unknown[]) => mockWorkerClose(...args),
+      on: (...args: unknown[]) => mockWorkerOn(...args),
+    }),
   ),
 }));
 
@@ -75,8 +69,16 @@ describe("Cleanup Worker", () => {
   let cleanupSegments: typeof import("../../src/workers/cleanup.js").cleanupSegments;
 
   beforeEach(async () => {
-    vi.clearAllMocks();
-    capturedWorkerProcessor = null;
+    // Clear call counts only; preserve mock implementations
+    mockReaddir.mockClear();
+    mockStat.mockClear();
+    mockUnlink.mockClear();
+    mockRmdir.mockClear();
+    mockQueueUpsertJobScheduler.mockClear();
+    mockQueueClose.mockClear();
+    mockWorkerClose.mockClear();
+    mockWorkerOn.mockClear();
+    mockPrismaStationFindFirst.mockClear();
     mockPrismaStationFindFirst.mockResolvedValue(null);
 
     const mod = await import("../../src/workers/cleanup.js");
@@ -85,7 +87,7 @@ describe("Cleanup Worker", () => {
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
+    // Don't use vi.restoreAllMocks() as it breaks vi.mock factory mocks
   });
 
   describe("startCleanupWorker", () => {
@@ -114,7 +116,7 @@ describe("Cleanup Worker", () => {
   });
 
   describe("cleanupSegments", () => {
-    const NOW = Date.now();
+    const NOW = 1700000000000; // Fixed timestamp for testing
     const THREE_MINUTES_AGO = NOW - 3 * 60 * 1000 - 1000; // 3 min + 1s ago
     const ONE_MINUTE_AGO = NOW - 60 * 1000; // 1 min ago
 
@@ -123,7 +125,7 @@ describe("Cleanup Worker", () => {
     });
 
     it("should delete files older than 3 minutes", async () => {
-      // Mock: one station directory with one old file
+      // Mock: one station directory with two files (one old, one recent)
       mockReaddir.mockImplementation((dirPath: string) => {
         if (dirPath.endsWith("streams")) {
           return Promise.resolve([
@@ -143,7 +145,7 @@ describe("Cleanup Worker", () => {
 
       mockUnlink.mockResolvedValue(undefined);
 
-      // Station is active
+      // Station is active (don't remove its directory)
       mockPrismaStationFindFirst.mockResolvedValue({ id: 1, status: "ACTIVE" });
 
       await cleanupSegments();
@@ -207,7 +209,7 @@ describe("Cleanup Worker", () => {
         return Promise.resolve([]);
       });
 
-      // Station is active
+      // Station is active -- keep directory even if empty
       mockPrismaStationFindFirst.mockResolvedValue({ id: 1, status: "ACTIVE" });
 
       await cleanupSegments();
@@ -246,31 +248,20 @@ describe("Cleanup Worker", () => {
 
       mockPrismaStationFindFirst.mockResolvedValue({ id: 1, status: "ACTIVE" });
 
-      // Should not throw despite permission error
+      // Should not throw despite permission error on one file
       await expect(cleanupSegments()).resolves.toBeUndefined();
 
-      // Both files should have been attempted
+      // Both files should have been attempted for deletion
       expect(mockUnlink).toHaveBeenCalledTimes(2);
     });
 
     it("should clean up directory after removing all stale files if station is not active", async () => {
-      mockReaddir.mockImplementation((dirPath: string) => {
-        if (dirPath.endsWith("streams")) {
-          return Promise.resolve([
-            { name: "99", isDirectory: () => true },
-          ]);
-        }
-        return Promise.resolve(["segment-000.ts"]);
-      });
-
-      mockStat.mockResolvedValue({ mtimeMs: THREE_MINUTES_AGO });
-      mockUnlink.mockResolvedValue(undefined);
-
       // No active station
       mockPrismaStationFindFirst.mockResolvedValue(null);
+      mockUnlink.mockResolvedValue(undefined);
+      mockRmdir.mockResolvedValue(undefined);
 
-      // After deleting the file, re-reading the dir should return empty
-      // We need to return empty on the second readdir call for this station dir
+      // Track readdir calls for the station directory
       let stationDirReadCount = 0;
       mockReaddir.mockImplementation((dirPath: string) => {
         if (dirPath.endsWith("streams")) {
@@ -280,13 +271,14 @@ describe("Cleanup Worker", () => {
         }
         stationDirReadCount++;
         if (stationDirReadCount === 1) {
+          // First read: has one stale file
           return Promise.resolve(["segment-000.ts"]);
         }
-        // Second read after cleanup: empty
+        // Second read (after file deletion): empty
         return Promise.resolve([]);
       });
 
-      mockRmdir.mockResolvedValue(undefined);
+      mockStat.mockResolvedValue({ mtimeMs: THREE_MINUTES_AGO });
 
       await cleanupSegments();
 

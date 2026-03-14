@@ -9,7 +9,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "generate": "prisma generate",
-    "supervisor": "tsx src/services/supervisor/index.ts"
+    "supervisor": "tsx src/services/supervisor/index.ts",
+    "cleanup": "tsx src/workers/cleanup.ts"
   },
   "dependencies": {
     "@myfuckingmusic/shared": "workspace:*",

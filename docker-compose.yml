@@ -28,6 +28,49 @@ services:
       timeout: 5s
       retries: 5
 
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://mfm:mfm_local@db:5432/myfuckingmusic
+      REDIS_URL: redis://redis:6379
+      NODE_ENV: production
+    volumes:
+      - ./data/streams:/app/data/streams
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+
+  supervisor:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    command: ["node", "--import", "tsx", "src/services/supervisor/index.ts"]
+    environment:
+      DATABASE_URL: postgresql://mfm:mfm_local@db:5432/myfuckingmusic
+      REDIS_URL: redis://redis:6379
+      NODE_ENV: production
+    volumes:
+      - ./data/streams:/app/data/streams
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+
 volumes:
   pgdata:
   redisdata:
