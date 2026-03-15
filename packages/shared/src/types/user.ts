@@ -5,7 +5,6 @@ export interface User {
   email: string;
   name: string;
   role: UserRole;
-  scopeId: number | null;
   isActive: boolean;
   lastLoginAt: Date | null;
   createdAt: Date;
@@ -16,11 +15,17 @@ export interface UserCreate {
   email: string;
   name: string;
   role: UserRole;
-  scopeId?: number;
 }
 
 export interface UserPublic {
   id: number;
   name: string;
   role: UserRole;
+}
+
+export interface UserScope {
+  id: number;
+  userId: number;
+  entityType: string;
+  entityId: number;
 }

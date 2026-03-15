@@ -8,14 +8,15 @@ export interface Invitation {
   scopeId: number | null;
   status: InvitationStatus;
   createdBy: number;
-  redeemedBy: number | null;
+  maxUses: number;
+  usedCount: number;
   expiresAt: Date;
   createdAt: Date;
-  redeemedAt: Date | null;
 }
 
 export interface InvitationCreate {
   role: UserRole;
   scopeId?: number;
+  maxUses?: number;
   expiresAt?: Date;
 }

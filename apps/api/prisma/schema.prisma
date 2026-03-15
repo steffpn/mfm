@@ -87,37 +87,36 @@ model NoMatchCallback {
 }
 
 model User {
-  id                  Int          @id @default(autoincrement())
-  email               String       @unique
-  passwordHash        String       @map("password_hash")
+  id                  Int            @id @default(autoincrement())
+  email               String         @unique
+  passwordHash        String         @map("password_hash")
   name                String
   role                String
-  scopeId             Int?         @map("scope_id")
-  isActive            Boolean      @default(true) @map("is_active")
-  lastLoginAt         DateTime?    @map("last_login_at")
-  createdAt           DateTime     @default(now()) @map("created_at")
-  updatedAt           DateTime     @updatedAt @map("updated_at")
+  isActive            Boolean        @default(true) @map("is_active")
+  lastLoginAt         DateTime?      @map("last_login_at")
+  createdAt           DateTime       @default(now()) @map("created_at")
+  updatedAt           DateTime       @updatedAt @map("updated_at")
 
-  invitationsCreated  Invitation[] @relation("InvitationsCreated")
-  invitationRedeemed  Invitation?  @relation("InvitationRedeemed")
+  invitationsCreated  Invitation[]   @relation("InvitationsCreated")
+  scopes              UserScope[]
+  refreshTokens       RefreshToken[]
 
   @@map("users")
 }
 
 model Invitation {
-  id           Int       @id @default(autoincrement())
-  code         String    @unique
-  role         String
-  scopeId      Int?      @map("scope_id")
-  status       String    @default("pending")
-  createdById  Int       @map("created_by_id")
-  redeemedById Int?      @unique @map("redeemed_by_id")
-  expiresAt    DateTime  @map("expires_at")
-  createdAt    DateTime  @default(now()) @map("created_at")
-  redeemedAt   DateTime? @map("redeemed_at")
+  id          Int      @id @default(autoincrement())
+  code        String   @unique
+  role        String
+  scopeId     Int?     @map("scope_id")
+  status      String   @default("pending")
+  createdById Int      @map("created_by_id")
+  maxUses     Int      @default(1) @map("max_uses")
+  usedCount   Int      @default(0) @map("used_count")
+  expiresAt   DateTime @map("expires_at")
+  createdAt   DateTime @default(now()) @map("created_at")
 
-  createdBy    User      @relation("InvitationsCreated", fields: [createdById], references: [id])
-  redeemedBy   User?     @relation("InvitationRedeemed", fields: [redeemedById], references: [id])
+  createdBy   User     @relation("InvitationsCreated", fields: [createdById], references: [id])
 
   @@map("invitations")
 }
@@ -149,6 +148,21 @@ model RefreshToken {
   revokedAt DateTime? @map("revoked_at")
   createdAt DateTime  @default(now()) @map("created_at")
 
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId])
   @@map("refresh_tokens")
+}
+
+model UserScope {
+  id         Int    @id @default(autoincrement())
+  userId     Int    @map("user_id")
+  entityType String @map("entity_type")
+  entityId   Int    @map("entity_id")
+
+  user       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, entityType, entityId])
+  @@index([userId])
+  @@map("user_scopes")
 }
