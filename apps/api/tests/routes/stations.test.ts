@@ -3,13 +3,24 @@ import { server } from "../../src/index.js";
 import { prisma } from "../../src/lib/prisma.js";
 import { createRedisConnection } from "../../src/lib/redis.js";
 import { CHANNELS, type StationEvent } from "../../src/lib/pubsub.js";
+import {
+  createTestAdmin,
+  getAuthTokens,
+  createTestUserWithTokens,
+} from "../helpers/auth.js";
 
 describe("Station CRUD Routes", () => {
   let subscriber: ReturnType<typeof createRedisConnection>;
+  let adminToken: string;
 
   beforeAll(async () => {
     await server.ready();
     subscriber = createRedisConnection();
+
+    // Create admin and get auth token
+    await createTestAdmin(server);
+    const tokens = await getAuthTokens(server, "admin@test.com", "AdminPass123!");
+    adminToken = tokens.accessToken;
   });
 
   beforeEach(async () => {
@@ -21,7 +32,39 @@ describe("Station CRUD Routes", () => {
   afterAll(async () => {
     await prisma.station.deleteMany({});
     subscriber.disconnect();
+    await prisma.refreshToken.deleteMany({});
+    await prisma.userScope.deleteMany({});
+    await prisma.user.deleteMany({});
     await server.close();
+  });
+
+  // --- Auth enforcement ---
+
+  describe("Auth enforcement", () => {
+    it("returns 401 for unauthenticated request", async () => {
+      const response = await server.inject({
+        method: "GET",
+        url: "/api/v1/stations",
+      });
+
+      expect(response.statusCode).toBe(401);
+    });
+
+    it("returns 403 for non-admin authenticated request", async () => {
+      const { accessToken } = await createTestUserWithTokens(
+        server,
+        "ARTIST",
+        "artist-stations@test.com"
+      );
+
+      const response = await server.inject({
+        method: "GET",
+        url: "/api/v1/stations",
+        headers: { authorization: `Bearer ${accessToken}` },
+      });
+
+      expect(response.statusCode).toBe(403);
+    });
   });
 
   // --- POST /api/v1/stations ---
@@ -31,6 +74,7 @@ describe("Station CRUD Routes", () => {
       const response = await server.inject({
         method: "POST",
         url: "/api/v1/stations",
+        headers: { authorization: `Bearer ${adminToken}` },
         payload: {
           name: "Radio Test",
           streamUrl: "http://example.com/stream",
@@ -54,6 +98,7 @@ describe("Station CRUD Routes", () => {
       const response = await server.inject({
         method: "POST",
         url: "/api/v1/stations",
+        headers: { authorization: `Bearer ${adminToken}` },
         payload: {
           name: "Radio Test",
           // missing streamUrl, stationType, and acrcloudStreamId
@@ -67,6 +112,7 @@ describe("Station CRUD Routes", () => {
       const response = await server.inject({
         method: "POST",
         url: "/api/v1/stations",
+        headers: { authorization: `Bearer ${adminToken}` },
         payload: {
           name: "Radio Test",
           streamUrl: "http://example.com/stream",
@@ -82,6 +128,7 @@ describe("Station CRUD Routes", () => {
       const response = await server.inject({
         method: "POST",
         url: "/api/v1/stations",
+        headers: { authorization: `Bearer ${adminToken}` },
         payload: {
           name: "",
           streamUrl: "http://example.com/stream",
@@ -106,6 +153,7 @@ describe("Station CRUD Routes", () => {
       await server.inject({
         method: "POST",
         url: "/api/v1/stations",
+        headers: { authorization: `Bearer ${adminToken}` },
         payload: {
           name: "PubSub Test Station",
           streamUrl: "http://example.com/stream",
@@ -126,6 +174,7 @@ describe("Station CRUD Routes", () => {
       const response = await server.inject({
         method: "POST",
         url: "/api/v1/stations",
+        headers: { authorization: `Bearer ${adminToken}` },
         payload: {
           name: "Radio France",
           streamUrl: "http://example.fr/stream",
@@ -163,6 +212,7 @@ describe("Station CRUD Routes", () => {
       const response = await server.inject({
         method: "POST",
         url: "/api/v1/stations/bulk",
+        headers: { authorization: `Bearer ${adminToken}` },
         payload: stations,
       });
 
@@ -192,6 +242,7 @@ describe("Station CRUD Routes", () => {
       await server.inject({
         method: "POST",
         url: "/api/v1/stations/bulk",
+        headers: { authorization: `Bearer ${adminToken}` },
         payload: [
           {
             name: "Bulk A",
@@ -220,6 +271,7 @@ describe("Station CRUD Routes", () => {
       const response = await server.inject({
         method: "POST",
         url: "/api/v1/stations/bulk",
+        headers: { authorization: `Bearer ${adminToken}` },
         payload: [],
       });
 
@@ -254,6 +306,7 @@ describe("Station CRUD Routes", () => {
       const response = await server.inject({
         method: "GET",
         url: "/api/v1/stations",
+        headers: { authorization: `Bearer ${adminToken}` },
       });
 
       expect(response.statusCode).toBe(200);
@@ -290,6 +343,7 @@ describe("Station CRUD Routes", () => {
       const response = await server.inject({
         method: "GET",
         url: `/api/v1/stations/${station.id}`,
+        headers: { authorization: `Bearer ${adminToken}` },
       });
 
       expect(response.statusCode).toBe(200);
@@ -302,6 +356,7 @@ describe("Station CRUD Routes", () => {
       const response = await server.inject({
         method: "GET",
         url: "/api/v1/stations/99999",
+        headers: { authorization: `Bearer ${adminToken}` },
       });
 
       expect(response.statusCode).toBe(404);
@@ -325,6 +380,7 @@ describe("Station CRUD Routes", () => {
       const response = await server.inject({
         method: "PATCH",
         url: `/api/v1/stations/${station.id}`,
+        headers: { authorization: `Bearer ${adminToken}` },
         payload: {
           streamUrl: "http://example.com/new",
         },
@@ -358,6 +414,7 @@ describe("Station CRUD Routes", () => {
       await server.inject({
         method: "PATCH",
         url: `/api/v1/stations/${station.id}`,
+        headers: { authorization: `Bearer ${adminToken}` },
         payload: {
           streamUrl: "http://example.com/updated",
         },
@@ -375,6 +432,7 @@ describe("Station CRUD Routes", () => {
       const response = await server.inject({
         method: "PATCH",
         url: "/api/v1/stations/99999",
+        headers: { authorization: `Bearer ${adminToken}` },
         payload: {
           name: "Ghost",
         },
@@ -401,6 +459,7 @@ describe("Station CRUD Routes", () => {
       const response = await server.inject({
         method: "DELETE",
         url: `/api/v1/stations/${station.id}`,
+        headers: { authorization: `Bearer ${adminToken}` },
       });
 
       expect(response.statusCode).toBe(200);
@@ -438,6 +497,7 @@ describe("Station CRUD Routes", () => {
       await server.inject({
         method: "DELETE",
         url: `/api/v1/stations/${station.id}`,
+        headers: { authorization: `Bearer ${adminToken}` },
       });
 
       const event = await received;
@@ -451,6 +511,7 @@ describe("Station CRUD Routes", () => {
       const response = await server.inject({
         method: "DELETE",
         url: "/api/v1/stations/99999",
+        headers: { authorization: `Bearer ${adminToken}` },
       });
 
       expect(response.statusCode).toBe(404);
