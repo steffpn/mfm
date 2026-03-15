@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in-progress
-stopped_at: Completed 04-01-PLAN.md
-last_updated: "2026-03-15T00:08:06Z"
-last_activity: 2026-03-15 -- Completed plan 04-01 (Segment Resolver, R2 Client, Snippet Worker)
+stopped_at: Completed 04-02-PLAN.md
+last_updated: "2026-03-15T00:19:04.970Z"
+last_activity: 2026-03-15 -- Completed plan 04-02 (Detection integration, supervisor wiring, snippet URL endpoint)
 progress:
   total_phases: 9
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 12
-  completed_plans: 11
-  percent: 42
+  completed_plans: 12
+  percent: 100
 ---
 
 # Project State
@@ -21,23 +21,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-14)
 
 **Core value:** Artists and labels can see exactly where, when, and how often their music is being played across Romanian radio and TV -- with audio proof.
-**Current focus:** Phase 4: Audio Snippet System -- IN PROGRESS
+**Current focus:** Phase 4: Audio Snippet System -- COMPLETE. Next: Phase 5 (Authentication & User Management)
 
 ## Current Position
 
-Phase: 4 of 9 (Audio Snippet System)
-Plan: 1 of 2 in current phase (complete)
-Status: Plan 04-01 complete. Next: 04-02 (Detection integration, supervisor wiring, snippet URL endpoint)
-Last activity: 2026-03-15 -- Completed plan 04-01 (Segment Resolver, R2 Client, Snippet Worker)
+Phase: 4 of 9 (Audio Snippet System) -- COMPLETE
+Plan: 2 of 2 in current phase (complete)
+Status: Phase 4 complete. All plans finished. Next: Phase 5 (Authentication & User Management)
+Last activity: 2026-03-15 -- Completed plan 04-02 (Detection integration, supervisor wiring, snippet URL endpoint)
 
-Progress: [████▏░░░░░] 42%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 11
+- Total plans completed: 12
 - Average duration: 5 min
-- Total execution time: 1.02 hours
+- Total execution time: 1.12 hours
 
 **By Phase:**
 
@@ -46,10 +46,10 @@ Progress: [████▏░░░░░] 42%
 | 1. Project Foundation | 3/3 | 19 min | 6 min |
 | 2. Stream Recording Infrastructure | 3/3 | 20 min | 7 min |
 | 3. Detection Pipeline | 4/4 | 23 min | 6 min |
-| 4. Audio Snippet System | 1/2 | 4 min | 4 min |
+| 4. Audio Snippet System | 2/2 | 10 min | 5 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-01 (7 min), 03-02 (3 min), 03-03 (3 min), 03-04 (10 min), 04-01 (4 min)
+- Last 5 plans: 03-02 (3 min), 03-03 (3 min), 03-04 (10 min), 04-01 (4 min), 04-02 (6 min)
 - Trend: stable
 
 *Updated after each plan completion*
@@ -63,6 +63,7 @@ Progress: [████▏░░░░░] 42%
 | Phase 03 P03 | 3min | 2 tasks (TDD) | 2 files |
 | Phase 03 P04 | 10min | 2 tasks (auto+checkpoint) | 2 files |
 | Phase 04 P01 | 4min | 2 tasks (TDD) | 8 files |
+| Phase 04 P02 | 6min | 2 tasks (TDD+checkpoint) | 8 files |
 
 ## Accumulated Context
 
@@ -102,6 +103,10 @@ Recent decisions affecting current work:
 - [Phase 04-01]: R2 client lazy validation: when SNIPPETS_ENABLED is false, r2Client is null and functions throw if called, avoiding startup crash
 - [Phase 04-01]: FFmpeg -ss as input option (before -i) for fast seeking combined with re-encoding for sample-accurate extraction
 - [Phase 04-01]: Temp file path uses os.tmpdir() with unique prefix per job to avoid conflicts between concurrent extractions
+- [Phase 04-02]: Snippet queue injected from supervisor to detection worker via optional parameter (no circular deps)
+- [Phase 04-02]: Snippet enqueue is best-effort with try/catch -- errors logged but do not fail detection processing
+- [Phase 04-02]: Snippet worker shutdown ordered after detection worker but before cleanup worker in supervisor sequence
+- [Phase 04-02]: Snippet URL endpoint unauthenticated for now -- auth middleware deferred to Phase 5
 
 ### Pending Todos
 
@@ -115,6 +120,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-15T00:08:06Z
-Stopped at: Completed 04-01-PLAN.md
-Resume file: .planning/phases/04-audio-snippet-system/04-02-PLAN.md
+Last session: 2026-03-15T00:19:04Z
+Stopped at: Completed 04-02-PLAN.md
+Resume file: Phase 4 complete. Next phase: 05-authentication

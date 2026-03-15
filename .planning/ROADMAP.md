@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Project Foundation** - Dev environment, database schema with TimescaleDB, project scaffolding (completed 2026-03-14)
 - [x] **Phase 2: Stream Recording Infrastructure** - FFmpeg process supervisor recording 200+ streams 24/7 (completed 2026-03-15)
 - [x] **Phase 3: Detection Pipeline** - ACRCloud webhook receiver, detection storage, deduplication (completed 2026-03-15)
-- [ ] **Phase 4: Audio Snippet System** - 5-second snippet capture, R2 storage, presigned URL serving
+- [x] **Phase 4: Audio Snippet System** - 5-second snippet capture, R2 storage, presigned URL serving (completed 2026-03-15)
 - [ ] **Phase 5: Authentication & User Management** - Invite-only auth, JWT sessions, RBAC, admin user ops
 - [ ] **Phase 6: Core iOS App & Dashboard** - iOS app with auth flow, dashboard, detection browsing, search, playback
 - [ ] **Phase 7: Live Feed** - Real-time detection stream via WebSocket/SSE with role-based filtering
@@ -87,7 +87,7 @@ Plans:
 
 Plans:
 - [x] 04-01-PLAN.md -- Segment resolver, R2 client, and snippet extraction worker (TDD)
-- [ ] 04-02-PLAN.md -- Detection worker integration, supervisor wiring, snippet URL endpoint
+- [x] 04-02-PLAN.md -- Detection worker integration, supervisor wiring, snippet URL endpoint
 
 ### Phase 5: Authentication & User Management
 **Goal**: Users can access their accounts via invitation and see only data scoped to their role
@@ -173,7 +173,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9
 | 1. Project Foundation | 3/3 | Complete   | 2026-03-14 |
 | 2. Stream Recording Infrastructure | 3/3 | Complete | 2026-03-15 |
 | 3. Detection Pipeline | 4/4 | Complete | 2026-03-15 |
-| 4. Audio Snippet System | 1/2 | In progress | - |
+| 4. Audio Snippet System | 2/2 | Complete   | 2026-03-15 |
 | 5. Authentication & User Management | 0/TBD | Not started | - |
 | 6. Core iOS App & Dashboard | 0/TBD | Not started | - |
 | 7. Live Feed | 0/TBD | Not started | - |
