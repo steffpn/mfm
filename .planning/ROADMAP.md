@@ -86,7 +86,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 04-01-PLAN.md -- Segment resolver, R2 client, and snippet extraction worker (TDD)
+- [x] 04-01-PLAN.md -- Segment resolver, R2 client, and snippet extraction worker (TDD)
 - [ ] 04-02-PLAN.md -- Detection worker integration, supervisor wiring, snippet URL endpoint
 
 ### Phase 5: Authentication & User Management
@@ -173,7 +173,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9
 | 1. Project Foundation | 3/3 | Complete   | 2026-03-14 |
 | 2. Stream Recording Infrastructure | 3/3 | Complete | 2026-03-15 |
 | 3. Detection Pipeline | 4/4 | Complete | 2026-03-15 |
-| 4. Audio Snippet System | 0/2 | Not started | - |
+| 4. Audio Snippet System | 1/2 | In progress | - |
 | 5. Authentication & User Management | 0/TBD | Not started | - |
 | 6. Core iOS App & Dashboard | 0/TBD | Not started | - |
 | 7. Live Feed | 0/TBD | Not started | - |

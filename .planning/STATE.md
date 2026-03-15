@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: completed
-stopped_at: Phase 4 context gathered
-last_updated: "2026-03-14T23:44:55.631Z"
-last_activity: 2026-03-15 -- Completed plan 03-04 (Supervisor Integration)
+status: in-progress
+stopped_at: Completed 04-01-PLAN.md
+last_updated: "2026-03-15T00:08:06Z"
+last_activity: 2026-03-15 -- Completed plan 04-01 (Segment Resolver, R2 Client, Snippet Worker)
 progress:
   total_phases: 9
   completed_phases: 3
-  total_plans: 10
-  completed_plans: 10
-  percent: 38
+  total_plans: 12
+  completed_plans: 11
+  percent: 42
 ---
 
 # Project State
@@ -21,23 +21,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-14)
 
 **Core value:** Artists and labels can see exactly where, when, and how often their music is being played across Romanian radio and TV -- with audio proof.
-**Current focus:** Phase 3: Detection Pipeline -- COMPLETE. Ready for Phase 4.
+**Current focus:** Phase 4: Audio Snippet System -- IN PROGRESS
 
 ## Current Position
 
-Phase: 3 of 9 (Detection Pipeline) -- COMPLETE
-Plan: 4 of 4 in current phase (complete)
-Status: Phase 3 complete. Next: Phase 4 (Audio Snippet System)
-Last activity: 2026-03-15 -- Completed plan 03-04 (Supervisor Integration)
+Phase: 4 of 9 (Audio Snippet System)
+Plan: 1 of 2 in current phase (complete)
+Status: Plan 04-01 complete. Next: 04-02 (Detection integration, supervisor wiring, snippet URL endpoint)
+Last activity: 2026-03-15 -- Completed plan 04-01 (Segment Resolver, R2 Client, Snippet Worker)
 
-Progress: [███▊░░░░░░] 38%
+Progress: [████▏░░░░░] 42%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 10
+- Total plans completed: 11
 - Average duration: 5 min
-- Total execution time: 0.95 hours
+- Total execution time: 1.02 hours
 
 **By Phase:**
 
@@ -46,9 +46,10 @@ Progress: [███▊░░░░░░] 38%
 | 1. Project Foundation | 3/3 | 19 min | 6 min |
 | 2. Stream Recording Infrastructure | 3/3 | 20 min | 7 min |
 | 3. Detection Pipeline | 4/4 | 23 min | 6 min |
+| 4. Audio Snippet System | 1/2 | 4 min | 4 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-03 (7 min), 03-01 (7 min), 03-02 (3 min), 03-03 (3 min), 03-04 (10 min)
+- Last 5 plans: 03-01 (7 min), 03-02 (3 min), 03-03 (3 min), 03-04 (10 min), 04-01 (4 min)
 - Trend: stable
 
 *Updated after each plan completion*
@@ -61,6 +62,7 @@ Progress: [███▊░░░░░░] 38%
 | Phase 03 P02 | 3min | 1 task (TDD) | 5 files |
 | Phase 03 P03 | 3min | 2 tasks (TDD) | 2 files |
 | Phase 03 P04 | 10min | 2 tasks (auto+checkpoint) | 2 files |
+| Phase 04 P01 | 4min | 2 tasks (TDD) | 8 files |
 
 ## Accumulated Context
 
@@ -96,6 +98,10 @@ Recent decisions affecting current work:
 - [Phase 03-03]: BullMQ worker concurrency set to 10 for I/O-bound DB writes per research recommendation
 - [Phase 03-04]: No-match cleanup co-located with existing cleanup worker on shared BullMQ queue per research recommendation
 - [Phase 03-04]: Detection worker shutdown ordered before cleanup worker in supervisor shutdown sequence
+- [Phase 04-01]: Segment mtime-based timestamp resolution: file mtime is source of truth for segment time range (not filename numbering) due to segment_wrap cycling
+- [Phase 04-01]: R2 client lazy validation: when SNIPPETS_ENABLED is false, r2Client is null and functions throw if called, avoiding startup crash
+- [Phase 04-01]: FFmpeg -ss as input option (before -i) for fast seeking combined with re-encoding for sample-accurate extraction
+- [Phase 04-01]: Temp file path uses os.tmpdir() with unique prefix per job to avoid conflicts between concurrent extractions
 
 ### Pending Todos
 
@@ -109,6 +115,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-14T23:44:55.629Z
-Stopped at: Phase 4 context gathered
-Resume file: .planning/phases/04-audio-snippet-system/04-CONTEXT.md
+Last session: 2026-03-15T00:08:06Z
+Stopped at: Completed 04-01-PLAN.md
+Resume file: .planning/phases/04-audio-snippet-system/04-02-PLAN.md
