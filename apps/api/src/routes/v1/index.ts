@@ -5,6 +5,9 @@ const v1Routes: FastifyPluginAsync = async (fastify) => {
   fastify.register(import("./webhooks/acrcloud/index.js"), {
     prefix: "/webhooks/acrcloud",
   });
+  fastify.register(import("./airplay-events/index.js"), {
+    prefix: "/airplay-events",
+  });
 };
 
 export default v1Routes;

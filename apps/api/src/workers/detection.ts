@@ -24,6 +24,10 @@ import pino from "pino";
 
 const logger = pino({ name: "detection-worker" });
 
+// ---- Module-scope snippet queue reference ----
+// Set by startDetectionWorker when a snippet queue is injected from the supervisor.
+let _snippetQueue: Queue | null = null;
+
 // ---- Types ----
 
 interface AcrCloudMusicResult {
@@ -218,7 +222,7 @@ export async function processCallback(
       });
     } else {
       // Create new AirplayEvent
-      await prisma.airplayEvent.create({
+      const newEvent = await prisma.airplayEvent.create({
         data: {
           stationId: station.id,
           startedAt: detectedAt,
@@ -230,6 +234,22 @@ export async function processCallback(
           confidence,
         },
       });
+
+      // Enqueue snippet extraction job (best-effort, non-blocking)
+      if (process.env.SNIPPETS_ENABLED === "true" && _snippetQueue) {
+        try {
+          await _snippetQueue.add("extract", {
+            airplayEventId: newEvent.id,
+            stationId: station.id,
+            detectedAt: detectedAt.toISOString(),
+          });
+        } catch (err) {
+          logger.error(
+            { airplayEventId: newEvent.id, err },
+            "Failed to enqueue snippet extraction job",
+          );
+        }
+      }
     }
   }
 
@@ -252,10 +272,14 @@ export async function processCallback(
  *
  * @returns Object with queue and worker references for graceful shutdown
  */
-export async function startDetectionWorker(): Promise<{
+export async function startDetectionWorker(options?: {
+  snippetQueue?: Queue;
+}): Promise<{
   queue: Queue;
   worker: Worker;
 }> {
+  // Store snippet queue reference for processCallback to use
+  _snippetQueue = options?.snippetQueue ?? null;
   const queue = new Queue(DETECTION_QUEUE, {
     connection: createRedisConnection(),
   });
