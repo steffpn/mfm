@@ -115,11 +115,11 @@ describe("Authentication & Authorization Middleware", () => {
         },
       });
 
-      // Sign with negative expiry to create expired token
-      const token = app.jwt.sign({ sub: user.id }, { expiresIn: "0s" });
-
-      // Small delay to ensure token is expired
-      await new Promise((r) => setTimeout(r, 1100));
+      // Sign with explicit past expiry using iat and exp claims
+      const now = Math.floor(Date.now() / 1000);
+      const token = app.jwt.sign(
+        { sub: user.id, iat: now - 3600, exp: now - 1800 }
+      );
 
       const response = await app.inject({
         method: "GET",

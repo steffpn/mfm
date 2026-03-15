@@ -6,5 +6,6 @@ export default defineConfig({
     environment: "node",
     include: ["tests/**/*.test.ts"],
     testTimeout: 30000, // DB operations can be slow
+    fileParallelism: false, // Tests share a DB -- run files sequentially
   },
 });
