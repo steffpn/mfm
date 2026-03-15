@@ -9,6 +9,12 @@ const v1Routes: FastifyPluginAsync = async (fastify) => {
   fastify.register(import("./airplay-events/index.js"), {
     prefix: "/airplay-events",
   });
+  fastify.register(import("./admin/invitations/index.js"), {
+    prefix: "/admin/invitations",
+  });
+  fastify.register(import("./admin/users/index.js"), {
+    prefix: "/admin/users",
+  });
 };
 
 export default v1Routes;
