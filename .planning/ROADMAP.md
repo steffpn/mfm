@@ -19,7 +19,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 5: Authentication & User Management** - Invite-only auth, JWT sessions, RBAC, admin user ops (completed 2026-03-15)
 - [x] **Phase 6: Core iOS App & Dashboard** - iOS app with auth flow, dashboard, detection browsing, search, playback (completed 2026-03-16)
 - [x] **Phase 7: Live Feed** - Real-time detection stream via SSE with role-based filtering (completed 2026-03-16)
-- [ ] **Phase 8: Export & Reporting** - CSV data export and branded PDF report generation
+- [x] **Phase 8: Export & Reporting** - CSV data export and branded PDF report generation (completed 2026-03-16)
 - [ ] **Phase 9: Notifications & Station Intelligence** - Digest push notifications and competitor station views
 
 ## Phase Details
@@ -136,8 +136,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 07-01-PLAN.md -- Backend SSE infrastructure: Redis pub/sub publish, SSE route with JWT auth + filtering + backfill (TDD)
-- [ ] 07-02-PLAN.md -- iOS Live Feed tab: SSEClient, LiveFeedViewModel, LiveFeedView with connection lifecycle
+- [x] 07-01-PLAN.md -- Backend SSE infrastructure: Redis pub/sub publish, SSE route with JWT auth + filtering + backfill (TDD)
+- [x] 07-02-PLAN.md -- iOS Live Feed tab: SSEClient, LiveFeedViewModel, LiveFeedView with connection lifecycle
 
 ### Phase 8: Export & Reporting
 **Goal**: Users can extract their airplay data for use outside the app
@@ -150,8 +150,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 08-01-PLAN.md -- Backend CSV and PDF export endpoints with shared query builder (TDD)
-- [ ] 08-02-PLAN.md -- iOS export UI: ExportService, ExportViewModel, toolbar menu with share sheet
+- [x] 08-01-PLAN.md -- Backend CSV and PDF export endpoints with shared query builder (TDD)
+- [x] 08-02-PLAN.md -- iOS export UI: ExportService, ExportViewModel, toolbar menu with share sheet
 
 ### Phase 9: Notifications & Station Intelligence
 **Goal**: Users receive periodic airplay summaries and station-role users can monitor competitor programming
@@ -183,5 +183,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9
 | 5. Authentication & User Management | 4/4 | Complete   | 2026-03-15 |
 | 6. Core iOS App & Dashboard | 5/5 | Complete | 2026-03-16 |
 | 7. Live Feed | 2/2 | Complete   | 2026-03-16 |
-| 8. Export & Reporting | 0/2 | Not started | - |
+| 8. Export & Reporting | 2/2 | Complete | 2026-03-16 |
 | 9. Notifications & Station Intelligence | 0/TBD | Not started | - |
