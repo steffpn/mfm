@@ -4,6 +4,7 @@ import SwiftUI
 /// Shows paginated airplay events with search bar, filter chips, and infinite scroll.
 struct DetectionsView: View {
     @State private var viewModel = DetectionsViewModel()
+    @Environment(AudioPlayerManager.self) private var audioPlayer
 
     var body: some View {
         NavigationStack {
@@ -67,9 +68,7 @@ struct DetectionsView: View {
         ScrollView {
             LazyVStack(spacing: 0) {
                 ForEach(Array(viewModel.detections.enumerated()), id: \.element.id) { index, event in
-                    DetectionRowView(event: event) {
-                        // Play action placeholder -- wired in Plan 05
-                    }
+                    DetectionRowView(event: event)
 
                     Divider()
                         .padding(.leading)
@@ -92,6 +91,7 @@ struct DetectionsView: View {
                         .padding()
                 }
             }
+            .animation(.easeInOut, value: audioPlayer.currentlyPlayingId)
         }
     }
 
@@ -119,4 +119,5 @@ struct DetectionsView: View {
 
 #Preview {
     DetectionsView()
+        .environment(AudioPlayerManager())
 }

@@ -4,6 +4,7 @@ import SwiftUI
 /// Same infinite scroll pattern as DetectionsView but with search-first UX.
 struct SearchView: View {
     @State private var viewModel = DetectionsViewModel()
+    @Environment(AudioPlayerManager.self) private var audioPlayer
 
     var body: some View {
         NavigationStack {
@@ -106,9 +107,7 @@ struct SearchView: View {
         ScrollView {
             LazyVStack(spacing: 0) {
                 ForEach(Array(viewModel.detections.enumerated()), id: \.element.id) { index, event in
-                    DetectionRowView(event: event) {
-                        // Play action placeholder -- wired in Plan 05
-                    }
+                    DetectionRowView(event: event)
 
                     Divider()
                         .padding(.leading)
@@ -131,10 +130,12 @@ struct SearchView: View {
                         .padding()
                 }
             }
+            .animation(.easeInOut, value: audioPlayer.currentlyPlayingId)
         }
     }
 }
 
 #Preview {
     SearchView()
+        .environment(AudioPlayerManager())
 }
