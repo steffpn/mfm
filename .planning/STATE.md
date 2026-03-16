@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in-progress
-stopped_at: Completed 06-01-PLAN.md
-last_updated: "2026-03-16T07:39:29Z"
-last_activity: 2026-03-16 -- Completed plan 06-01 (Dashboard & Airplay Events API)
+stopped_at: Completed 06-02-PLAN.md
+last_updated: "2026-03-16T07:59:00Z"
+last_activity: 2026-03-16 -- Completed plan 06-02 (iOS Auth Flow)
 progress:
   total_phases: 9
   completed_phases: 5
   total_plans: 21
-  completed_plans: 17
-  percent: 81
+  completed_plans: 18
+  percent: 86
 ---
 
 # Project State
@@ -26,18 +26,18 @@ See: .planning/PROJECT.md (updated 2026-03-14)
 ## Current Position
 
 Phase: 6 of 9 (Core iOS App & Dashboard)
-Plan: 1 of 5 in current phase (complete)
-Status: Plan 06-01 complete. Next: 06-02
-Last activity: 2026-03-16 -- Completed plan 06-01 (Dashboard & Airplay Events API)
+Plan: 2 of 5 in current phase (complete)
+Status: Plan 06-02 complete. Next: 06-03
+Last activity: 2026-03-16 -- Completed plan 06-02 (iOS Auth Flow)
 
-Progress: [████████░░] 81%
+Progress: [█████████░] 86%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 17
+- Total plans completed: 18
 - Average duration: 6 min
-- Total execution time: 1.68 hours
+- Total execution time: 1.93 hours
 
 **By Phase:**
 
@@ -48,10 +48,10 @@ Progress: [████████░░] 81%
 | 3. Detection Pipeline | 4/4 | 23 min | 6 min |
 | 4. Audio Snippet System | 2/2 | 10 min | 5 min |
 | 5. Authentication & User Management | 4/4 | 24 min | 6 min |
-| 6. Core iOS App & Dashboard | 1/5 | 10 min | 10 min |
+| 6. Core iOS App & Dashboard | 2/5 | 25 min | 13 min |
 
 **Recent Trend:**
-- Last 5 plans: 05-01 (8 min), 05-02 (5 min), 05-03 (6 min), 05-04 (5 min), 06-01 (10 min)
+- Last 5 plans: 05-02 (5 min), 05-03 (6 min), 05-04 (5 min), 06-01 (10 min), 06-02 (15 min)
 - Trend: stable
 
 *Updated after each plan completion*
@@ -71,6 +71,7 @@ Progress: [████████░░] 81%
 | Phase 05 P03 | 6min | 2 tasks (TDD) | 14 files |
 | Phase 05 P04 | 5min | 2 tasks (auto+checkpoint) | 4 files |
 | Phase 06 P01 | 10min | 2 tasks (TDD) | 9 files |
+| Phase 06 P02 | 15min | 3 tasks (auto+checkpoint) | 16 files |
 
 ## Accumulated Context
 
@@ -133,6 +134,10 @@ Recent decisions affecting current work:
 - [Phase 06-01]: Prisma.join() for parameterized IN clauses with station ID arrays (SQL injection safe)
 - [Phase 06-01]: Cursor pagination uses id < cursor with descending order, fetch limit+1 to detect hasMore
 - [Phase 06-01]: ISRC search uses case-insensitive equals (not contains) since ISRCs are exact codes
+- [Phase 06-02]: @Observable macro (not ObservableObject/@Published) with .environment() for iOS 17+ modern SwiftUI
+- [Phase 06-02]: AuthManager is @MainActor @Observable class for UI-safe property updates
+- [Phase 06-02]: Single-flight refresh pattern coalesces concurrent 401 retries into one refresh call
+- [Phase 06-02]: Auth-gated root view: ContentView checks isAuthenticated to show MainTabView or auth flow
 
 ### Pending Todos
 
@@ -146,6 +151,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-16T07:39:29Z
-Stopped at: Completed 06-01-PLAN.md
-Resume file: .planning/phases/06-core-ios-app-dashboard/06-02-PLAN.md
+Last session: 2026-03-16T07:59:00Z
+Stopped at: Completed 06-02-PLAN.md
+Resume file: .planning/phases/06-core-ios-app-dashboard/06-03-PLAN.md
