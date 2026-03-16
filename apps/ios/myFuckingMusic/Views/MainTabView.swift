@@ -2,7 +2,7 @@ import SwiftUI
 
 /// Main tab bar navigation.
 /// Shown when user is authenticated.
-/// Tabs: Dashboard, Detections, Search, Settings.
+/// Tabs: Dashboard, Live, Detections, Search, Settings.
 struct MainTabView: View {
     var body: some View {
         TabView {
@@ -13,6 +13,12 @@ struct MainTabView: View {
             .tabItem {
                 Label("Dashboard", systemImage: "house.fill")
             }
+
+            // Live feed tab (real-time SSE detections)
+            LiveFeedView()
+                .tabItem {
+                    Label("Live", systemImage: "waveform")
+                }
 
             // Detections tab
             DetectionsView()
