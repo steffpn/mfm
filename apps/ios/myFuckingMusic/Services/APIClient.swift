@@ -40,6 +40,11 @@ actor APIClient {
         self.baseURL = url
     }
 
+    /// Expose the base URL for services that need direct access (e.g., SSEClient).
+    func getBaseURL() -> URL {
+        return baseURL
+    }
+
     /// Make an authenticated request. Injects Bearer token and retries once on 401.
     func request<T: Decodable & Sendable>(_ endpoint: APIEndpoint) async throws -> T {
         let urlRequest = try buildRequest(for: endpoint, includeAuth: endpoint.requiresAuth)
