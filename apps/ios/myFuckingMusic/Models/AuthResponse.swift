@@ -31,3 +31,9 @@ struct ErrorResponse: Codable, Sendable {
 struct LogoutResponse: Codable, Sendable {
     let message: String
 }
+
+/// Response from GET /airplay-events/:id/snippet
+struct SnippetUrlResponse: Codable, Sendable {
+    let url: String
+    let expiresIn: Int
+}

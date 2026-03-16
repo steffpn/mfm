@@ -41,6 +41,8 @@
 		A10000010000000000000032 /* DetectionRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000032 /* DetectionRowView.swift */; };
 		A10000010000000000000033 /* FilterChipsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000033 /* FilterChipsView.swift */; };
 		A10000010000000000000034 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000034 /* SearchView.swift */; };
+		A10000010000000000000035 /* AudioPlayerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000035 /* AudioPlayerManager.swift */; };
+		A10000010000000000000036 /* SnippetPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000036 /* SnippetPlayerView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -78,6 +80,8 @@
 		A20000010000000000000032 /* DetectionRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetectionRowView.swift; sourceTree = "<group>"; };
 		A20000010000000000000033 /* FilterChipsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterChipsView.swift; sourceTree = "<group>"; };
 		A20000010000000000000034 /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
+		A20000010000000000000035 /* AudioPlayerManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayerManager.swift; sourceTree = "<group>"; };
+		A20000010000000000000036 /* SnippetPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnippetPlayerView.swift; sourceTree = "<group>"; };
 		A30000010000000000000001 /* myFuckingMusic.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = myFuckingMusic.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -199,6 +203,7 @@
 				A20000010000000000000031 /* DetectionsView.swift */,
 				A20000010000000000000032 /* DetectionRowView.swift */,
 				A20000010000000000000033 /* FilterChipsView.swift */,
+				A20000010000000000000036 /* SnippetPlayerView.swift */,
 			);
 			path = Detections;
 			sourceTree = "<group>";
@@ -218,6 +223,7 @@
 				A20000010000000000000009 /* APIEndpoint.swift */,
 				A20000010000000000000010 /* KeychainHelper.swift */,
 				A20000010000000000000011 /* AuthManager.swift */,
+				A20000010000000000000035 /* AudioPlayerManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -336,6 +342,8 @@
 				A10000010000000000000032 /* DetectionRowView.swift in Sources */,
 				A10000010000000000000033 /* FilterChipsView.swift in Sources */,
 				A10000010000000000000034 /* SearchView.swift in Sources */,
+				A10000010000000000000035 /* AudioPlayerManager.swift in Sources */,
+				A10000010000000000000036 /* SnippetPlayerView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
