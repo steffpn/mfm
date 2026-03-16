@@ -20,7 +20,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 6: Core iOS App & Dashboard** - iOS app with auth flow, dashboard, detection browsing, search, playback (completed 2026-03-16)
 - [x] **Phase 7: Live Feed** - Real-time detection stream via SSE with role-based filtering (completed 2026-03-16)
 - [x] **Phase 8: Export & Reporting** - CSV data export and branded PDF report generation (completed 2026-03-16)
-- [ ] **Phase 9: Notifications & Station Intelligence** - Digest push notifications and competitor station views
+- [x] **Phase 9: Notifications & Station Intelligence** - Digest push notifications and competitor station views (completed 2026-03-16)
 
 ## Phase Details
 
@@ -186,4 +186,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9
 | 6. Core iOS App & Dashboard | 5/5 | Complete | 2026-03-16 |
 | 7. Live Feed | 2/2 | Complete   | 2026-03-16 |
 | 8. Export & Reporting | 2/2 | Complete | 2026-03-16 |
-| 9. Notifications & Station Intelligence | 3/4 | In Progress|  |
+| 9. Notifications & Station Intelligence | 4/4 | Complete   | 2026-03-16 |

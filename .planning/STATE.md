@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: in-progress
-stopped_at: Completed 09-03-PLAN.md
-last_updated: "2026-03-16T22:32:12.949Z"
-last_activity: 2026-03-17 -- Completed plan 09-03 (iOS Push Notification Integration)
+status: completed
+stopped_at: Completed 09-04-PLAN.md
+last_updated: "2026-03-16T22:35:24.104Z"
+last_activity: 2026-03-17 -- Completed plan 09-04 (iOS Competitor Station Intelligence UI)
 progress:
   total_phases: 9
-  completed_phases: 8
+  completed_phases: 9
   total_plans: 29
-  completed_plans: 28
-  percent: 97
+  completed_plans: 29
+  percent: 100
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-14)
 
 **Core value:** Artists and labels can see exactly where, when, and how often their music is being played across Romanian radio and TV -- with audio proof.
-**Current focus:** Phase 9: Notifications & Station Intelligence -- in progress.
+**Current focus:** Phase 9: Notifications & Station Intelligence -- COMPLETE. All 29 plans across 9 phases done.
 
 ## Current Position
 
-Phase: 9 of 9 (Notifications & Station Intelligence) -- IN PROGRESS
-Plan: 3 of 4 in current phase (plans 09-01, 09-02, 09-03 complete)
-Status: Plan 09-03 complete -- iOS push notification integration with APNS, preferences UI, digest deep linking
-Last activity: 2026-03-17 -- Completed plan 09-03 (iOS Push Notification Integration)
+Phase: 9 of 9 (Notifications & Station Intelligence) -- COMPLETE
+Plan: 4 of 4 in current phase (all plans complete)
+Status: Plan 09-04 complete -- iOS competitor station intelligence UI with cards, detail, picker, role-gated Settings
+Last activity: 2026-03-17 -- Completed plan 09-04 (iOS Competitor Station Intelligence UI)
 
-Progress: [██████████] 97%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -83,6 +83,7 @@ Progress: [██████████] 97%
 | Phase 08 P02 | 5min | 2 tasks (auto+checkpoint) | 5 files |
 | Phase 09 P01 | 20min | 2 tasks (TDD) | 12 files |
 | Phase 09 P03 | 12min | 3 tasks | 10 files |
+| Phase 09 P04 | 6min | 3 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -185,6 +186,9 @@ Recent decisions affecting current work:
 - [Phase 09]: UIApplicationDelegateAdaptor for APNS token handling -- SwiftUI lifecycle doesn't natively support didRegisterForRemoteNotifications
 - [Phase 09]: NotificationCenter.default post for deep link routing from AppDelegate to SwiftUI view hierarchy
 - [Phase 09]: DigestDetailView falls back to dashboard summary endpoints since dedicated digest endpoint is backend-optional
+- [Phase 09-04]: CodingKeys enum on AddWatchedStationRequest to encode stationId as station_id for API compatibility
+- [Phase 09-04]: GET /stations opened to any authenticated user (write ops remain ADMIN-only) via per-route preHandler instead of plugin-level hook
+- [Phase 09-04]: POST /competitors/watched body uses snake_case station_id to match iOS Swift Codable encoding
 
 ### Pending Todos
 
@@ -198,6 +202,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-16T22:32:12.943Z
-Stopped at: Completed 09-03-PLAN.md
+Last session: 2026-03-16T22:35:24.101Z
+Stopped at: Completed 09-04-PLAN.md
 Resume file: None
