@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in-progress
-stopped_at: Completed 06-03-PLAN.md
-last_updated: "2026-03-16T08:11:06Z"
-last_activity: 2026-03-16 -- Completed plan 06-03 (Dashboard Tab)
+stopped_at: Completed 06-04-PLAN.md
+last_updated: "2026-03-16T08:14:00Z"
+last_activity: 2026-03-16 -- Completed plan 06-04 (Detections & Search)
 progress:
   total_phases: 9
   completed_phases: 5
   total_plans: 21
-  completed_plans: 19
-  percent: 90
+  completed_plans: 20
+  percent: 95
 ---
 
 # Project State
@@ -26,18 +26,18 @@ See: .planning/PROJECT.md (updated 2026-03-14)
 ## Current Position
 
 Phase: 6 of 9 (Core iOS App & Dashboard)
-Plan: 3 of 5 in current phase (complete)
-Status: Plan 06-03 complete. Next: 06-04
-Last activity: 2026-03-16 -- Completed plan 06-03 (Dashboard Tab)
+Plan: 4 of 5 in current phase (complete)
+Status: Plan 06-04 complete. Next: 06-05
+Last activity: 2026-03-16 -- Completed plan 06-04 (Detections & Search)
 
-Progress: [█████████░] 90%
+Progress: [█████████░] 95%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 19
+- Total plans completed: 20
 - Average duration: 6 min
-- Total execution time: 2.03 hours
+- Total execution time: 2.17 hours
 
 **By Phase:**
 
@@ -48,10 +48,10 @@ Progress: [█████████░] 90%
 | 3. Detection Pipeline | 4/4 | 23 min | 6 min |
 | 4. Audio Snippet System | 2/2 | 10 min | 5 min |
 | 5. Authentication & User Management | 4/4 | 24 min | 6 min |
-| 6. Core iOS App & Dashboard | 3/5 | 31 min | 10 min |
+| 6. Core iOS App & Dashboard | 4/5 | 39 min | 10 min |
 
 **Recent Trend:**
-- Last 5 plans: 05-03 (6 min), 05-04 (5 min), 06-01 (10 min), 06-02 (15 min), 06-03 (6 min)
+- Last 5 plans: 05-04 (5 min), 06-01 (10 min), 06-02 (15 min), 06-03 (6 min), 06-04 (8 min)
 - Trend: stable
 
 *Updated after each plan completion*
@@ -73,6 +73,7 @@ Progress: [█████████░] 90%
 | Phase 06 P01 | 10min | 2 tasks (TDD) | 9 files |
 | Phase 06 P02 | 15min | 3 tasks (auto+checkpoint) | 16 files |
 | Phase 06 P03 | 6min | 1 task (auto) | 9 files |
+| Phase 06 P04 | 8min | 2 tasks (auto) | 10 files |
 
 ## Accumulated Context
 
@@ -143,6 +144,11 @@ Recent decisions affecting current work:
 - [Phase 06-03]: ISO8601DateFormatter with fallback (with/without fractional seconds) for robust bucket date parsing
 - [Phase 06-03]: .task(id: selectedPeriod) pattern triggers automatic reload when segmented control changes period
 - [Phase 06-03]: async let parallel fetching for dashboard summary and top stations endpoints
+- [Phase 06-04]: StationInfo nested struct added to AirplayEvent (optional) for included station name from API
+- [Phase 06-04]: Search debounce via SwiftUI .task(id: searchQuery) with 300ms sleep -- auto-cancels previous tasks
+- [Phase 06-04]: Infinite scroll triggers loadMore when item is within last 5 items via onAppear on Color.clear
+- [Phase 06-04]: FilterChipsView uses sheet presentations for date range and station selection
+- [Phase 06-04]: SearchView only triggers API calls when searchQuery is non-empty (no initial load)
 
 ### Pending Todos
 
@@ -156,6 +162,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-16T08:11:06Z
-Stopped at: Completed 06-03-PLAN.md
-Resume file: .planning/phases/06-core-ios-app-dashboard/06-04-PLAN.md
+Last session: 2026-03-16T08:14:00Z
+Stopped at: Completed 06-04-PLAN.md
+Resume file: .planning/phases/06-core-ios-app-dashboard/06-05-PLAN.md
