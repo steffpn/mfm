@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: in-progress
-stopped_at: Completed 06-04-PLAN.md
-last_updated: "2026-03-16T08:14:00Z"
-last_activity: 2026-03-16 -- Completed plan 06-04 (Detections & Search)
+status: completed
+stopped_at: Completed 06-05-PLAN.md (Phase 6 complete)
+last_updated: "2026-03-16T08:34:32Z"
+last_activity: 2026-03-16 -- Completed plan 06-05 (Snippet Playback) -- Phase 6 complete
 progress:
   total_phases: 9
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 21
-  completed_plans: 20
-  percent: 95
+  completed_plans: 21
+  percent: 100
 ---
 
 # Project State
@@ -21,23 +21,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-14)
 
 **Core value:** Artists and labels can see exactly where, when, and how often their music is being played across Romanian radio and TV -- with audio proof.
-**Current focus:** Phase 6: Core iOS App & Dashboard -- IN PROGRESS
+**Current focus:** Phase 6: Core iOS App & Dashboard -- COMPLETE. Next: Phase 7
 
 ## Current Position
 
-Phase: 6 of 9 (Core iOS App & Dashboard)
-Plan: 4 of 5 in current phase (complete)
-Status: Plan 06-04 complete. Next: 06-05
-Last activity: 2026-03-16 -- Completed plan 06-04 (Detections & Search)
+Phase: 6 of 9 (Core iOS App & Dashboard) -- COMPLETE
+Plan: 5 of 5 in current phase (complete)
+Status: Phase 6 complete. All 5 plans delivered. Next: Phase 7 (Live Feed)
+Last activity: 2026-03-16 -- Completed plan 06-05 (Snippet Playback) -- Phase 6 complete
 
-Progress: [█████████░] 95%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 20
+- Total plans completed: 21
 - Average duration: 6 min
-- Total execution time: 2.17 hours
+- Total execution time: 2.37 hours
 
 **By Phase:**
 
@@ -48,10 +48,10 @@ Progress: [█████████░] 95%
 | 3. Detection Pipeline | 4/4 | 23 min | 6 min |
 | 4. Audio Snippet System | 2/2 | 10 min | 5 min |
 | 5. Authentication & User Management | 4/4 | 24 min | 6 min |
-| 6. Core iOS App & Dashboard | 4/5 | 39 min | 10 min |
+| 6. Core iOS App & Dashboard | 5/5 | 51 min | 10 min |
 
 **Recent Trend:**
-- Last 5 plans: 05-04 (5 min), 06-01 (10 min), 06-02 (15 min), 06-03 (6 min), 06-04 (8 min)
+- Last 5 plans: 06-01 (10 min), 06-02 (15 min), 06-03 (6 min), 06-04 (8 min), 06-05 (12 min)
 - Trend: stable
 
 *Updated after each plan completion*
@@ -74,6 +74,7 @@ Progress: [█████████░] 95%
 | Phase 06 P02 | 15min | 3 tasks (auto+checkpoint) | 16 files |
 | Phase 06 P03 | 6min | 1 task (auto) | 9 files |
 | Phase 06 P04 | 8min | 2 tasks (auto) | 10 files |
+| Phase 06 P05 | 12min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -149,6 +150,9 @@ Recent decisions affecting current work:
 - [Phase 06-04]: Infinite scroll triggers loadMore when item is within last 5 items via onAppear on Color.clear
 - [Phase 06-04]: FilterChipsView uses sheet presentations for date range and station selection
 - [Phase 06-04]: SearchView only triggers API calls when searchQuery is non-empty (no initial load)
+- [Phase 06-05]: AVPlayer-based playback with periodic time observer (0.1s interval) for progress tracking
+- [Phase 06-05]: AudioPlayerManager injected via .environment() at app root for single shared instance across all tabs
+- [Phase 06-05]: SnippetPlayerView uses ProgressView with .scaleEffect(y: 0.5) for thin horizontal progress bar
 
 ### Pending Todos
 
@@ -162,6 +166,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-16T08:14:00Z
-Stopped at: Completed 06-04-PLAN.md
-Resume file: .planning/phases/06-core-ios-app-dashboard/06-05-PLAN.md
+Last session: 2026-03-16T08:34:32Z
+Stopped at: Completed 06-05-PLAN.md (Phase 6 complete)
+Resume file: Phase 7 planning needed (07-01-PLAN.md)

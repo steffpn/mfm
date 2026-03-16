@@ -51,8 +51,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Playback
 
-- [ ] **PLAY-01**: User can tap a detection to play the 5-second audio snippet in-app
-- [ ] **PLAY-02**: Snippet plays without leaving the current view (inline player)
+- [x] **PLAY-01**: User can tap a detection to play the 5-second audio snippet in-app
+- [x] **PLAY-02**: Snippet plays without leaving the current view (inline player)
 
 ### Export & Reporting
 
@@ -138,8 +138,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DASH-05 | Phase 6: Core iOS App & Dashboard | Complete |
 | LIVE-01 | Phase 7: Live Feed | Pending |
 | LIVE-02 | Phase 7: Live Feed | Pending |
-| PLAY-01 | Phase 6: Core iOS App & Dashboard | Pending |
-| PLAY-02 | Phase 6: Core iOS App & Dashboard | Pending |
+| PLAY-01 | Phase 6: Core iOS App & Dashboard | Complete |
+| PLAY-02 | Phase 6: Core iOS App & Dashboard | Complete |
 | EXPT-01 | Phase 8: Export & Reporting | Pending |
 | EXPT-02 | Phase 8: Export & Reporting | Pending |
 | NOTF-01 | Phase 9: Notifications & Station Intelligence | Pending |
