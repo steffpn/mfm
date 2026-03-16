@@ -61,9 +61,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Notifications
 
-- [ ] **NOTF-01**: User receives daily digest push notification with summary stats
-- [ ] **NOTF-02**: User receives weekly digest push notification with summary stats
-- [ ] **NOTF-03**: User can configure notification preferences (daily/weekly/off)
+- [x] **NOTF-01**: User receives daily digest push notification with summary stats
+- [x] **NOTF-02**: User receives weekly digest push notification with summary stats
+- [x] **NOTF-03**: User can configure notification preferences (daily/weekly/off)
 
 ### Station Intelligence
 
@@ -142,9 +142,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PLAY-02 | Phase 6: Core iOS App & Dashboard | Complete |
 | EXPT-01 | Phase 8: Export & Reporting | Complete |
 | EXPT-02 | Phase 8: Export & Reporting | Complete |
-| NOTF-01 | Phase 9: Notifications & Station Intelligence | Pending |
-| NOTF-02 | Phase 9: Notifications & Station Intelligence | Pending |
-| NOTF-03 | Phase 9: Notifications & Station Intelligence | Pending |
+| NOTF-01 | Phase 9: Notifications & Station Intelligence | Complete |
+| NOTF-02 | Phase 9: Notifications & Station Intelligence | Complete |
+| NOTF-03 | Phase 9: Notifications & Station Intelligence | Complete |
 | STIN-01 | Phase 9: Notifications & Station Intelligence | Complete |
 | STIN-02 | Phase 9: Notifications & Station Intelligence | Complete |
 

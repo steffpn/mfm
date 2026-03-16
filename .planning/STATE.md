@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: completed
-stopped_at: Phase 9 context gathered
-last_updated: "2026-03-16T20:16:00.918Z"
-last_activity: 2026-03-16 -- Completed plan 08-02 (iOS Export UI)
+status: in-progress
+stopped_at: Completed 09-01-PLAN.md
+last_updated: "2026-03-16T21:29:00Z"
+last_activity: 2026-03-16 -- Completed plan 09-01 (Backend Notification System)
 progress:
   total_phases: 9
   completed_phases: 8
-  total_plans: 25
-  completed_plans: 25
-  percent: 100
+  total_plans: 29
+  completed_plans: 26
+  percent: 90
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-14)
 
 **Core value:** Artists and labels can see exactly where, when, and how often their music is being played across Romanian radio and TV -- with audio proof.
-**Current focus:** Phase 8: Export & Reporting -- complete. Phase 9 pending.
+**Current focus:** Phase 9: Notifications & Station Intelligence -- in progress.
 
 ## Current Position
 
-Phase: 8 of 9 (Export & Reporting) -- COMPLETE
-Plan: 2 of 2 in current phase (all plans done)
-Status: Phase 8 complete -- CSV/PDF export backend + iOS export UI with share sheet
-Last activity: 2026-03-16 -- Completed plan 08-02 (iOS Export UI)
+Phase: 9 of 9 (Notifications & Station Intelligence) -- IN PROGRESS
+Plan: 1 of 4 in current phase (plan 09-01 complete)
+Status: Plan 09-01 complete -- Backend notification system with APNS, digest worker, preferences API
+Last activity: 2026-03-16 -- Completed plan 09-01 (Backend Notification System)
 
-Progress: [██████████] 100%
+Progress: [█████████ ] 90%
 
 ## Performance Metrics
 
@@ -81,6 +81,7 @@ Progress: [██████████] 100%
 | Phase 07 P02 | 5min | 2 tasks (auto+checkpoint) | 7 files |
 | Phase 08 P01 | 17min | 2 tasks (TDD) | 10 files |
 | Phase 08 P02 | 5min | 2 tasks (auto+checkpoint) | 5 files |
+| Phase 09 P01 | 20min | 2 tasks (TDD) | 12 files |
 
 ## Accumulated Context
 
@@ -172,6 +173,10 @@ Recent decisions affecting current work:
 - [Phase 08-01]: Lazy import pattern for heavy modules (pdfkit) -- dynamic import() in handler avoids blocking server startup
 - [Phase 08-01]: CSV injection prevention: cell values starting with =, +, -, @, \t, \r prefixed with single quote
 - [Phase 08-02]: UIActivityViewController via UIViewControllerRepresentable instead of ShareLink -- file URL only available after async download, not at compile time
+- [Phase 09-01]: apns2 library for direct APNS HTTP/2 push delivery (no Firebase intermediary needed for iOS-only app)
+- [Phase 09-01]: BullMQ upsertJobScheduler with pattern+tz parameters for timezone-aware cron scheduling in Europe/Bucharest
+- [Phase 09-01]: Device token upsert reassigns token to new user on conflict (handles device switching between accounts)
+- [Phase 09-01]: ANY($1::int[]) for station ID array filtering in raw SQL instead of Prisma.join()
 - [Phase 09-02]: Plugin-level addHook for authenticate+requireRole('STATION') on competitor routes
 - [Phase 09-02]: DISTINCT ON with subquery for top song per station -- PostgreSQL-specific but efficient single-pass
 - [Phase 09-02]: Conditional SUM CASE for cross-station song comparison in a single query with HAVING clause
@@ -189,6 +194,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-16T21:23:06Z
-Stopped at: Completed 09-02-PLAN.md
-Resume file: .planning/phases/09-notifications-station-intelligence/09-02-SUMMARY.md
+Last session: 2026-03-16T21:29:00Z
+Stopped at: Completed 09-01-PLAN.md
+Resume file: .planning/phases/09-notifications-station-intelligence/09-01-SUMMARY.md
