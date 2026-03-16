@@ -14,8 +14,15 @@
 
 import { Worker, Queue } from "bullmq";
 import { createRedisConnection } from "../lib/redis.js";
+import { redis } from "../lib/redis.js";
 import { prisma } from "../lib/prisma.js";
 import { normalizeTitle, normalizeArtist } from "../lib/normalization.js";
+import {
+  CHANNELS,
+  BACKFILL_KEY,
+  BACKFILL_MAX,
+  type LiveDetectionEvent,
+} from "../lib/pubsub.js";
 import {
   DETECTION_GAP_TOLERANCE_MS,
   DETECTION_QUEUE,
@@ -249,6 +256,36 @@ export async function processCallback(
             "Failed to enqueue snippet extraction job",
           );
         }
+      }
+
+      // Publish live detection event to Redis pub/sub (best-effort, non-blocking)
+      try {
+        const liveEvent: LiveDetectionEvent = {
+          id: newEvent.id,
+          stationId: newEvent.stationId,
+          songTitle: newEvent.songTitle,
+          artistName,
+          isrc,
+          snippetUrl: newEvent.snippetUrl ?? null,
+          stationName: station.name,
+          startedAt: detectedAt.toISOString(),
+          publishedAt: new Date().toISOString(),
+        };
+        await redis.publish(
+          CHANNELS.DETECTION_NEW,
+          JSON.stringify(liveEvent),
+        );
+        await redis.zadd(
+          BACKFILL_KEY,
+          newEvent.id,
+          JSON.stringify(liveEvent),
+        );
+        await redis.zremrangebyrank(BACKFILL_KEY, 0, -(BACKFILL_MAX + 1));
+      } catch (err) {
+        logger.error(
+          { err, airplayEventId: newEvent.id },
+          "Failed to publish live detection event",
+        );
       }
     }
   }

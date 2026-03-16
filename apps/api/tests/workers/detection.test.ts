@@ -51,8 +51,17 @@ vi.mock("bullmq", () => ({
 }));
 
 // ---- Redis mock ----
+const mockRedisPublish = vi.fn().mockResolvedValue(0);
+const mockRedisZadd = vi.fn().mockResolvedValue(1);
+const mockRedisZremrangebyrank = vi.fn().mockResolvedValue(0);
+
 vi.mock("../../src/lib/redis.js", () => ({
   createRedisConnection: vi.fn().mockReturnValue({}),
+  redis: {
+    publish: (...args: unknown[]) => mockRedisPublish(...args),
+    zadd: (...args: unknown[]) => mockRedisZadd(...args),
+    zremrangebyrank: (...args: unknown[]) => mockRedisZremrangebyrank(...args),
+  },
 }));
 
 // ---- Pino logger mock ----
@@ -137,6 +146,9 @@ describe("Detection Worker", () => {
     mockLoggerInfo.mockClear();
     mockLoggerDebug.mockClear();
     mockWorkerOn.mockClear();
+    mockRedisPublish.mockClear();
+    mockRedisZadd.mockClear();
+    mockRedisZremrangebyrank.mockClear();
 
     // Default mocks: station found, no existing airplay event
     mockStationFindFirst.mockResolvedValue(MOCK_STATION);
@@ -652,6 +664,125 @@ describe("Detection Worker", () => {
       expect(mockSnippetQueueAdd).not.toHaveBeenCalled();
 
       delete process.env.SNIPPETS_ENABLED;
+    });
+  });
+
+  // ============================================
+  // Live feed event publishing
+  // ============================================
+  describe("Live feed event publishing", () => {
+    it("publishes LiveDetectionEvent to Redis pub/sub after creating a NEW AirplayEvent", async () => {
+      mockAirplayEventFindFirst.mockResolvedValue(null);
+      mockAirplayEventCreate.mockResolvedValue({
+        id: 100,
+        stationId: 1,
+        songTitle: "Doua Inimi",
+        artistName: "Irina Rimes",
+        isrc: "ROA231600001",
+        snippetUrl: null,
+        startedAt: new Date("2026-03-15 14:30:00"),
+        endedAt: new Date("2026-03-15 14:30:00"),
+        playCount: 1,
+        confidence: 0.85,
+      });
+
+      await processCallback(buildCallback());
+
+      expect(mockRedisPublish).toHaveBeenCalledWith(
+        "detection:new",
+        expect.stringContaining('"id":100'),
+      );
+      // Verify the JSON payload has all required fields
+      const publishedJson = JSON.parse(mockRedisPublish.mock.calls[0][1]);
+      expect(publishedJson).toMatchObject({
+        id: 100,
+        stationId: 1,
+        songTitle: "Doua Inimi",
+        artistName: "Irina Rimes",
+        isrc: "ROA231600001",
+        snippetUrl: null,
+        stationName: "Test Radio",
+        startedAt: expect.any(String),
+        publishedAt: expect.any(String),
+      });
+    });
+
+    it("stores event in Redis backfill sorted set after creating a NEW AirplayEvent", async () => {
+      mockAirplayEventFindFirst.mockResolvedValue(null);
+      mockAirplayEventCreate.mockResolvedValue({
+        id: 101,
+        stationId: 1,
+        songTitle: "Doua Inimi",
+        artistName: "Irina Rimes",
+        isrc: "ROA231600001",
+        snippetUrl: null,
+        startedAt: new Date("2026-03-15 14:30:00"),
+        endedAt: new Date("2026-03-15 14:30:00"),
+        playCount: 1,
+        confidence: 0.85,
+      });
+
+      await processCallback(buildCallback());
+
+      expect(mockRedisZadd).toHaveBeenCalledWith(
+        "live-feed:recent",
+        101,
+        expect.any(String),
+      );
+      expect(mockRedisZremrangebyrank).toHaveBeenCalledWith(
+        "live-feed:recent",
+        0,
+        -201,
+      );
+    });
+
+    it("does NOT publish to Redis when EXTENDING an existing AirplayEvent", async () => {
+      const existingEvent = {
+        id: 10,
+        stationId: 1,
+        startedAt: new Date("2026-03-15 14:30:00"),
+        endedAt: new Date("2026-03-15 14:30:00"),
+        songTitle: "Doua Inimi",
+        artistName: "Irina Rimes",
+        isrc: "ROA231600001",
+        playCount: 1,
+        confidence: 0.85,
+      };
+      mockAirplayEventFindFirst.mockResolvedValue(existingEvent);
+
+      await processCallback(buildCallback());
+
+      expect(mockRedisPublish).not.toHaveBeenCalled();
+      expect(mockRedisZadd).not.toHaveBeenCalled();
+    });
+
+    it("catches and logs Redis publish failure without failing detection processing", async () => {
+      mockAirplayEventFindFirst.mockResolvedValue(null);
+      mockAirplayEventCreate.mockResolvedValue({
+        id: 102,
+        stationId: 1,
+        songTitle: "Doua Inimi",
+        artistName: "Irina Rimes",
+        isrc: "ROA231600001",
+        snippetUrl: null,
+        startedAt: new Date("2026-03-15 14:30:00"),
+        endedAt: new Date("2026-03-15 14:30:00"),
+        playCount: 1,
+        confidence: 0.85,
+      });
+      mockRedisPublish.mockRejectedValueOnce(new Error("Redis connection lost"));
+
+      // Should NOT throw
+      await expect(processCallback(buildCallback())).resolves.toBeUndefined();
+
+      // Error should be logged
+      expect(mockLoggerError).toHaveBeenCalledWith(
+        expect.objectContaining({ airplayEventId: 102 }),
+        expect.stringContaining("Failed to publish live detection event"),
+      );
+
+      // Station lastHeartbeat should still be updated (processing continues)
+      expect(mockStationUpdate).toHaveBeenCalled();
     });
   });
 
