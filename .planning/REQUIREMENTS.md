@@ -67,8 +67,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Station Intelligence
 
-- [ ] **STIN-01**: Station-role user can view what competitor stations are playing
-- [ ] **STIN-02**: Station-role user can see top songs on competitor stations
+- [x] **STIN-01**: Station-role user can view what competitor stations are playing
+- [x] **STIN-02**: Station-role user can see top songs on competitor stations
 
 ## v2 Requirements
 
@@ -145,8 +145,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | NOTF-01 | Phase 9: Notifications & Station Intelligence | Pending |
 | NOTF-02 | Phase 9: Notifications & Station Intelligence | Pending |
 | NOTF-03 | Phase 9: Notifications & Station Intelligence | Pending |
-| STIN-01 | Phase 9: Notifications & Station Intelligence | Pending |
-| STIN-02 | Phase 9: Notifications & Station Intelligence | Pending |
+| STIN-01 | Phase 9: Notifications & Station Intelligence | Complete |
+| STIN-02 | Phase 9: Notifications & Station Intelligence | Complete |
 
 **Coverage:**
 - v1 requirements: 33 total

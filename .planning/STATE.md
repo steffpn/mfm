@@ -172,6 +172,10 @@ Recent decisions affecting current work:
 - [Phase 08-01]: Lazy import pattern for heavy modules (pdfkit) -- dynamic import() in handler avoids blocking server startup
 - [Phase 08-01]: CSV injection prevention: cell values starting with =, +, -, @, \t, \r prefixed with single quote
 - [Phase 08-02]: UIActivityViewController via UIViewControllerRepresentable instead of ShareLink -- file URL only available after async download, not at compile time
+- [Phase 09-02]: Plugin-level addHook for authenticate+requireRole('STATION') on competitor routes
+- [Phase 09-02]: DISTINCT ON with subquery for top song per station -- PostgreSQL-specific but efficient single-pass
+- [Phase 09-02]: Conditional SUM CASE for cross-station song comparison in a single query with HAVING clause
+- [Phase 09-02]: Prisma P2002 error code catch for duplicate watched station (409 Conflict)
 
 ### Pending Todos
 
@@ -185,6 +189,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-16T20:16:00.905Z
-Stopped at: Phase 9 context gathered
-Resume file: .planning/phases/09-notifications-station-intelligence/09-CONTEXT.md
+Last session: 2026-03-16T21:23:06Z
+Stopped at: Completed 09-02-PLAN.md
+Resume file: .planning/phases/09-notifications-station-intelligence/09-02-SUMMARY.md
