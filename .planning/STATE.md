@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in-progress
-stopped_at: Completed 09-01-PLAN.md
-last_updated: "2026-03-16T21:29:00Z"
-last_activity: 2026-03-16 -- Completed plan 09-01 (Backend Notification System)
+stopped_at: Completed 09-03-PLAN.md
+last_updated: "2026-03-16T22:32:12.949Z"
+last_activity: 2026-03-17 -- Completed plan 09-03 (iOS Push Notification Integration)
 progress:
   total_phases: 9
   completed_phases: 8
   total_plans: 29
-  completed_plans: 26
-  percent: 90
+  completed_plans: 28
+  percent: 97
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-03-14)
 ## Current Position
 
 Phase: 9 of 9 (Notifications & Station Intelligence) -- IN PROGRESS
-Plan: 1 of 4 in current phase (plan 09-01 complete)
-Status: Plan 09-01 complete -- Backend notification system with APNS, digest worker, preferences API
-Last activity: 2026-03-16 -- Completed plan 09-01 (Backend Notification System)
+Plan: 3 of 4 in current phase (plans 09-01, 09-02, 09-03 complete)
+Status: Plan 09-03 complete -- iOS push notification integration with APNS, preferences UI, digest deep linking
+Last activity: 2026-03-17 -- Completed plan 09-03 (iOS Push Notification Integration)
 
-Progress: [█████████ ] 90%
+Progress: [██████████] 97%
 
 ## Performance Metrics
 
@@ -82,6 +82,7 @@ Progress: [█████████ ] 90%
 | Phase 08 P01 | 17min | 2 tasks (TDD) | 10 files |
 | Phase 08 P02 | 5min | 2 tasks (auto+checkpoint) | 5 files |
 | Phase 09 P01 | 20min | 2 tasks (TDD) | 12 files |
+| Phase 09 P03 | 12min | 3 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -181,6 +182,9 @@ Recent decisions affecting current work:
 - [Phase 09-02]: DISTINCT ON with subquery for top song per station -- PostgreSQL-specific but efficient single-pass
 - [Phase 09-02]: Conditional SUM CASE for cross-station song comparison in a single query with HAVING clause
 - [Phase 09-02]: Prisma P2002 error code catch for duplicate watched station (409 Conflict)
+- [Phase 09]: UIApplicationDelegateAdaptor for APNS token handling -- SwiftUI lifecycle doesn't natively support didRegisterForRemoteNotifications
+- [Phase 09]: NotificationCenter.default post for deep link routing from AppDelegate to SwiftUI view hierarchy
+- [Phase 09]: DigestDetailView falls back to dashboard summary endpoints since dedicated digest endpoint is backend-optional
 
 ### Pending Todos
 
@@ -194,6 +198,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-16T21:29:00Z
-Stopped at: Completed 09-01-PLAN.md
-Resume file: .planning/phases/09-notifications-station-intelligence/09-01-SUMMARY.md
+Last session: 2026-03-16T22:32:12.943Z
+Stopped at: Completed 09-03-PLAN.md
+Resume file: None
