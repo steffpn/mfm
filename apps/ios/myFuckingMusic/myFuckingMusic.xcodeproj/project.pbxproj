@@ -37,6 +37,10 @@
 		A10000010000000000000028 /* TopStationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000028 /* TopStationsView.swift */; };
 		A10000010000000000000029 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000029 /* LoadingView.swift */; };
 		A10000010000000000000030 /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000030 /* ErrorView.swift */; };
+		A10000010000000000000031 /* DetectionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000031 /* DetectionsView.swift */; };
+		A10000010000000000000032 /* DetectionRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000032 /* DetectionRowView.swift */; };
+		A10000010000000000000033 /* FilterChipsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000033 /* FilterChipsView.swift */; };
+		A10000010000000000000034 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000034 /* SearchView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -70,6 +74,10 @@
 		A20000010000000000000028 /* TopStationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopStationsView.swift; sourceTree = "<group>"; };
 		A20000010000000000000029 /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
 		A20000010000000000000030 /* ErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorView.swift; sourceTree = "<group>"; };
+		A20000010000000000000031 /* DetectionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetectionsView.swift; sourceTree = "<group>"; };
+		A20000010000000000000032 /* DetectionRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetectionRowView.swift; sourceTree = "<group>"; };
+		A20000010000000000000033 /* FilterChipsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterChipsView.swift; sourceTree = "<group>"; };
+		A20000010000000000000034 /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
 		A30000010000000000000001 /* myFuckingMusic.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = myFuckingMusic.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -137,6 +145,8 @@
 			children = (
 				A50000010000000000000010 /* Auth */,
 				A50000010000000000000012 /* Dashboard */,
+				A50000010000000000000014 /* Detections */,
+				A50000010000000000000015 /* Search */,
 				A50000010000000000000011 /* Settings */,
 				A50000010000000000000013 /* Shared */,
 				A20000010000000000000018 /* MainTabView.swift */,
@@ -181,6 +191,24 @@
 				A20000010000000000000030 /* ErrorView.swift */,
 			);
 			path = Shared;
+			sourceTree = "<group>";
+		};
+		A50000010000000000000014 /* Detections */ = {
+			isa = PBXGroup;
+			children = (
+				A20000010000000000000031 /* DetectionsView.swift */,
+				A20000010000000000000032 /* DetectionRowView.swift */,
+				A20000010000000000000033 /* FilterChipsView.swift */,
+			);
+			path = Detections;
+			sourceTree = "<group>";
+		};
+		A50000010000000000000015 /* Search */ = {
+			isa = PBXGroup;
+			children = (
+				A20000010000000000000034 /* SearchView.swift */,
+			);
+			path = Search;
 			sourceTree = "<group>";
 		};
 		A50000010000000000000006 /* Services */ = {
@@ -304,6 +332,10 @@
 				A10000010000000000000028 /* TopStationsView.swift in Sources */,
 				A10000010000000000000029 /* LoadingView.swift in Sources */,
 				A10000010000000000000030 /* ErrorView.swift in Sources */,
+				A10000010000000000000031 /* DetectionsView.swift in Sources */,
+				A10000010000000000000032 /* DetectionRowView.swift in Sources */,
+				A10000010000000000000033 /* FilterChipsView.swift in Sources */,
+				A10000010000000000000034 /* SearchView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
