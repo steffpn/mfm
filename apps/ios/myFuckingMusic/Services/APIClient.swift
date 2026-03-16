@@ -7,7 +7,12 @@ actor APIClient {
 
     private let session: URLSession
     private let decoder: JSONDecoder
+    private let encoder: JSONEncoder
     private var baseURL: URL
+
+    /// Reference to AuthManager for token refresh on 401.
+    /// Set via configure() to avoid circular init.
+    private var authManager: AuthManager?
 
     private init() {
         let config = URLSessionConfiguration.default
@@ -19,30 +24,71 @@ actor APIClient {
         decoder.dateDecodingStrategy = .iso8601
         self.decoder = decoder
 
+        let encoder = JSONEncoder()
+        encoder.keyEncodingStrategy = .convertToSnakeCase
+        self.encoder = encoder
+
         // Default to localhost for development
         self.baseURL = URL(string: "http://localhost:3000/api/v1")!
+    }
+
+    func configure(authManager: AuthManager) {
+        self.authManager = authManager
     }
 
     func setBaseURL(_ url: URL) {
         self.baseURL = url
     }
 
-    func request<T: Decodable>(_ endpoint: APIEndpoint) async throws -> T {
-        let url = baseURL.appendingPathComponent(endpoint.path)
-        var request = URLRequest(url: url)
-        request.httpMethod = endpoint.method.rawValue
+    /// Make an authenticated request. Injects Bearer token and retries once on 401.
+    func request<T: Decodable & Sendable>(_ endpoint: APIEndpoint) async throws -> T {
+        let urlRequest = try buildRequest(for: endpoint, includeAuth: endpoint.requiresAuth)
 
-        if let body = endpoint.body {
-            request.httpBody = body
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        let (data, response) = try await session.data(for: urlRequest)
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.invalidResponse
         }
 
-        // Auth token will be added in Phase 5
-        // if let token = TokenStorage.accessToken {
-        //     request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        // }
+        // On 401: attempt token refresh and retry once
+        if httpResponse.statusCode == 401, endpoint.requiresAuth {
+            if let authManager {
+                do {
+                    _ = try await authManager.refreshAccessToken()
 
-        let (data, response) = try await session.data(for: request)
+                    // Retry with new token
+                    let retryRequest = try buildRequest(for: endpoint, includeAuth: true)
+                    let (retryData, retryResponse) = try await session.data(for: retryRequest)
+
+                    guard let retryHttp = retryResponse as? HTTPURLResponse else {
+                        throw APIError.invalidResponse
+                    }
+
+                    guard (200...299).contains(retryHttp.statusCode) else {
+                        throw APIError.httpError(statusCode: retryHttp.statusCode, data: retryData)
+                    }
+
+                    return try decoder.decode(T.self, from: retryData)
+                } catch {
+                    // Refresh failed -- throw the original 401
+                    throw APIError.httpError(statusCode: 401, data: data)
+                }
+            }
+        }
+
+        guard (200...299).contains(httpResponse.statusCode) else {
+            throw APIError.httpError(statusCode: httpResponse.statusCode, data: data)
+        }
+
+        return try decoder.decode(T.self, from: data)
+    }
+
+    /// Make a request without auth header injection or 401 retry.
+    /// Used for token refresh endpoint to avoid circular refresh loops.
+    func requestWithoutAuth<T: Decodable & Sendable>(_ endpoint: APIEndpoint) async throws -> T {
+        let urlRequest = try buildRequest(for: endpoint, includeAuth: false)
+
+        let (data, response) = try await session.data(for: urlRequest)
 
         guard let httpResponse = response as? HTTPURLResponse else {
             throw APIError.invalidResponse
@@ -53,6 +99,50 @@ actor APIClient {
         }
 
         return try decoder.decode(T.self, from: data)
+    }
+
+    /// Build a URLRequest for the given endpoint.
+    private func buildRequest(for endpoint: APIEndpoint, includeAuth: Bool) throws -> URLRequest {
+        var components = URLComponents(
+            url: baseURL.appendingPathComponent(endpoint.path),
+            resolvingAgainstBaseURL: false
+        )!
+
+        if let queryItems = endpoint.queryItems {
+            components.queryItems = queryItems
+        }
+
+        guard let url = components.url else {
+            throw APIError.invalidResponse
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = endpoint.method.rawValue
+
+        if let body = endpoint.body {
+            request.httpBody = body
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        }
+
+        // Inject auth token if required
+        if includeAuth, let token = KeychainHelper.read(key: "accessToken") {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+
+        return request
+    }
+
+    /// Raw request returning Data and HTTPURLResponse for callers needing custom handling.
+    func requestRaw(_ endpoint: APIEndpoint) async throws -> (Data, HTTPURLResponse) {
+        let urlRequest = try buildRequest(for: endpoint, includeAuth: endpoint.requiresAuth)
+
+        let (data, response) = try await session.data(for: urlRequest)
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.invalidResponse
+        }
+
+        return (data, httpResponse)
     }
 }
 
@@ -69,7 +159,11 @@ enum APIError: Error, LocalizedError, Sendable {
         switch self {
         case .invalidResponse:
             return "Invalid server response"
-        case .httpError(let code, _):
+        case .httpError(let code, let data):
+            // Try to extract error message from response body
+            if let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: data) {
+                return errorResponse.error
+            }
             return "HTTP error: \(code)"
         case .decodingError(let error):
             return "Decoding error: \(error.localizedDescription)"
