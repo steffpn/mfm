@@ -26,14 +26,17 @@
     "@sinclair/typebox": "^0.34.48",
     "argon2": "^0.44.0",
     "bullmq": "^5.71.0",
+    "csv-stringify": "^6.6.0",
     "dotenv": "^16.4.0",
     "fastify": "^5.8.0",
     "ioredis": "^5.4.0",
+    "pdfmake": "^0.3.6",
     "pg": "^8.13.0",
     "pino": "^10.3.0"
   },
   "devDependencies": {
     "@myfuckingmusic/tsconfig": "workspace:*",
+    "@types/pdfmake": "^0.3.2",
     "@types/pg": "^8.11.0",
     "prisma": "^7.3.0",
     "tsx": "^4.19.0",
