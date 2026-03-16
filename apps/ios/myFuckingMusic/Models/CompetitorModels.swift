@@ -72,4 +72,8 @@ struct CompetitorComparison: Codable, Sendable, Identifiable {
 /// Request body for POST /competitors/watched
 struct AddWatchedStationRequest: Encodable {
     let stationId: Int
+
+    enum CodingKeys: String, CodingKey {
+        case stationId = "station_id"
+    }
 }

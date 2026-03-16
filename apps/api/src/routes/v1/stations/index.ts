@@ -17,13 +17,29 @@ import { authenticate } from "../../../middleware/authenticate.js";
 import { requireRole } from "../../../middleware/authorize.js";
 
 const stationRoutes: FastifyPluginAsync = async (fastify) => {
-  // All station routes require admin authentication
+  // All station routes require authentication
   fastify.addHook("preHandler", authenticate);
-  fastify.addHook("preHandler", requireRole("ADMIN"));
+
+  // GET / - List all stations (any authenticated user)
+  fastify.get("/", listStations);
+
+  // GET /:id - Get single station (any authenticated user)
+  fastify.get(
+    "/:id",
+    {
+      schema: {
+        params: StationParamsSchema,
+      },
+    },
+    getStation,
+  );
+
+  // Write operations require ADMIN role
   // POST / - Create a single station
   fastify.post(
     "/",
     {
+      preHandler: requireRole("ADMIN"),
       schema: {
         body: StationCreateSchema,
       },
@@ -35,6 +51,7 @@ const stationRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.post(
     "/bulk",
     {
+      preHandler: requireRole("ADMIN"),
       schema: {
         body: StationBulkCreateSchema,
       },
@@ -42,24 +59,11 @@ const stationRoutes: FastifyPluginAsync = async (fastify) => {
     createStationsBulk,
   );
 
-  // GET / - List all stations
-  fastify.get("/", listStations);
-
-  // GET /:id - Get single station
-  fastify.get(
-    "/:id",
-    {
-      schema: {
-        params: StationParamsSchema,
-      },
-    },
-    getStation,
-  );
-
   // PATCH /:id - Update station
   fastify.patch(
     "/:id",
     {
+      preHandler: requireRole("ADMIN"),
       schema: {
         params: StationParamsSchema,
         body: StationUpdateSchema,
@@ -72,6 +76,7 @@ const stationRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.delete(
     "/:id",
     {
+      preHandler: requireRole("ADMIN"),
       schema: {
         params: StationParamsSchema,
       },

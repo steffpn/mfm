@@ -3,7 +3,7 @@ import { Type, type Static } from "@sinclair/typebox";
 // --- Request Schemas ---
 
 export const AddWatchedStationBodySchema = Type.Object({
-  stationId: Type.Number(),
+  station_id: Type.Number(),
 });
 
 export type AddWatchedStationBody = Static<typeof AddWatchedStationBodySchema>;
