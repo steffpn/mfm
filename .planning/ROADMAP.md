@@ -147,10 +147,11 @@ Plans:
   1. User can export their current filtered detection view as a downloadable CSV file
   2. User can generate a branded PDF airplay report for a selected date range
   3. Exported data respects role-based access (users only export data they can see)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 08-01: TBD
+- [ ] 08-01-PLAN.md -- Backend CSV and PDF export endpoints with shared query builder (TDD)
+- [ ] 08-02-PLAN.md -- iOS export UI: ExportService, ExportViewModel, toolbar menu with share sheet
 
 ### Phase 9: Notifications & Station Intelligence
 **Goal**: Users receive periodic airplay summaries and station-role users can monitor competitor programming
@@ -182,5 +183,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9
 | 5. Authentication & User Management | 4/4 | Complete   | 2026-03-15 |
 | 6. Core iOS App & Dashboard | 5/5 | Complete | 2026-03-16 |
 | 7. Live Feed | 2/2 | Complete   | 2026-03-16 |
-| 8. Export & Reporting | 0/TBD | Not started | - |
+| 8. Export & Reporting | 0/2 | Not started | - |
 | 9. Notifications & Station Intelligence | 0/TBD | Not started | - |
