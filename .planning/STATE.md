@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in-progress
-stopped_at: Completed 06-02-PLAN.md
-last_updated: "2026-03-16T07:59:00Z"
-last_activity: 2026-03-16 -- Completed plan 06-02 (iOS Auth Flow)
+stopped_at: Completed 06-03-PLAN.md
+last_updated: "2026-03-16T08:11:06Z"
+last_activity: 2026-03-16 -- Completed plan 06-03 (Dashboard Tab)
 progress:
   total_phases: 9
   completed_phases: 5
   total_plans: 21
-  completed_plans: 18
-  percent: 86
+  completed_plans: 19
+  percent: 90
 ---
 
 # Project State
@@ -26,18 +26,18 @@ See: .planning/PROJECT.md (updated 2026-03-14)
 ## Current Position
 
 Phase: 6 of 9 (Core iOS App & Dashboard)
-Plan: 2 of 5 in current phase (complete)
-Status: Plan 06-02 complete. Next: 06-03
-Last activity: 2026-03-16 -- Completed plan 06-02 (iOS Auth Flow)
+Plan: 3 of 5 in current phase (complete)
+Status: Plan 06-03 complete. Next: 06-04
+Last activity: 2026-03-16 -- Completed plan 06-03 (Dashboard Tab)
 
-Progress: [█████████░] 86%
+Progress: [█████████░] 90%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 18
+- Total plans completed: 19
 - Average duration: 6 min
-- Total execution time: 1.93 hours
+- Total execution time: 2.03 hours
 
 **By Phase:**
 
@@ -48,10 +48,10 @@ Progress: [█████████░] 86%
 | 3. Detection Pipeline | 4/4 | 23 min | 6 min |
 | 4. Audio Snippet System | 2/2 | 10 min | 5 min |
 | 5. Authentication & User Management | 4/4 | 24 min | 6 min |
-| 6. Core iOS App & Dashboard | 2/5 | 25 min | 13 min |
+| 6. Core iOS App & Dashboard | 3/5 | 31 min | 10 min |
 
 **Recent Trend:**
-- Last 5 plans: 05-02 (5 min), 05-03 (6 min), 05-04 (5 min), 06-01 (10 min), 06-02 (15 min)
+- Last 5 plans: 05-03 (6 min), 05-04 (5 min), 06-01 (10 min), 06-02 (15 min), 06-03 (6 min)
 - Trend: stable
 
 *Updated after each plan completion*
@@ -72,6 +72,7 @@ Progress: [█████████░] 86%
 | Phase 05 P04 | 5min | 2 tasks (auto+checkpoint) | 4 files |
 | Phase 06 P01 | 10min | 2 tasks (TDD) | 9 files |
 | Phase 06 P02 | 15min | 3 tasks (auto+checkpoint) | 16 files |
+| Phase 06 P03 | 6min | 1 task (auto) | 9 files |
 
 ## Accumulated Context
 
@@ -138,6 +139,10 @@ Recent decisions affecting current work:
 - [Phase 06-02]: AuthManager is @MainActor @Observable class for UI-safe property updates
 - [Phase 06-02]: Single-flight refresh pattern coalesces concurrent 401 retries into one refresh call
 - [Phase 06-02]: Auth-gated root view: ContentView checks isAuthenticated to show MainTabView or auth flow
+- [Phase 06-03]: Swift Charts framework for play count trend (BarMark vertical) and top stations (BarMark horizontal) -- no third-party chart library
+- [Phase 06-03]: ISO8601DateFormatter with fallback (with/without fractional seconds) for robust bucket date parsing
+- [Phase 06-03]: .task(id: selectedPeriod) pattern triggers automatic reload when segmented control changes period
+- [Phase 06-03]: async let parallel fetching for dashboard summary and top stations endpoints
 
 ### Pending Todos
 
@@ -151,6 +156,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-16T07:59:00Z
-Stopped at: Completed 06-02-PLAN.md
-Resume file: .planning/phases/06-core-ios-app-dashboard/06-03-PLAN.md
+Last session: 2026-03-16T08:11:06Z
+Stopped at: Completed 06-03-PLAN.md
+Resume file: .planning/phases/06-core-ios-app-dashboard/06-04-PLAN.md
