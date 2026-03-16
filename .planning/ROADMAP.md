@@ -163,11 +163,13 @@ Plans:
   3. User can configure their notification preferences (daily only, weekly only, both, or off)
   4. Station-role user can view what songs competitor stations are playing
   5. Station-role user can see top songs on competitor stations ranked by play count
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 09-01: TBD
-- [ ] 09-02: TBD
+- [ ] 09-01-PLAN.md -- Backend notification system: schema migration, APNS client, digest worker, preferences API (TDD)
+- [ ] 09-02-PLAN.md -- Backend competitor intelligence: WatchedStation schema, competitor CRUD + aggregation API (TDD)
+- [ ] 09-03-PLAN.md -- iOS notifications: APNS registration, preferences UI, digest detail view with deep linking
+- [ ] 09-04-PLAN.md -- iOS competitors: competitor list cards, station detail drill-down, station picker
 
 ## Progress
 
@@ -184,4 +186,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9
 | 6. Core iOS App & Dashboard | 5/5 | Complete | 2026-03-16 |
 | 7. Live Feed | 2/2 | Complete   | 2026-03-16 |
 | 8. Export & Reporting | 2/2 | Complete | 2026-03-16 |
-| 9. Notifications & Station Intelligence | 0/TBD | Not started | - |
+| 9. Notifications & Station Intelligence | 0/4 | Not started | - |
