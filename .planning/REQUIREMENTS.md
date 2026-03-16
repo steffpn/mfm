@@ -56,8 +56,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Export & Reporting
 
-- [ ] **EXPT-01**: User can export filtered detection data as CSV
-- [ ] **EXPT-02**: User can generate branded PDF airplay report for a date range
+- [x] **EXPT-01**: User can export filtered detection data as CSV
+- [x] **EXPT-02**: User can generate branded PDF airplay report for a date range
 
 ### Notifications
 
@@ -140,8 +140,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | LIVE-02 | Phase 7: Live Feed | Complete |
 | PLAY-01 | Phase 6: Core iOS App & Dashboard | Complete |
 | PLAY-02 | Phase 6: Core iOS App & Dashboard | Complete |
-| EXPT-01 | Phase 8: Export & Reporting | Pending |
-| EXPT-02 | Phase 8: Export & Reporting | Pending |
+| EXPT-01 | Phase 8: Export & Reporting | Complete |
+| EXPT-02 | Phase 8: Export & Reporting | Complete |
 | NOTF-01 | Phase 9: Notifications & Station Intelligence | Pending |
 | NOTF-02 | Phase 9: Notifications & Station Intelligence | Pending |
 | NOTF-03 | Phase 9: Notifications & Station Intelligence | Pending |
