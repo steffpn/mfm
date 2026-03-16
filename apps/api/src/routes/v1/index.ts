@@ -18,6 +18,9 @@ const v1Routes: FastifyPluginAsync = async (fastify) => {
   fastify.register(import("./dashboard/index.js"), {
     prefix: "/dashboard",
   });
+  fastify.register(import("./live-feed/index.js"), {
+    prefix: "/live-feed",
+  });
 };
 
 export default v1Routes;
