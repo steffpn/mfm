@@ -16,9 +16,11 @@ final class LiveFeedViewModel {
     private let maxEvents = 50
     private var disconnectTask: Task<Void, Never>?
     private var connectTask: Task<Void, Never>?
+    private var retryCount = 0
+    private let maxRetries = 5
 
     enum ConnectionState: Sendable {
-        case connected, disconnected, reconnecting
+        case connecting, connected, disconnected, reconnecting
     }
 
     // MARK: - Connect
@@ -27,7 +29,7 @@ final class LiveFeedViewModel {
     /// Events are inserted at the top of the list with animation when user is at top,
     /// or silently when scrolled down (incrementing newEventCount).
     func connect(token: String) async {
-        connectionState = .connected
+        connectionState = .connecting
         connectTask?.cancel()
 
         let baseURL = await APIClient.shared.getBaseURL()
@@ -42,8 +44,15 @@ final class LiveFeedViewModel {
         let stream = await sseClient.connect(baseURL: apiRoot, token: token)
 
         let task = Task {
+            var receivedEvent = false
             for await event in stream {
                 if Task.isCancelled { break }
+
+                if !receivedEvent {
+                    receivedEvent = true
+                    connectionState = .connected
+                    retryCount = 0
+                }
 
                 if isAtTop {
                     withAnimation(.easeInOut(duration: 0.3)) {
@@ -64,6 +73,15 @@ final class LiveFeedViewModel {
             // Stream ended
             if !Task.isCancelled {
                 connectionState = .disconnected
+                // Auto-retry with exponential backoff if the connection dropped
+                if retryCount < maxRetries {
+                    retryCount += 1
+                    let delay = min(pow(2.0, Double(retryCount)), 30.0)
+                    try? await Task.sleep(for: .seconds(delay))
+                    if !Task.isCancelled {
+                        await connect(token: token)
+                    }
+                }
             }
         }
         connectTask = task
@@ -73,6 +91,7 @@ final class LiveFeedViewModel {
 
     /// Reconnect to the SSE endpoint. SSEClient automatically sends Last-Event-ID for backfill.
     func reconnect(token: String) async {
+        retryCount = 0
         connectionState = .reconnecting
         await connect(token: token)
     }

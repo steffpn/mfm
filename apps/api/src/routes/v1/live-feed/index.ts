@@ -124,7 +124,8 @@ const liveFeedRoutes: FastifyPluginAsync = async (fastify) => {
         }
       });
 
-      // Keep connection alive after handler returns
+      // Flush SSE headers and keep connection alive
+      reply.sse.sendHeaders();
       reply.sse.keepAlive();
 
       // Clean up Redis subscriber on connection close

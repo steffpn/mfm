@@ -74,6 +74,7 @@ actor SSEClient {
 
                 var request = URLRequest(url: url)
                 request.setValue("text/event-stream", forHTTPHeaderField: "Accept")
+                request.timeoutInterval = 0 // No timeout for SSE streaming
 
                 // Send Last-Event-ID for backfill on reconnection
                 let lastId = await self.lastEventId

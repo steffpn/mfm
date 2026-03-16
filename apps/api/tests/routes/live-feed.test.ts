@@ -1,4 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import Fastify from "fastify";
+import fastifyJwt from "@fastify/jwt";
 
 // ---- Prisma mock ----
 const mockUserFindUnique = vi.fn();
@@ -78,11 +80,26 @@ const mockDeactivatedUser = {
   scopes: [],
 };
 
+/** Build a fresh Fastify instance with JWT + live-feed route for each test. */
+async function buildApp() {
+  const app = Fastify({ logger: false });
+  app.register(fastifyJwt, {
+    secret: "test-secret",
+    sign: { expiresIn: "1h" },
+  });
+  app.register(import("../../src/routes/v1/live-feed/index.js"), {
+    prefix: "/api/v1/live-feed",
+  });
+  await app.ready();
+  return app;
+}
+
 describe("Live Feed SSE Route", () => {
-  let server: Awaited<typeof import("../../src/index.js")>["server"];
+  let app: Awaited<ReturnType<typeof buildApp>>;
   let adminToken: string;
   let stationToken: string;
   let deactivatedToken: string;
+  let baseUrl: string;
 
   beforeEach(async () => {
     mockUserFindUnique.mockClear();
@@ -92,16 +109,15 @@ describe("Live Feed SSE Route", () => {
     mockUnsubscribe.mockClear();
     mockZrangebyscore.mockClear();
 
-    const mod = await import("../../src/index.js");
-    server = mod.server;
-    await server.ready();
+    app = await buildApp();
 
-    // Generate JWT tokens using the server's jwt plugin
-    adminToken = server.jwt.sign({ sub: mockAdminUser.id });
-    stationToken = server.jwt.sign({ sub: mockStationUser.id });
-    deactivatedToken = server.jwt.sign({ sub: mockDeactivatedUser.id });
+    // Start listening for real HTTP requests (SSE needs real connections)
+    baseUrl = await app.listen({ port: 0, host: "127.0.0.1" });
 
-    // Mock user lookup
+    adminToken = app.jwt.sign({ sub: mockAdminUser.id });
+    stationToken = app.jwt.sign({ sub: mockStationUser.id });
+    deactivatedToken = app.jwt.sign({ sub: mockDeactivatedUser.id });
+
     mockUserFindUnique.mockImplementation(
       ({ where }: { where: { id: number } }) => {
         if (where.id === mockAdminUser.id)
@@ -115,94 +131,99 @@ describe("Live Feed SSE Route", () => {
     );
   });
 
+  afterEach(async () => {
+    await app.close();
+  });
+
   // Test 1: GET /v1/live-feed without ?token returns 401
   it("returns 401 without token query parameter", async () => {
-    const response = await server.inject({
-      method: "GET",
-      url: "/api/v1/live-feed",
+    const res = await fetch(`${baseUrl}/api/v1/live-feed`, {
       headers: { accept: "text/event-stream" },
     });
-
-    expect(response.statusCode).toBe(401);
+    expect(res.status).toBe(401);
   });
 
   // Test 2: GET /v1/live-feed with invalid JWT token returns 401
   it("returns 401 with invalid JWT token", async () => {
-    const response = await server.inject({
-      method: "GET",
-      url: "/api/v1/live-feed?token=invalid-garbage-token",
-      headers: { accept: "text/event-stream" },
-    });
-
-    expect(response.statusCode).toBe(401);
+    const res = await fetch(
+      `${baseUrl}/api/v1/live-feed?token=invalid-garbage-token`,
+      { headers: { accept: "text/event-stream" } },
+    );
+    expect(res.status).toBe(401);
   });
 
   // Test 3: GET /v1/live-feed with valid token for deactivated user returns 401
   it("returns 401 for deactivated user", async () => {
-    const response = await server.inject({
-      method: "GET",
-      url: `/api/v1/live-feed?token=${deactivatedToken}`,
-      headers: { accept: "text/event-stream" },
-    });
-
-    expect(response.statusCode).toBe(401);
+    const res = await fetch(
+      `${baseUrl}/api/v1/live-feed?token=${deactivatedToken}`,
+      { headers: { accept: "text/event-stream" } },
+    );
+    expect(res.status).toBe(401);
   });
 
-  // Test 4: GET /v1/live-feed with valid ADMIN token returns 200 with Content-Type text/event-stream
+  // Test 4: GET /v1/live-feed with valid ADMIN token returns 200 + SSE + Redis subscriber
   it("returns 200 with text/event-stream for valid ADMIN token", async () => {
-    const response = await server.inject({
-      method: "GET",
-      url: `/api/v1/live-feed?token=${adminToken}`,
-      headers: { accept: "text/event-stream" },
-    });
+    const controller = new AbortController();
+    const res = await fetch(
+      `${baseUrl}/api/v1/live-feed?token=${adminToken}`,
+      {
+        headers: { accept: "text/event-stream" },
+        signal: controller.signal,
+      },
+    );
 
-    expect(response.statusCode).toBe(200);
-    expect(response.headers["content-type"]).toBe("text/event-stream");
+    expect(res.status).toBe(200);
+    expect(res.headers.get("content-type")).toBe("text/event-stream");
 
     // Verify Redis subscriber was set up
     expect(mockSubscribe).toHaveBeenCalledWith("detection:new");
     expect(mockOn).toHaveBeenCalledWith("message", expect.any(Function));
+
+    controller.abort();
   });
 
-  // Test 5: GET /v1/live-feed with valid STATION token returns 200 with Content-Type text/event-stream
+  // Test 5: GET /v1/live-feed with valid STATION token returns 200 + SSE
   it("returns 200 with text/event-stream for valid STATION token", async () => {
-    const response = await server.inject({
-      method: "GET",
-      url: `/api/v1/live-feed?token=${stationToken}`,
-      headers: { accept: "text/event-stream" },
-    });
+    const controller = new AbortController();
+    const res = await fetch(
+      `${baseUrl}/api/v1/live-feed?token=${stationToken}`,
+      {
+        headers: { accept: "text/event-stream" },
+        signal: controller.signal,
+      },
+    );
 
-    expect(response.statusCode).toBe(200);
-    expect(response.headers["content-type"]).toBe("text/event-stream");
-
-    // Verify Redis subscriber was set up
+    expect(res.status).toBe(200);
+    expect(res.headers.get("content-type")).toBe("text/event-stream");
     expect(mockSubscribe).toHaveBeenCalledWith("detection:new");
+
+    controller.abort();
   });
 
-  // Test 6: Backfill replay queries Redis with correct parameters when Last-Event-ID is provided
+  // Test 6: Backfill replay queries Redis with correct parameters
   it("queries Redis backfill sorted set with correct range when Last-Event-ID is provided", async () => {
-    // Return empty array so no SSE writes happen (avoids inject timeout with keepAlive)
     mockZrangebyscore.mockResolvedValueOnce([]);
 
-    const response = await server.inject({
-      method: "GET",
-      url: `/api/v1/live-feed?token=${adminToken}`,
-      headers: {
-        accept: "text/event-stream",
-        "last-event-id": "49",
+    const controller = new AbortController();
+    const res = await fetch(
+      `${baseUrl}/api/v1/live-feed?token=${adminToken}`,
+      {
+        headers: {
+          accept: "text/event-stream",
+          "last-event-id": "49",
+        },
+        signal: controller.signal,
       },
-    });
+    );
 
-    expect(response.statusCode).toBe(200);
-
-    // Verify Redis was queried with lastEventId + 1 through +inf
+    expect(res.status).toBe(200);
     expect(mockZrangebyscore).toHaveBeenCalledWith(
       "live-feed:recent",
       50,
       "+inf",
     );
-
-    // Verify the SSE connection was still established after replay
     expect(mockSubscribe).toHaveBeenCalledWith("detection:new");
+
+    controller.abort();
   });
 });

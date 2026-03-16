@@ -46,12 +46,12 @@ struct LiveFeedView: View {
 
     @ViewBuilder
     private var content: some View {
-        if viewModel.events.isEmpty && viewModel.connectionState != .disconnected {
-            // Empty state: connected but no events yet
-            emptyState
-        } else if viewModel.events.isEmpty && viewModel.connectionState == .disconnected {
+        if viewModel.events.isEmpty && viewModel.connectionState == .disconnected {
             // Disconnected with no events
             disconnectedState
+        } else if viewModel.events.isEmpty {
+            // Connecting or connected but no events yet
+            emptyState
         } else {
             // Events list
             eventsList
@@ -137,8 +137,8 @@ struct LiveFeedView: View {
             Circle()
                 .fill(connectionColor)
                 .frame(width: 8, height: 8)
-            if viewModel.connectionState == .reconnecting {
-                Text("Reconnecting...")
+            if viewModel.connectionState == .reconnecting || viewModel.connectionState == .connecting {
+                Text(viewModel.connectionState == .connecting ? "Connecting..." : "Reconnecting...")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
@@ -151,7 +151,7 @@ struct LiveFeedView: View {
             return .green
         case .disconnected:
             return .gray
-        case .reconnecting:
+        case .connecting, .reconnecting:
             return .orange
         }
     }
