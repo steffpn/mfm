@@ -47,11 +47,42 @@ export async function exportCSV(
  * GET /exports/pdf - Export filtered airplay events as branded PDF report.
  *
  * Requires startDate and endDate. Caps at 1,000 rows.
- * Placeholder - implemented in Task 2.
  */
 export async function exportPDF(
-  _request: FastifyRequest<{ Querystring: ExportPDFQuery }>,
+  request: FastifyRequest<{ Querystring: ExportPDFQuery }>,
   reply: FastifyReply,
 ): Promise<void> {
-  return reply.status(501).send({ error: "PDF export not yet implemented" });
+  const { q, startDate, endDate, stationId } = request.query;
+  const { currentUser } = request;
+
+  const { events, exceeded } = await queryFilteredEvents(
+    { q, startDate, endDate, stationId },
+    currentUser,
+    { maxRows: PDF_MAX_ROWS },
+  );
+
+  if (exceeded) {
+    return reply.status(400).send({
+      error:
+        "Too many results (>1,000). Please narrow your date range.",
+    });
+  }
+
+  // Lazy import: pdfkit module is heavy (~68s load in dev).
+  // Deferring to request time avoids blocking server startup.
+  const { buildPDFBuffer } = await import("./pdf-builder.js");
+
+  const pdfBuffer = await buildPDFBuffer(
+    events,
+    { startDate, endDate },
+    currentUser.email,
+  );
+
+  return reply
+    .header("Content-Type", "application/pdf")
+    .header(
+      "Content-Disposition",
+      `attachment; filename="airplay-report-${startDate}-to-${endDate}.pdf"`,
+    )
+    .send(pdfBuffer);
 }

@@ -299,6 +299,7 @@ describe("Export Routes", () => {
       expect(response.statusCode).toBe(400);
     });
 
+    // Extended timeout: first PDF request triggers lazy pdfkit import (~90s in dev)
     it("returns 200 with Content-Type: application/pdf", async () => {
       mockAirplayEventFindMany.mockResolvedValueOnce([makeEvent(1)]);
 
@@ -310,7 +311,7 @@ describe("Export Routes", () => {
 
       expect(response.statusCode).toBe(200);
       expect(response.headers["content-type"]).toContain("application/pdf");
-    });
+    }, 120000);
 
     it("includes Content-Disposition header with filename containing date range", async () => {
       mockAirplayEventFindMany.mockResolvedValueOnce([makeEvent(1)]);
