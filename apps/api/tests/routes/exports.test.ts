@@ -266,4 +266,136 @@ describe("Export Routes", () => {
       expect(payload).toContain("'@cmd");
     });
   });
+
+  // --- PDF Export Tests ---
+
+  describe("GET /api/v1/exports/pdf", () => {
+    it("returns 401 without auth token", async () => {
+      const response = await server.inject({
+        method: "GET",
+        url: "/api/v1/exports/pdf?startDate=2026-03-01&endDate=2026-03-15",
+      });
+
+      expect(response.statusCode).toBe(401);
+    });
+
+    it("returns 400 when startDate is missing", async () => {
+      const response = await server.inject({
+        method: "GET",
+        url: "/api/v1/exports/pdf?endDate=2026-03-15",
+        headers: { authorization: `Bearer ${adminToken}` },
+      });
+
+      expect(response.statusCode).toBe(400);
+    });
+
+    it("returns 400 when endDate is missing", async () => {
+      const response = await server.inject({
+        method: "GET",
+        url: "/api/v1/exports/pdf?startDate=2026-03-01",
+        headers: { authorization: `Bearer ${adminToken}` },
+      });
+
+      expect(response.statusCode).toBe(400);
+    });
+
+    it("returns 200 with Content-Type: application/pdf", async () => {
+      mockAirplayEventFindMany.mockResolvedValueOnce([makeEvent(1)]);
+
+      const response = await server.inject({
+        method: "GET",
+        url: "/api/v1/exports/pdf?startDate=2026-03-01&endDate=2026-03-15",
+        headers: { authorization: `Bearer ${adminToken}` },
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.headers["content-type"]).toContain("application/pdf");
+    });
+
+    it("includes Content-Disposition header with filename containing date range", async () => {
+      mockAirplayEventFindMany.mockResolvedValueOnce([makeEvent(1)]);
+
+      const response = await server.inject({
+        method: "GET",
+        url: "/api/v1/exports/pdf?startDate=2026-03-01&endDate=2026-03-15",
+        headers: { authorization: `Bearer ${adminToken}` },
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.headers["content-disposition"]).toContain("attachment");
+      expect(response.headers["content-disposition"]).toContain("2026-03-01");
+      expect(response.headers["content-disposition"]).toContain("2026-03-15");
+    });
+
+    it("response body starts with %PDF magic bytes", async () => {
+      mockAirplayEventFindMany.mockResolvedValueOnce([makeEvent(1)]);
+
+      const response = await server.inject({
+        method: "GET",
+        url: "/api/v1/exports/pdf?startDate=2026-03-01&endDate=2026-03-15",
+        headers: { authorization: `Bearer ${adminToken}` },
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.rawPayload.subarray(0, 4).toString()).toBe("%PDF");
+    });
+
+    it("applies q and stationId query filters", async () => {
+      mockAirplayEventFindMany.mockResolvedValueOnce([]);
+
+      await server.inject({
+        method: "GET",
+        url: "/api/v1/exports/pdf?startDate=2026-03-01&endDate=2026-03-15&q=Smiley&stationId=5",
+        headers: { authorization: `Bearer ${adminToken}` },
+      });
+
+      expect(mockAirplayEventFindMany).toHaveBeenCalled();
+      const callArgs = mockAirplayEventFindMany.mock.calls[0][0];
+      expect(callArgs.where.OR).toBeDefined();
+      expect(callArgs.where.stationId).toBe(5);
+    });
+
+    it("STATION role user PDF only contains scoped station events", async () => {
+      mockAirplayEventFindMany.mockResolvedValueOnce([]);
+
+      await server.inject({
+        method: "GET",
+        url: "/api/v1/exports/pdf?startDate=2026-03-01&endDate=2026-03-15",
+        headers: { authorization: `Bearer ${stationToken}` },
+      });
+
+      expect(mockAirplayEventFindMany).toHaveBeenCalled();
+      const callArgs = mockAirplayEventFindMany.mock.calls[0][0];
+      expect(callArgs.where.stationId).toEqual({ in: [5] });
+    });
+
+    it("ADMIN role user PDF contains all events", async () => {
+      mockAirplayEventFindMany.mockResolvedValueOnce([]);
+
+      await server.inject({
+        method: "GET",
+        url: "/api/v1/exports/pdf?startDate=2026-03-01&endDate=2026-03-15",
+        headers: { authorization: `Bearer ${adminToken}` },
+      });
+
+      expect(mockAirplayEventFindMany).toHaveBeenCalled();
+      const callArgs = mockAirplayEventFindMany.mock.calls[0][0];
+      expect(callArgs.where.stationId).toBeUndefined();
+    });
+
+    it("caps at 1,000 rows and returns 400 if exceeded", async () => {
+      const events = Array.from({ length: 1001 }, (_, i) => makeEvent(i + 1));
+      mockAirplayEventFindMany.mockResolvedValueOnce(events);
+
+      const response = await server.inject({
+        method: "GET",
+        url: "/api/v1/exports/pdf?startDate=2026-03-01&endDate=2026-03-15",
+        headers: { authorization: `Bearer ${adminToken}` },
+      });
+
+      expect(response.statusCode).toBe(400);
+      const body = JSON.parse(response.payload);
+      expect(body.error).toContain("1,000");
+    });
+  });
 });
