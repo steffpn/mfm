@@ -63,8 +63,14 @@ model AirplayEvent {
   isrc        String?
   confidence  Float    @default(0) @map("confidence")
   playCount   Int      @default(1) @map("play_count")
-  snippetUrl  String?  @map("snippet_url")
-  createdAt   DateTime @default(now()) @map("created_at")
+  snippetUrl     String?  @map("snippet_url")
+  albumTitle     String?  @map("album_title")
+  label          String?
+  playedDuration Int?     @map("played_duration")
+  deezerUrl      String?  @map("deezer_url")
+  spotifyId      String?  @map("spotify_id")
+  youtubeId      String?  @map("youtube_id")
+  createdAt      DateTime @default(now()) @map("created_at")
 
   station     Station  @relation(fields: [stationId], references: [id])
 

@@ -41,11 +41,17 @@ interface AcrCloudMusicResult {
   title: string;
   artists: Array<{ name: string }>;
   album?: { name?: string };
+  label?: string;
   duration_ms: number;
   score: number;
   acrid: string;
   external_ids?: {
     isrc?: string | string[];
+  };
+  external_metadata?: {
+    spotify?: { track?: { id?: string } };
+    deezer?: { track?: { id?: string; preview?: string } };
+    youtube?: { vid?: string };
   };
 }
 
@@ -60,6 +66,7 @@ interface AcrCloudCallbackBody {
     metadata?: {
       music?: AcrCloudMusicResult[];
       timestamp_utc: string;
+      played_duration?: number;
     };
   };
 }
@@ -136,6 +143,14 @@ export async function processCallback(
     const isrc = normalizeIsrc(music.external_ids?.isrc);
     const confidence = music.score / 100;
     const rawCallbackId = `${stream_id}-${timestampUtc}`;
+
+    // Extract metadata fields from ACRCloud callback
+    const albumTitle = music.album?.name ?? null;
+    const label = music.label ?? null;
+    const playedDuration = data.metadata?.played_duration ?? null;
+    const deezerUrl = music.external_metadata?.deezer?.track?.preview ?? null;
+    const spotifyId = music.external_metadata?.spotify?.track?.id ?? null;
+    const youtubeId = music.external_metadata?.youtube?.vid ?? null;
 
     // Insert Detection record
     try {
@@ -228,6 +243,12 @@ export async function processCallback(
         updateData.songTitle = music.title;
         updateData.artistName = artistName;
         updateData.confidence = confidence;
+        updateData.albumTitle = albumTitle;
+        updateData.label = label;
+        updateData.playedDuration = playedDuration;
+        updateData.deezerUrl = deezerUrl;
+        updateData.spotifyId = spotifyId;
+        updateData.youtubeId = youtubeId;
       }
 
       await prisma.airplayEvent.update({
@@ -246,6 +267,12 @@ export async function processCallback(
           isrc,
           playCount: 1,
           confidence,
+          albumTitle,
+          label,
+          playedDuration,
+          deezerUrl,
+          spotifyId,
+          youtubeId,
         },
       });
 
