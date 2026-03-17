@@ -24,8 +24,17 @@ export async function handleAcrCloudCallback(
     }
   }
 
+  const body = request.body as any;
+  const hasMusic = body?.data?.metadata?.music?.length > 0;
+  const streamId = body?.stream_id || "unknown";
+  const songInfo = hasMusic
+    ? `${body.data.metadata.music[0].artists?.[0]?.name || "?"} - ${body.data.metadata.music[0].title || "?"}`
+    : "no match";
+
+  request.log.info(`[acrcloud] stream=${streamId} result=${songInfo}`);
+
   // Enqueue raw callback for async processing by detection worker
-  await detectionQueue.add("process-callback", request.body, {
+  await detectionQueue.add("process-callback", body, {
     removeOnComplete: 1000,
     removeOnFail: 5000,
   });
