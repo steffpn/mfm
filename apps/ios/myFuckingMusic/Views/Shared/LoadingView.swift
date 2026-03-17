@@ -9,12 +9,14 @@ struct LoadingView: View {
         VStack(spacing: 16) {
             ProgressView()
                 .controlSize(.large)
+                .tint(Color.rbAccent)
 
             Text(message)
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.rbTextSecondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.rbBackground)
     }
 }
 

@@ -2,8 +2,30 @@ import SwiftUI
 
 /// Main tab bar navigation.
 /// Shown when user is authenticated.
-/// Tabs: Dashboard, Live, Detections, Search, Settings.
+/// Tabs: Dashboard, Detections, Settings.
 struct MainTabView: View {
+    init() {
+        // Style the tab bar for the dark theme
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = UIColor(Color.rbBackground)
+
+        // Normal state
+        appearance.stackedLayoutAppearance.normal.iconColor = UIColor(Color.rbTextTertiary)
+        appearance.stackedLayoutAppearance.normal.titleTextAttributes = [
+            .foregroundColor: UIColor(Color.rbTextTertiary)
+        ]
+
+        // Selected state
+        appearance.stackedLayoutAppearance.selected.iconColor = UIColor(Color.rbAccent)
+        appearance.stackedLayoutAppearance.selected.titleTextAttributes = [
+            .foregroundColor: UIColor(Color.rbAccent)
+        ]
+
+        UITabBar.appearance().standardAppearance = appearance
+        UITabBar.appearance().scrollEdgeAppearance = appearance
+    }
+
     var body: some View {
         TabView {
             // Dashboard tab
@@ -11,25 +33,19 @@ struct MainTabView: View {
                 DashboardView()
             }
             .tabItem {
-                Label("Dashboard", systemImage: "house.fill")
+                Label("Dashboard", systemImage: "waveform")
             }
 
-            // Live feed tab (real-time SSE detections)
-            LiveFeedView()
-                .tabItem {
-                    Label("Live", systemImage: "waveform")
-                }
-
-            // Detections tab
+            // Detections tab (includes SSE connection indicator and search)
             DetectionsView()
                 .tabItem {
-                    Label("Detections", systemImage: "list.bullet")
+                    Label("Detections", systemImage: "antenna.radiowaves.left.and.right")
                 }
 
-            // Search tab
-            SearchView()
+            // Artists tab
+            ArtistListView()
                 .tabItem {
-                    Label("Search", systemImage: "magnifyingglass")
+                    Label("Artists", systemImage: "person.2.fill")
                 }
 
             // Settings tab
@@ -37,9 +53,11 @@ struct MainTabView: View {
                 SettingsView()
             }
             .tabItem {
-                Label("Settings", systemImage: "gear")
+                Label("Settings", systemImage: "gearshape.fill")
             }
         }
+        .tint(Color.rbAccent)
+        .preferredColorScheme(.dark)
     }
 }
 

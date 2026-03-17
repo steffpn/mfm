@@ -8,86 +8,107 @@ struct LoginView: View {
     var body: some View {
         @Bindable var viewModel = viewModel
 
-        ScrollView {
-            VStack(spacing: 24) {
-                // Header
-                VStack(spacing: 8) {
-                    Image(systemName: "person.circle")
-                        .font(.system(size: 48))
-                        .foregroundStyle(.blue)
+        ZStack {
+            Color.rbBackground
+                .ignoresSafeArea()
 
-                    Text("Welcome Back")
-                        .font(.title2)
-                        .fontWeight(.bold)
+            ScrollView {
+                VStack(spacing: 24) {
+                    // Header
+                    VStack(spacing: 8) {
+                        Image(systemName: "person.circle")
+                            .font(.system(size: 48))
+                            .foregroundStyle(Color.rbAccent)
 
-                    Text("Log in to your account")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-                .padding(.top, 48)
+                        Text("Welcome Back")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .foregroundStyle(Color.rbTextPrimary)
 
-                // Form fields
-                VStack(spacing: 16) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Email")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        TextField("email@example.com", text: $viewModel.email)
-                            .textFieldStyle(.roundedBorder)
-                            .textContentType(.emailAddress)
-                            .keyboardType(.emailAddress)
-                            .textInputAutocapitalization(.never)
-                            .autocorrectionDisabled()
+                        Text("Log in to your account")
+                            .font(.subheadline)
+                            .foregroundStyle(Color.rbTextSecondary)
                     }
+                    .padding(.top, 48)
 
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Password")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        SecureField("Enter password", text: $viewModel.password)
-                            .textFieldStyle(.roundedBorder)
-                            .textContentType(.password)
-                    }
-                }
-                .padding(.horizontal, 24)
+                    // Form fields
+                    VStack(spacing: 16) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Email")
+                                .font(.caption)
+                                .foregroundStyle(Color.rbTextSecondary)
+                            TextField("", text: $viewModel.email, prompt: Text("email@example.com").foregroundStyle(Color.rbTextTertiary.opacity(0.6)))
+                                .padding(12)
+                                .background(Color.rbSurface)
+                                .foregroundStyle(Color.rbTextPrimary)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(Color.rbSurfaceLight, lineWidth: 1)
+                                )
+                                .textContentType(.emailAddress)
+                                .keyboardType(.emailAddress)
+                                .textInputAutocapitalization(.never)
+                                .autocorrectionDisabled()
+                        }
 
-                // Error message
-                if let error = viewModel.errorMessage {
-                    Text(error)
-                        .font(.caption)
-                        .foregroundStyle(.red)
-                        .padding(.horizontal, 24)
-                }
-
-                // Login button
-                Button {
-                    Task {
-                        await viewModel.login()
-                    }
-                } label: {
-                    Group {
-                        if viewModel.isSubmitting {
-                            ProgressView()
-                                .tint(.white)
-                        } else {
-                            Text("Log In")
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Password")
+                                .font(.caption)
+                                .foregroundStyle(Color.rbTextSecondary)
+                            SecureField("", text: $viewModel.password, prompt: Text("Enter password").foregroundStyle(Color.rbTextTertiary.opacity(0.6)))
+                                .padding(12)
+                                .background(Color.rbSurface)
+                                .foregroundStyle(Color.rbTextPrimary)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(Color.rbSurfaceLight, lineWidth: 1)
+                                )
+                                .textContentType(.password)
                         }
                     }
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(.blue)
-                    .foregroundStyle(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                }
-                .disabled(viewModel.isSubmitting)
-                .padding(.horizontal, 24)
+                    .padding(.horizontal, 24)
 
-                Spacer()
+                    // Error message
+                    if let error = viewModel.errorMessage {
+                        Text(error)
+                            .font(.caption)
+                            .foregroundStyle(Color.rbError)
+                            .padding(.horizontal, 24)
+                    }
+
+                    // Login button
+                    Button {
+                        Task {
+                            await viewModel.login()
+                        }
+                    } label: {
+                        Group {
+                            if viewModel.isSubmitting {
+                                ProgressView()
+                                    .tint(.white)
+                            } else {
+                                Text("Log In")
+                            }
+                        }
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.rbAccent)
+                        .foregroundStyle(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
+                    .disabled(viewModel.isSubmitting)
+                    .padding(.horizontal, 24)
+
+                    Spacer()
+                }
             }
         }
         .navigationTitle("Log In")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbarColorScheme(.dark, for: .navigationBar)
         .onAppear {
             // Reset login-specific fields when view appears
             viewModel.errorMessage = nil

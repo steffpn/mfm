@@ -28,8 +28,8 @@ actor APIClient {
         encoder.keyEncodingStrategy = .convertToSnakeCase
         self.encoder = encoder
 
-        // Default to localhost for development
-        self.baseURL = URL(string: "http://localhost:3000/api/v1")!
+        // Production API on Railway
+        self.baseURL = URL(string: "https://api-production-94f67.up.railway.app/api/v1")!
     }
 
     func configure(authManager: AuthManager) {

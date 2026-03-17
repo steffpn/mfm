@@ -1,12 +1,14 @@
 import SwiftUI
-import UIKit
 
 /// Main detections tab.
-/// Shows paginated airplay events with search bar, filter chips, and infinite scroll.
+/// Shows paginated airplay events with search bar, filter chips, infinite scroll,
+/// and SSE connection status indicator.
 struct DetectionsView: View {
     @State private var viewModel = DetectionsViewModel()
     @State private var exportViewModel = ExportViewModel()
+    @State private var liveFeedViewModel = LiveFeedViewModel()
     @Environment(AudioPlayerManager.self) private var audioPlayer
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         NavigationStack {
@@ -39,56 +41,64 @@ struct DetectionsView: View {
                     }
                 }
             }
+            .background(Color.rbBackground)
             .navigationTitle("Detections")
+            .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Menu {
-                        Button {
-                            Task {
-                                await exportViewModel.exportCSV(
-                                    query: viewModel.searchQuery.isEmpty ? nil : viewModel.searchQuery,
-                                    startDate: viewModel.startDate,
-                                    endDate: viewModel.endDate,
-                                    stationId: viewModel.selectedStationId
-                                )
-                            }
-                        } label: {
-                            Label("Export CSV", systemImage: "tablecells")
-                        }
+                    HStack(spacing: 12) {
+                        connectionIndicator
 
-                        Button {
-                            Task {
-                                await exportViewModel.exportPDF(
-                                    query: viewModel.searchQuery.isEmpty ? nil : viewModel.searchQuery,
-                                    startDate: viewModel.startDate,
-                                    endDate: viewModel.endDate,
-                                    stationId: viewModel.selectedStationId
-                                )
+                        Menu {
+                            Button {
+                                Task {
+                                    await exportViewModel.exportCSV(
+                                        query: viewModel.searchQuery.isEmpty ? nil : viewModel.searchQuery,
+                                        startDate: viewModel.startDate,
+                                        endDate: viewModel.endDate,
+                                        stationId: viewModel.selectedStationId
+                                    )
+                                }
+                            } label: {
+                                Label("Export CSV", systemImage: "tablecells")
+                            }
+
+                            Button {
+                                Task {
+                                    await exportViewModel.exportPDF(
+                                        query: viewModel.searchQuery.isEmpty ? nil : viewModel.searchQuery,
+                                        startDate: viewModel.startDate,
+                                        endDate: viewModel.endDate,
+                                        stationId: viewModel.selectedStationId
+                                    )
+                                }
+                            } label: {
+                                Label("Export PDF", systemImage: "doc.richtext")
                             }
                         } label: {
-                            Label("Export PDF", systemImage: "doc.richtext")
+                            Image(systemName: "square.and.arrow.up")
+                                .foregroundStyle(Color.rbAccent)
                         }
-                    } label: {
-                        Image(systemName: "square.and.arrow.up")
+                        .disabled(exportViewModel.isExporting)
                     }
-                    .disabled(exportViewModel.isExporting)
                 }
             }
             .overlay {
                 if exportViewModel.isExporting {
                     ZStack {
-                        Color.black.opacity(0.3)
+                        Color.black.opacity(0.5)
                             .ignoresSafeArea()
 
                         VStack(spacing: 12) {
                             ProgressView()
                                 .controlSize(.large)
+                                .tint(Color.rbAccent)
                             Text("Exporting...")
                                 .font(.subheadline)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(Color.rbTextSecondary)
                         }
                         .padding(24)
-                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+                        .background(Color.rbSurface, in: RoundedRectangle(cornerRadius: 12))
                     }
                 }
             }
@@ -131,6 +141,78 @@ struct DetectionsView: View {
                     // Task cancelled -- a new search query was typed
                 }
             }
+            .task {
+                await connectToSSE()
+            }
+            .onChange(of: scenePhase) { _, newPhase in
+                handleScenePhaseChange(newPhase)
+            }
+        }
+        .preferredColorScheme(.dark)
+    }
+
+    // MARK: - SSE Connection Indicator
+
+    /// Colored pill in the toolbar indicating SSE connection state.
+    private var connectionIndicator: some View {
+        HStack(spacing: 6) {
+            Circle()
+                .fill(connectionColor)
+                .frame(width: 8, height: 8)
+                .shadow(color: connectionColor.opacity(0.6), radius: 3, x: 0, y: 0)
+            Text(connectionLabel)
+                .font(.caption2)
+                .fontWeight(.medium)
+                .foregroundStyle(Color.rbTextSecondary)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 4)
+        .background(Color.rbSurface, in: Capsule())
+    }
+
+    private var connectionColor: Color {
+        switch liveFeedViewModel.connectionState {
+        case .connected:
+            return .rbLive
+        case .disconnected:
+            return .rbTextTertiary
+        case .connecting, .reconnecting:
+            return .rbWarning
+        }
+    }
+
+    private var connectionLabel: String {
+        switch liveFeedViewModel.connectionState {
+        case .connected:
+            return "Live"
+        case .disconnected:
+            return "Offline"
+        case .connecting:
+            return "Connecting..."
+        case .reconnecting:
+            return "Reconnecting..."
+        }
+    }
+
+    // MARK: - SSE Lifecycle
+
+    private func connectToSSE() async {
+        guard let token = KeychainHelper.read(key: "accessToken") else { return }
+        await liveFeedViewModel.connect(token: token)
+    }
+
+    private func handleScenePhaseChange(_ phase: ScenePhase) {
+        switch phase {
+        case .background:
+            liveFeedViewModel.scheduleDisconnect(after: 30)
+        case .active:
+            liveFeedViewModel.cancelScheduledDisconnect()
+            if liveFeedViewModel.connectionState == .disconnected {
+                guard let token = KeychainHelper.read(key: "accessToken") else { return }
+                Task { await liveFeedViewModel.reconnect(token: token) }
+            }
+        default:
+            break
         }
     }
 
@@ -143,6 +225,7 @@ struct DetectionsView: View {
                     DetectionRowView(event: event)
 
                     Divider()
+                        .overlay(Color.rbSurfaceLight)
                         .padding(.leading)
 
                     // Trigger load more when approaching the last 5 items
@@ -160,6 +243,7 @@ struct DetectionsView: View {
                 // Loading more indicator
                 if viewModel.isLoadingMore {
                     ProgressView()
+                        .tint(Color.rbAccent)
                         .padding()
                 }
             }
@@ -173,19 +257,20 @@ struct DetectionsView: View {
         VStack(spacing: 16) {
             Image(systemName: "music.note.list")
                 .font(.system(size: 40))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.rbTextTertiary)
 
             Text("No detections found")
                 .font(.headline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.rbTextSecondary)
 
             if !viewModel.searchQuery.isEmpty {
                 Text("Try a different search term")
                     .font(.subheadline)
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(Color.rbTextTertiary)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.rbBackground)
     }
 }
 

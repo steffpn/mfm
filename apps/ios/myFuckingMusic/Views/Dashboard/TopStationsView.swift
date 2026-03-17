@@ -15,11 +15,12 @@ struct TopStationsView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Top Stations")
                 .font(.headline)
+                .foregroundStyle(Color.rbTextPrimary)
                 .padding(.horizontal)
 
             if displayStations.isEmpty {
                 Text("No station data")
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.rbTextTertiary)
                     .frame(maxWidth: .infinity, minHeight: 100)
             } else {
                 Chart(displayStations) { station in
@@ -27,25 +28,48 @@ struct TopStationsView: View {
                         x: .value("Plays", station.playCount),
                         y: .value("Station", station.stationName)
                     )
-                    .foregroundStyle(.blue.gradient)
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [.rbAccent, .rbAccentDark],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .cornerRadius(4)
                     .annotation(position: .trailing, alignment: .leading, spacing: 4) {
                         Text("\(station.playCount)")
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Color.rbTextSecondary)
                     }
                 }
                 .chartYAxis {
                     AxisMarks { _ in
                         AxisValueLabel()
+                            .foregroundStyle(Color.rbTextPrimary)
                     }
                 }
                 .chartXAxis {
-                    AxisMarks(position: .bottom)
+                    AxisMarks(position: .bottom) { _ in
+                        AxisGridLine()
+                            .foregroundStyle(Color.rbSurfaceLight)
+                        AxisValueLabel()
+                            .foregroundStyle(Color.rbTextSecondary)
+                    }
+                }
+                .chartPlotStyle { plotArea in
+                    plotArea
+                        .background(Color.rbSurface.opacity(0.3))
                 }
                 .frame(height: CGFloat(displayStations.count * 44))
                 .padding(.horizontal)
             }
         }
+        .padding(.vertical, 12)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.rbSurface)
+        )
+        .padding(.horizontal)
     }
 }
 
@@ -58,4 +82,5 @@ struct TopStationsView: View {
         StationPlayCount(stationId: 5, stationName: "Radio 21", playCount: 11),
     ])
     .padding()
+    .background(Color.rbBackground)
 }

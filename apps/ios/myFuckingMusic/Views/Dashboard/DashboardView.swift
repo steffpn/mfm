@@ -8,6 +8,10 @@ struct DashboardView: View {
 
     var body: some View {
         ZStack {
+            // Full-screen dark background
+            Color.rbBackground
+                .ignoresSafeArea()
+
             if viewModel.isLoading && viewModel.summaryResponse == nil {
                 // Initial loading state (no cached data yet)
                 LoadingView()
@@ -28,9 +32,21 @@ struct DashboardView: View {
                         }
                         .pickerStyle(.segmented)
                         .padding(.horizontal)
+                        .colorMultiply(.rbAccent)
 
                         // Summary cards
-                        SummaryCardsView(totals: viewModel.summaryResponse?.totals)
+                        SummaryCardsView(
+                            totals: viewModel.summaryResponse?.totals,
+                            onPlaysTapped: {
+                                print("Navigate to Detections tab (plays)")
+                            },
+                            onSongsTapped: {
+                                print("Navigate to Detections tab (songs)")
+                            },
+                            onArtistsTapped: {
+                                print("Navigate to Artists tab")
+                            }
+                        )
 
                         // Play count trend chart
                         PlayCountChartView(
@@ -41,7 +57,6 @@ struct DashboardView: View {
                         // Top stations
                         TopStationsView(stations: viewModel.topStations)
                     }
-                    .padding(.vertical)
                 }
                 .refreshable {
                     await viewModel.loadDashboard()
@@ -49,6 +64,10 @@ struct DashboardView: View {
             }
         }
         .navigationTitle("Dashboard")
+        .navigationBarTitleDisplayMode(.large)
+        .toolbarColorScheme(.dark, for: .navigationBar)
+        .toolbarBackground(Color.rbBackground, for: .navigationBar)
+        .preferredColorScheme(.dark)
         .task(id: viewModel.selectedPeriod) {
             await viewModel.loadDashboard()
         }

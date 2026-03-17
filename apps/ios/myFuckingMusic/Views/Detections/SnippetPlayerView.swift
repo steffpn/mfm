@@ -14,7 +14,7 @@ struct SnippetPlayerView: View {
         VStack(spacing: 6) {
             // Thin horizontal progress bar
             ProgressView(value: playbackProgress)
-                .tint(.blue)
+                .tint(Color.rbAccent)
                 .scaleEffect(y: 0.5, anchor: .center)
 
             HStack(spacing: 12) {
@@ -22,14 +22,14 @@ struct SnippetPlayerView: View {
                 Button(action: onPlayPause) {
                     Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
                         .font(.system(size: 24))
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(Color.rbAccent)
                 }
                 .buttonStyle(.plain)
 
                 // Time display: "0:02 / 0:05"
                 Text("\(formatTime(currentTime)) / \(formatTime(duration))")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.rbTextTertiary)
                     .monospacedDigit()
 
                 Spacer()
@@ -38,7 +38,7 @@ struct SnippetPlayerView: View {
                 Button(action: onStop) {
                     Image(systemName: "xmark.circle")
                         .font(.system(size: 20))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.rbTextSecondary)
                 }
                 .buttonStyle(.plain)
             }
@@ -46,6 +46,7 @@ struct SnippetPlayerView: View {
         .padding(.horizontal)
         .padding(.vertical, 6)
         .frame(height: 40)
+        .background(Color.rbSurface)
         .transition(.opacity.combined(with: .move(edge: .top)))
     }
 

@@ -8,104 +8,139 @@ struct RegisterView: View {
     var body: some View {
         @Bindable var viewModel = viewModel
 
-        ScrollView {
-            VStack(spacing: 24) {
-                // Header
-                VStack(spacing: 8) {
-                    Image(systemName: "person.badge.plus")
-                        .font(.system(size: 48))
-                        .foregroundStyle(.blue)
+        ZStack {
+            Color.rbBackground
+                .ignoresSafeArea()
 
-                    Text("Create Account")
-                        .font(.title2)
-                        .fontWeight(.bold)
+            ScrollView {
+                VStack(spacing: 24) {
+                    // Header
+                    VStack(spacing: 8) {
+                        Image(systemName: "person.badge.plus")
+                            .font(.system(size: 48))
+                            .foregroundStyle(Color.rbAccent)
 
-                    Text("Fill in your details to get started")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-                .padding(.top, 24)
+                        Text("Create Account")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .foregroundStyle(Color.rbTextPrimary)
 
-                // Form fields
-                VStack(spacing: 16) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Name")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        TextField("Your name", text: $viewModel.name)
-                            .textFieldStyle(.roundedBorder)
-                            .textContentType(.name)
-                            .textInputAutocapitalization(.words)
+                        Text("Fill in your details to get started")
+                            .font(.subheadline)
+                            .foregroundStyle(Color.rbTextSecondary)
                     }
+                    .padding(.top, 24)
 
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Email")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        TextField("email@example.com", text: $viewModel.email)
-                            .textFieldStyle(.roundedBorder)
-                            .textContentType(.emailAddress)
-                            .keyboardType(.emailAddress)
-                            .textInputAutocapitalization(.never)
-                            .autocorrectionDisabled()
-                    }
+                    // Form fields
+                    VStack(spacing: 16) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Name")
+                                .font(.caption)
+                                .foregroundStyle(Color.rbTextSecondary)
+                            TextField("", text: $viewModel.name, prompt: Text("Your name").foregroundStyle(Color.rbTextTertiary.opacity(0.6)))
+                                .padding(12)
+                                .background(Color.rbSurface)
+                                .foregroundStyle(Color.rbTextPrimary)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(Color.rbSurfaceLight, lineWidth: 1)
+                                )
+                                .textContentType(.name)
+                                .textInputAutocapitalization(.words)
+                        }
 
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Password")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        SecureField("Minimum 8 characters", text: $viewModel.password)
-                            .textFieldStyle(.roundedBorder)
-                            .textContentType(.newPassword)
-                    }
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Email")
+                                .font(.caption)
+                                .foregroundStyle(Color.rbTextSecondary)
+                            TextField("", text: $viewModel.email, prompt: Text("email@example.com").foregroundStyle(Color.rbTextTertiary.opacity(0.6)))
+                                .padding(12)
+                                .background(Color.rbSurface)
+                                .foregroundStyle(Color.rbTextPrimary)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(Color.rbSurfaceLight, lineWidth: 1)
+                                )
+                                .textContentType(.emailAddress)
+                                .keyboardType(.emailAddress)
+                                .textInputAutocapitalization(.never)
+                                .autocorrectionDisabled()
+                        }
 
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Confirm Password")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        SecureField("Re-enter password", text: $viewModel.confirmPassword)
-                            .textFieldStyle(.roundedBorder)
-                            .textContentType(.newPassword)
-                    }
-                }
-                .padding(.horizontal, 24)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Password")
+                                .font(.caption)
+                                .foregroundStyle(Color.rbTextSecondary)
+                            SecureField("", text: $viewModel.password, prompt: Text("Minimum 8 characters").foregroundStyle(Color.rbTextTertiary.opacity(0.6)))
+                                .padding(12)
+                                .background(Color.rbSurface)
+                                .foregroundStyle(Color.rbTextPrimary)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(Color.rbSurfaceLight, lineWidth: 1)
+                                )
+                                .textContentType(.newPassword)
+                        }
 
-                // Error message
-                if let error = viewModel.errorMessage {
-                    Text(error)
-                        .font(.caption)
-                        .foregroundStyle(.red)
-                        .padding(.horizontal, 24)
-                }
-
-                // Create Account button
-                Button {
-                    Task {
-                        await viewModel.register()
-                    }
-                } label: {
-                    Group {
-                        if viewModel.isSubmitting {
-                            ProgressView()
-                                .tint(.white)
-                        } else {
-                            Text("Create Account")
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Confirm Password")
+                                .font(.caption)
+                                .foregroundStyle(Color.rbTextSecondary)
+                            SecureField("", text: $viewModel.confirmPassword, prompt: Text("Re-enter password").foregroundStyle(Color.rbTextTertiary.opacity(0.6)))
+                                .padding(12)
+                                .background(Color.rbSurface)
+                                .foregroundStyle(Color.rbTextPrimary)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(Color.rbSurfaceLight, lineWidth: 1)
+                                )
+                                .textContentType(.newPassword)
                         }
                     }
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(.blue)
-                    .foregroundStyle(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .padding(.horizontal, 24)
+
+                    // Error message
+                    if let error = viewModel.errorMessage {
+                        Text(error)
+                            .font(.caption)
+                            .foregroundStyle(Color.rbError)
+                            .padding(.horizontal, 24)
+                    }
+
+                    // Create Account button
+                    Button {
+                        Task {
+                            await viewModel.register()
+                        }
+                    } label: {
+                        Group {
+                            if viewModel.isSubmitting {
+                                ProgressView()
+                                    .tint(.white)
+                            } else {
+                                Text("Create Account")
+                            }
+                        }
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.rbAccent)
+                        .foregroundStyle(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
+                    .disabled(viewModel.isSubmitting)
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 48)
                 }
-                .disabled(viewModel.isSubmitting)
-                .padding(.horizontal, 24)
-                .padding(.bottom, 48)
             }
         }
         .navigationTitle("Register")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbarColorScheme(.dark, for: .navigationBar)
     }
 }
 

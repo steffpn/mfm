@@ -10,11 +10,11 @@ struct ErrorView: View {
         VStack(spacing: 16) {
             Image(systemName: "exclamationmark.triangle")
                 .font(.system(size: 40))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.rbError)
 
             Text(message)
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.rbTextSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
 
@@ -22,8 +22,10 @@ struct ErrorView: View {
                 retryAction()
             }
             .buttonStyle(.bordered)
+            .tint(Color.rbAccent)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.rbBackground)
     }
 }
 

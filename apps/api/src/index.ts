@@ -6,7 +6,7 @@ import fastifyStatic from "@fastify/static";
 import { prisma } from "./lib/prisma.js";
 import { redis } from "./lib/redis.js";
 import { bootstrapAdmin } from "./lib/auth.js";
-import { startDetectionWorker } from "./workers/detection.js";
+import { startSupervisor } from "./services/supervisor/index.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -67,9 +67,13 @@ const start = async () => {
   try {
     await server.ready();
     await bootstrapAdmin();
-    await startDetectionWorker();
     const port = Number(process.env.PORT) || 3000;
     await server.listen({ port, host: "0.0.0.0" });
+
+    // Start supervisor in background -- don't await so the API is ready immediately
+    startSupervisor().catch((err) =>
+      server.log.error(err, "Supervisor failed to start"),
+    );
   } catch (err) {
     server.log.error(err);
     process.exit(1);

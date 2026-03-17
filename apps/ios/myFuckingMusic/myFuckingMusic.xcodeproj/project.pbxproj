@@ -61,6 +61,15 @@
 		A10000010000000000000052 /* CompetitorListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000052 /* CompetitorListView.swift */; };
 		A10000010000000000000053 /* CompetitorDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000053 /* CompetitorDetailView.swift */; };
 		A10000010000000000000054 /* CompetitorStationPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000054 /* CompetitorStationPickerView.swift */; };
+		A10000010000000000000055 /* SongDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000055 /* SongDetailView.swift */; };
+		A10000010000000000000056 /* SongDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000056 /* SongDetailViewModel.swift */; };
+		A10000010000000000000057 /* ColorExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000057 /* ColorExtractor.swift */; };
+		A10000010000000000000058 /* ArtistSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000058 /* ArtistSummary.swift */; };
+		A10000010000000000000059 /* ArtistsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000059 /* ArtistsViewModel.swift */; };
+		A10000010000000000000060 /* ArtistListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000060 /* ArtistListView.swift */; };
+		A10000010000000000000061 /* ArtistDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000061 /* ArtistDetailView.swift */; };
+		DFF78BE52F69FE540048D646 /* RadioBugModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF78BE22F69FE540048D646 /* RadioBugModifiers.swift */; };
+		DFF78BE62F69FE540048D646 /* RadioBugTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF78BE32F69FE540048D646 /* RadioBugTheme.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -118,7 +127,16 @@
 		A20000010000000000000052 /* CompetitorListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompetitorListView.swift; sourceTree = "<group>"; };
 		A20000010000000000000053 /* CompetitorDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompetitorDetailView.swift; sourceTree = "<group>"; };
 		A20000010000000000000054 /* CompetitorStationPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompetitorStationPickerView.swift; sourceTree = "<group>"; };
+		A20000010000000000000055 /* SongDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SongDetailView.swift; sourceTree = "<group>"; };
+		A20000010000000000000056 /* SongDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SongDetailViewModel.swift; sourceTree = "<group>"; };
+		A20000010000000000000057 /* ColorExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorExtractor.swift; sourceTree = "<group>"; };
+		A20000010000000000000058 /* ArtistSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtistSummary.swift; sourceTree = "<group>"; };
+		A20000010000000000000059 /* ArtistsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtistsViewModel.swift; sourceTree = "<group>"; };
+		A20000010000000000000060 /* ArtistListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtistListView.swift; sourceTree = "<group>"; };
+		A20000010000000000000061 /* ArtistDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtistDetailView.swift; sourceTree = "<group>"; };
 		A30000010000000000000001 /* myFuckingMusic.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = myFuckingMusic.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DFF78BE22F69FE540048D646 /* RadioBugModifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadioBugModifiers.swift; sourceTree = "<group>"; };
+		DFF78BE32F69FE540048D646 /* RadioBugTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadioBugTheme.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -132,9 +150,10 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		A50000010000000000000001 /* Root */ = {
+		A50000010000000000000001 = {
 			isa = PBXGroup;
 			children = (
+				DFF78BE42F69FE540048D646 /* Theme */,
 				A50000010000000000000002 /* App */,
 				A50000010000000000000003 /* Models */,
 				A50000010000000000000004 /* ViewModels */,
@@ -169,6 +188,7 @@
 				A20000010000000000000023 /* DashboardModels.swift */,
 				A20000010000000000000045 /* NotificationModels.swift */,
 				A20000010000000000000049 /* CompetitorModels.swift */,
+				A20000010000000000000058 /* ArtistSummary.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -184,6 +204,8 @@
 				A20000010000000000000046 /* NotificationsViewModel.swift */,
 				A20000010000000000000050 /* CompetitorListViewModel.swift */,
 				A20000010000000000000051 /* CompetitorDetailViewModel.swift */,
+				A20000010000000000000056 /* SongDetailViewModel.swift */,
+				A20000010000000000000059 /* ArtistsViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -191,6 +213,7 @@
 		A50000010000000000000005 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				A50000010000000000000019 /* Artists */,
 				A50000010000000000000010 /* Auth */,
 				A50000010000000000000018 /* Competitors */,
 				A50000010000000000000012 /* Dashboard */,
@@ -205,13 +228,43 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
-		A50000010000000000000016 /* LiveFeed */ = {
+		A50000010000000000000006 /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				A20000010000000000000039 /* LiveFeedView.swift */,
-				A20000010000000000000040 /* NewDetectionsPill.swift */,
+				A20000010000000000000008 /* APIClient.swift */,
+				A20000010000000000000009 /* APIEndpoint.swift */,
+				A20000010000000000000010 /* KeychainHelper.swift */,
+				A20000010000000000000011 /* AuthManager.swift */,
+				A20000010000000000000035 /* AudioPlayerManager.swift */,
+				A20000010000000000000037 /* SSEClient.swift */,
+				A20000010000000000000041 /* ExportService.swift */,
+				A20000010000000000000044 /* NotificationManager.swift */,
 			);
-			path = LiveFeed;
+			path = Services;
+			sourceTree = "<group>";
+		};
+		A50000010000000000000007 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				A20000010000000000000022 /* DateFormatters.swift */,
+				A20000010000000000000057 /* ColorExtractor.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		A50000010000000000000008 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		A50000010000000000000009 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A30000010000000000000001 /* myFuckingMusic.app */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		A50000010000000000000010 /* Auth */ = {
@@ -261,6 +314,7 @@
 				A20000010000000000000032 /* DetectionRowView.swift */,
 				A20000010000000000000033 /* FilterChipsView.swift */,
 				A20000010000000000000036 /* SnippetPlayerView.swift */,
+				A20000010000000000000055 /* SongDetailView.swift */,
 			);
 			path = Detections;
 			sourceTree = "<group>";
@@ -273,42 +327,13 @@
 			path = Search;
 			sourceTree = "<group>";
 		};
-		A50000010000000000000006 /* Services */ = {
+		A50000010000000000000016 /* LiveFeed */ = {
 			isa = PBXGroup;
 			children = (
-				A20000010000000000000008 /* APIClient.swift */,
-				A20000010000000000000009 /* APIEndpoint.swift */,
-				A20000010000000000000010 /* KeychainHelper.swift */,
-				A20000010000000000000011 /* AuthManager.swift */,
-				A20000010000000000000035 /* AudioPlayerManager.swift */,
-				A20000010000000000000037 /* SSEClient.swift */,
-				A20000010000000000000041 /* ExportService.swift */,
-				A20000010000000000000044 /* NotificationManager.swift */,
+				A20000010000000000000039 /* LiveFeedView.swift */,
+				A20000010000000000000040 /* NewDetectionsPill.swift */,
 			);
-			path = Services;
-			sourceTree = "<group>";
-		};
-		A50000010000000000000007 /* Utilities */ = {
-			isa = PBXGroup;
-			children = (
-				A20000010000000000000022 /* DateFormatters.swift */,
-			);
-			path = Utilities;
-			sourceTree = "<group>";
-		};
-		A50000010000000000000008 /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Resources;
-			sourceTree = "<group>";
-		};
-		A50000010000000000000009 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				A30000010000000000000001 /* myFuckingMusic.app */,
-			);
-			name = Products;
+			path = LiveFeed;
 			sourceTree = "<group>";
 		};
 		A50000010000000000000017 /* Notifications */ = {
@@ -319,6 +344,15 @@
 			path = Notifications;
 			sourceTree = "<group>";
 		};
+		A50000010000000000000019 /* Artists */ = {
+			isa = PBXGroup;
+			children = (
+				A20000010000000000000060 /* ArtistListView.swift */,
+				A20000010000000000000061 /* ArtistDetailView.swift */,
+			);
+			path = Artists;
+			sourceTree = "<group>";
+		};
 		A50000010000000000000018 /* Competitors */ = {
 			isa = PBXGroup;
 			children = (
@@ -327,6 +361,15 @@
 				A20000010000000000000054 /* CompetitorStationPickerView.swift */,
 			);
 			path = Competitors;
+			sourceTree = "<group>";
+		};
+		DFF78BE42F69FE540048D646 /* Theme */ = {
+			isa = PBXGroup;
+			children = (
+				DFF78BE22F69FE540048D646 /* RadioBugModifiers.swift */,
+				DFF78BE32F69FE540048D646 /* RadioBugTheme.swift */,
+			);
+			path = Theme;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -371,7 +414,7 @@
 				en,
 				Base,
 			);
-			mainGroup = A50000010000000000000001 /* Root */;
+			mainGroup = A50000010000000000000001;
 			productRefGroup = A50000010000000000000009 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -439,7 +482,16 @@
 				A10000010000000000000051 /* CompetitorDetailViewModel.swift in Sources */,
 				A10000010000000000000052 /* CompetitorListView.swift in Sources */,
 				A10000010000000000000053 /* CompetitorDetailView.swift in Sources */,
+				DFF78BE52F69FE540048D646 /* RadioBugModifiers.swift in Sources */,
+				DFF78BE62F69FE540048D646 /* RadioBugTheme.swift in Sources */,
 				A10000010000000000000054 /* CompetitorStationPickerView.swift in Sources */,
+				A10000010000000000000055 /* SongDetailView.swift in Sources */,
+				A10000010000000000000056 /* SongDetailViewModel.swift in Sources */,
+				A10000010000000000000057 /* ColorExtractor.swift in Sources */,
+				A10000010000000000000058 /* ArtistSummary.swift in Sources */,
+				A10000010000000000000059 /* ArtistsViewModel.swift in Sources */,
+				A10000010000000000000060 /* ArtistListView.swift in Sources */,
+				A10000010000000000000061 /* ArtistDetailView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -570,7 +622,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 3H8V5R5YP3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -599,7 +651,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 3H8V5R5YP3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -643,7 +695,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
 	};
 	rootObject = A90000010000000000000001 /* Project object */;
 }

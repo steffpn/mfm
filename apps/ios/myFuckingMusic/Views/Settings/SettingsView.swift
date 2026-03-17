@@ -9,56 +9,75 @@ struct SettingsView: View {
     var body: some View {
         List {
             // User info section
-            Section("Account") {
+            Section {
                 if let user = authManager.currentUser {
                     HStack {
                         Text("Name")
+                            .foregroundStyle(Color.rbTextPrimary)
                         Spacer()
                         Text(user.name)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Color.rbTextSecondary)
                     }
+                    .listRowBackground(Color.rbSurface)
 
                     HStack {
                         Text("Email")
+                            .foregroundStyle(Color.rbTextPrimary)
                         Spacer()
                         Text(user.email)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Color.rbTextSecondary)
                     }
+                    .listRowBackground(Color.rbSurface)
 
                     HStack {
                         Text("Role")
+                            .foregroundStyle(Color.rbTextPrimary)
                         Spacer()
                         Text(user.role.capitalized)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Color.rbTextSecondary)
                     }
+                    .listRowBackground(Color.rbSurface)
                 } else {
                     Text("Not signed in")
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.rbTextSecondary)
+                        .listRowBackground(Color.rbSurface)
                 }
+            } header: {
+                Text("Account")
+                    .foregroundStyle(Color.rbTextSecondary)
             }
 
             // App info section
-            Section("App") {
+            Section {
                 NavigationLink {
                     NotificationsSettingsView()
                 } label: {
                     Label("Notifications", systemImage: "bell")
+                        .foregroundStyle(Color.rbTextPrimary)
                 }
+                .listRowBackground(Color.rbSurface)
 
                 if authManager.currentUser?.role.uppercased() == "STATION" {
                     NavigationLink {
                         CompetitorListView()
                     } label: {
                         Label("Competitor Stations", systemImage: "antenna.radiowaves.left.and.right")
+                            .foregroundStyle(Color.rbTextPrimary)
                     }
+                    .listRowBackground(Color.rbSurface)
                 }
 
                 HStack {
                     Text("Version")
+                        .foregroundStyle(Color.rbTextPrimary)
                     Spacer()
                     Text("1.0")
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.rbTextSecondary)
                 }
+                .listRowBackground(Color.rbSurface)
+            } header: {
+                Text("RadioBug")
+                    .foregroundStyle(Color.rbTextSecondary)
             }
 
             // Logout section
@@ -74,16 +93,24 @@ struct SettingsView: View {
                         Spacer()
                         if isLoggingOut {
                             ProgressView()
+                                .tint(Color.rbError)
                         } else {
                             Text("Log Out")
+                                .foregroundStyle(Color.rbError)
+                                .fontWeight(.semibold)
                         }
                         Spacer()
                     }
                 }
                 .disabled(isLoggingOut)
+                .listRowBackground(Color.rbSurface)
             }
         }
+        .scrollContentBackground(.hidden)
+        .background(Color.rbBackground)
         .navigationTitle("Settings")
+        .toolbarColorScheme(.dark, for: .navigationBar)
+        .preferredColorScheme(.dark)
     }
 }
 

@@ -43,16 +43,12 @@ final class LiveFeedViewModel {
 
         let stream = await sseClient.connect(baseURL: apiRoot, token: token)
 
+        connectionState = .connected
+        retryCount = 0
+
         let task = Task {
-            var receivedEvent = false
             for await event in stream {
                 if Task.isCancelled { break }
-
-                if !receivedEvent {
-                    receivedEvent = true
-                    connectionState = .connected
-                    retryCount = 0
-                }
 
                 if isAtTop {
                     withAnimation(.easeInOut(duration: 0.3)) {

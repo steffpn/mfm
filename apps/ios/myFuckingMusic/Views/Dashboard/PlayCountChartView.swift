@@ -11,11 +11,12 @@ struct PlayCountChartView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Play Count Trend")
                 .font(.headline)
+                .foregroundStyle(Color.rbTextPrimary)
                 .padding(.horizontal)
 
             if data.isEmpty {
                 Text("No data")
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.rbTextTertiary)
                     .frame(maxWidth: .infinity, minHeight: 200)
             } else {
                 Chart(chartData, id: \.bucket) { item in
@@ -23,21 +24,45 @@ struct PlayCountChartView: View {
                         x: .value("Date", item.date),
                         y: .value("Plays", item.playCount)
                     )
-                    .foregroundStyle(.blue.gradient)
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [.rbAccent, .rbAccentDark],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .cornerRadius(4)
                 }
                 .chartXAxis {
                     AxisMarks(values: .automatic) { _ in
                         AxisGridLine()
+                            .foregroundStyle(Color.rbSurfaceLight)
                         AxisValueLabel(format: xAxisFormat)
+                            .foregroundStyle(Color.rbTextSecondary)
                     }
                 }
                 .chartYAxis {
-                    AxisMarks(position: .leading)
+                    AxisMarks(position: .leading) { _ in
+                        AxisGridLine()
+                            .foregroundStyle(Color.rbSurfaceLight)
+                        AxisValueLabel()
+                            .foregroundStyle(Color.rbTextSecondary)
+                    }
+                }
+                .chartPlotStyle { plotArea in
+                    plotArea
+                        .background(Color.rbSurface.opacity(0.3))
                 }
                 .frame(height: 200)
                 .padding(.horizontal)
             }
         }
+        .padding(.vertical, 12)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.rbSurface)
+        )
+        .padding(.horizontal)
     }
 
     /// Filter buckets to only those with parseable dates.
@@ -71,4 +96,5 @@ struct PlayCountChartView: View {
         period: .day
     )
     .padding()
+    .background(Color.rbBackground)
 }

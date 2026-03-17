@@ -28,6 +28,7 @@ struct FilterChipsView: View {
             .padding(.horizontal)
             .padding(.vertical, 8)
         }
+        .background(Color.rbBackground)
         .sheet(isPresented: $showDatePicker) {
             datePickerSheet
         }
@@ -62,12 +63,12 @@ struct FilterChipsView: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
-            .background(startDate != nil ? Color.accentColor.opacity(0.15) : Color(.systemGray6))
-            .foregroundStyle(startDate != nil ? Color.accentColor : Color.primary)
+            .background(startDate != nil ? Color.rbAccent.opacity(0.2) : Color.rbSurface)
+            .foregroundStyle(startDate != nil ? Color.rbAccent : Color.rbTextSecondary)
             .clipShape(Capsule())
             .overlay(
                 Capsule()
-                    .stroke(startDate != nil ? Color.accentColor : Color(.systemGray4), lineWidth: 1)
+                    .stroke(startDate != nil ? Color.rbAccent : Color.rbSurfaceLight, lineWidth: 1)
             )
         }
         .buttonStyle(.plain)
@@ -95,12 +96,12 @@ struct FilterChipsView: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
-            .background(selectedStationId != nil ? Color.accentColor.opacity(0.15) : Color(.systemGray6))
-            .foregroundStyle(selectedStationId != nil ? Color.accentColor : Color.primary)
+            .background(selectedStationId != nil ? Color.rbAccent.opacity(0.2) : Color.rbSurface)
+            .foregroundStyle(selectedStationId != nil ? Color.rbAccent : Color.rbTextSecondary)
             .clipShape(Capsule())
             .overlay(
                 Capsule()
-                    .stroke(selectedStationId != nil ? Color.accentColor : Color(.systemGray4), lineWidth: 1)
+                    .stroke(selectedStationId != nil ? Color.rbAccent : Color.rbSurfaceLight, lineWidth: 1)
             )
         }
         .buttonStyle(.plain)
@@ -129,8 +130,11 @@ struct FilterChipsView: View {
                     .datePickerStyle(.graphical)
                 }
             }
+            .scrollContentBackground(.hidden)
+            .background(Color.rbBackground)
             .navigationTitle("Date Range")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Clear") {
@@ -141,6 +145,7 @@ struct FilterChipsView: View {
                             await onFilterChange()
                         }
                     }
+                    .foregroundStyle(Color.rbTextSecondary)
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
@@ -152,9 +157,11 @@ struct FilterChipsView: View {
                             await onFilterChange()
                         }
                     }
+                    .foregroundStyle(Color.rbAccent)
                 }
             }
         }
+        .preferredColorScheme(.dark)
         .presentationDetents([.large])
     }
 
@@ -172,10 +179,11 @@ struct FilterChipsView: View {
                 } label: {
                     HStack {
                         Text("All Stations")
+                            .foregroundStyle(Color.rbTextPrimary)
                         Spacer()
                         if selectedStationId == nil {
                             Image(systemName: "checkmark")
-                                .foregroundStyle(Color.accentColor)
+                                .foregroundStyle(Color.rbAccent)
                         }
                     }
                 }
@@ -190,25 +198,31 @@ struct FilterChipsView: View {
                     } label: {
                         HStack {
                             Text(station.name)
+                                .foregroundStyle(Color.rbTextPrimary)
                             Spacer()
                             if selectedStationId == station.id {
                                 Image(systemName: "checkmark")
-                                    .foregroundStyle(Color.accentColor)
+                                    .foregroundStyle(Color.rbAccent)
                             }
                         }
                     }
                 }
             }
+            .scrollContentBackground(.hidden)
+            .background(Color.rbBackground)
             .navigationTitle("Select Station")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
                         showStationPicker = false
                     }
+                    .foregroundStyle(Color.rbTextSecondary)
                 }
             }
         }
+        .preferredColorScheme(.dark)
         .presentationDetents([.medium, .large])
     }
 }
