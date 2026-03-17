@@ -74,6 +74,9 @@ const start = async () => {
 };
 
 // Only start if this is the main module (not imported by tests)
-if (import.meta.url === `file://${process.argv[1]}`) {
+const isMain =
+  import.meta.url === `file://${process.argv[1]}` ||
+  process.argv[1]?.endsWith("src/index.ts");
+if (isMain) {
   start();
 }
