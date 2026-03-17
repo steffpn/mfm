@@ -39,7 +39,7 @@ export async function spawnFFmpeg(
   const outputPattern = path.join(segmentDir, "segment-%03d.ts");
 
   const proc = spawn(
-    "ffmpeg",
+    process.env.FFMPEG_PATH || "ffmpeg",
     [
       "-reconnect",
       "1",
@@ -71,6 +71,11 @@ export async function spawnFFmpeg(
       detached: false,
     },
   );
+
+  // Handle spawn errors (e.g. ffmpeg not installed)
+  proc.on("error", (err) => {
+    logger.error({ stationId, err: err.message }, "FFmpeg spawn error");
+  });
 
   // Log stderr lines at debug level. Do NOT accumulate in memory.
   proc.stderr?.on("data", (data: Buffer) => {
