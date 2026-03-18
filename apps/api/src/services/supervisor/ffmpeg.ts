@@ -60,7 +60,7 @@ export async function spawnFFmpeg(
       "-segment_time",
       "10",
       "-segment_wrap",
-      "20",
+      "60",
       "-reset_timestamps",
       "1",
       "-y",

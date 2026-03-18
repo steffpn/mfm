@@ -148,7 +148,18 @@ export async function processSnippetJob(
 
     // 4. Read and upload to R2
     const fileBuffer = await fs.readFile(tempPath);
+    const fileSizeKB = Math.round(fileBuffer.length / 1024);
     const r2Key = `snippets/${stationId}/${formatDate(detectedAt)}/${airplayEventId}.aac`;
+
+    // Skip upload if file is too small (less than 10KB = likely corrupt/empty)
+    if (fileBuffer.length < 10240) {
+      logger.warn(
+        { airplayEventId, stationId, sizeKB: fileSizeKB },
+        "Snippet too small, skipping upload",
+      );
+      return;
+    }
+
     await uploadToR2(r2Key, fileBuffer, "audio/aac");
 
     // 5. Update AirplayEvent with R2 key
@@ -158,7 +169,7 @@ export async function processSnippetJob(
     });
 
     logger.info(
-      { airplayEventId, stationId, r2Key },
+      { airplayEventId, stationId, r2Key, sizeKB: fileSizeKB },
       "Snippet extracted and uploaded",
     );
   } finally {
