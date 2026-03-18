@@ -46,37 +46,35 @@ function formatDate(dateStr: string): string {
 }
 
 /**
- * Run FFmpeg to extract a snippet from concatenated segments.
+ * Run FFmpeg to extract a snippet from segments.
+ * Uses concat demuxer with a file list for proper timeline reconstruction.
  */
 async function extractSnippet(
   segments: string[],
   seekOffsetSeconds: number,
   outputPath: string,
 ): Promise<void> {
-  const concatInput = `concat:${segments.join("|")}`;
+  // Create a concat file list for FFmpeg demuxer
+  const concatList = segments.map((s) => `file '${s}'`).join("\n");
+  const concatListPath = outputPath + ".txt";
+  await fs.writeFile(concatListPath, concatList);
 
   return new Promise((resolve, reject) => {
     const proc = spawn(
       "ffmpeg",
       [
         "-y",
-        "-ss",
-        String(seekOffsetSeconds),
-        "-i",
-        concatInput,
-        "-t",
-        "30",
+        "-f", "concat",
+        "-safe", "0",
+        "-i", concatListPath,
+        "-ss", String(seekOffsetSeconds),
+        "-t", "30",
         "-vn",
-        "-c:a",
-        "aac",
-        "-b:a",
-        "128k",
-        "-ar",
-        "44100",
-        "-ac",
-        "2",
-        "-f",
-        "adts",
+        "-c:a", "aac",
+        "-b:a", "128k",
+        "-ar", "44100",
+        "-ac", "2",
+        "-f", "adts",
         outputPath,
       ],
       { stdio: ["ignore", "ignore", "pipe"] },
@@ -87,14 +85,12 @@ async function extractSnippet(
       stderr += data.toString();
     });
 
-    proc.on("close", (code) => {
+    proc.on("close", async (code) => {
+      // Clean up concat list file
+      try { await fs.unlink(concatListPath); } catch {}
+
       if (code === 0) resolve();
-      else
-        reject(
-          new Error(
-            `FFmpeg exited with code ${code}: ${stderr.slice(-500)}`,
-          ),
-        );
+      else reject(new Error(`FFmpeg exited with code ${code}: ${stderr.slice(-500)}`));
     });
 
     proc.on("error", reject);
