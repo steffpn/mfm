@@ -2,9 +2,8 @@
  * Segment resolver -- maps a detection timestamp to the ring buffer segment
  * files that contain the relevant audio window.
  *
- * Given a detection timestamp, finds which MPEG-TS segment files cover the
- * 5-second window [detectedAt - 2.5s, detectedAt + 2.5s] and calculates
- * the seek offset within the first segment.
+ * Given a detection timestamp, finds segments covering 25s before + 5s after
+ * detection (30s total clip). Includes extra segments for safety margin.
  */
 
 import fs from "node:fs/promises";
@@ -17,11 +16,11 @@ interface SegmentInfo {
 }
 
 /**
- * Resolve which segment files cover a 5-second window around a detection timestamp.
+ * Resolve which segment files cover the 30-second window around a detection.
+ * Window: [detectedAt - 25s, detectedAt + 5s]
  *
- * Segments are ~10s each (segment_time 10). Each segment's time range is
- * approximately [mtime - 10000ms, mtime], where mtime is when FFmpeg finished
- * writing the segment.
+ * Includes extra segments beyond the window edges to ensure FFmpeg has
+ * enough data to extract a full 30s clip.
  *
  * @param stationId - Station database ID
  * @param detectedAt - Detection timestamp from ACRCloud
@@ -37,11 +36,9 @@ export async function resolveSegments(
   try {
     files = await fs.readdir(segmentDir);
   } catch {
-    // Directory doesn't exist -- no segments available
     return null;
   }
 
-  // Get mtime for each .ts segment file
   const segmentInfos: SegmentInfo[] = [];
   for (const file of files) {
     if (!file.endsWith(".ts")) continue;
@@ -56,25 +53,36 @@ export async function resolveSegments(
   segmentInfos.sort((a, b) => a.mtime - b.mtime);
 
   const targetMs = detectedAt.getTime();
-  const windowStart = targetMs - 15000; // 15s before detection
-  const windowEnd = targetMs + 15000; // 15s after detection
+  const windowStart = targetMs - 25000; // 25s before detection
+  const windowEnd = targetMs + 5000; // 5s after detection
 
-  // Each segment covers approximately [mtime - 10000, mtime]
-  // (mtime is when FFmpeg finished writing the segment)
-  const relevantSegments = segmentInfos.filter((seg) => {
-    const segStart = seg.mtime - 10000;
-    const segEnd = seg.mtime;
-    return segEnd >= windowStart && segStart <= windowEnd;
-  });
+  // Find segments that overlap with the window, plus 1 extra on each side
+  const relevantIndices: number[] = [];
+  for (let i = 0; i < segmentInfos.length; i++) {
+    const segStart = segmentInfos[i].mtime - 10000;
+    const segEnd = segmentInfos[i].mtime;
+    if (segEnd >= windowStart && segStart <= windowEnd) {
+      relevantIndices.push(i);
+    }
+  }
 
-  if (relevantSegments.length === 0) return null;
+  if (relevantIndices.length === 0) return null;
 
-  // Calculate seek offset: time from start of first segment to window start
-  const firstSegStart = relevantSegments[0].mtime - 10000;
+  // Add 1 extra segment before and after for safety
+  const firstIdx = Math.max(0, relevantIndices[0] - 1);
+  const lastIdx = Math.min(segmentInfos.length - 1, relevantIndices[relevantIndices.length - 1] + 1);
+
+  const selectedSegments: SegmentInfo[] = [];
+  for (let i = firstIdx; i <= lastIdx; i++) {
+    selectedSegments.push(segmentInfos[i]);
+  }
+
+  // Calculate seek offset from start of first selected segment to window start
+  const firstSegStart = selectedSegments[0].mtime - 10000;
   const seekOffsetSeconds = Math.max(0, (windowStart - firstSegStart) / 1000);
 
   return {
-    segments: relevantSegments.map((s) => s.path),
+    segments: selectedSegments.map((s) => s.path),
     seekOffsetSeconds,
   };
 }
