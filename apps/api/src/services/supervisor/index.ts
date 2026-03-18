@@ -78,7 +78,12 @@ export async function startSupervisor(): Promise<{
   const streamManager = new StreamManager();
   const watchdog = new Watchdog(streamManager);
 
-  // --- Staggered startup ---
+  // --- Reset ERROR stations and load all for startup ---
+  await prisma.station.updateMany({
+    where: { status: "ERROR" },
+    data: { status: "ACTIVE" },
+  });
+
   const stations = await prisma.station.findMany({
     where: { status: "ACTIVE" },
   });
