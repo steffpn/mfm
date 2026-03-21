@@ -19,10 +19,10 @@ struct MonitoredSong: Codable, Identifiable, Sendable {
 
 /// Trend data for a monitored song comparing week-over-week.
 struct SongTrend: Codable, Sendable {
-    let thisWeek: Int
-    let lastWeek: Int
     let percentChange: Double
     let direction: String  // "up", "down", "flat"
+    let thisWeek: Int?
+    let lastWeek: Int?
 }
 
 // MARK: - Artist Dashboard
@@ -36,8 +36,8 @@ struct ArtistDashboardResponse: Codable, Sendable {
 
 /// Summary info for the most played song on the artist dashboard.
 struct MostPlayedSongInfo: Codable, Sendable {
-    let songTitle: String
-    let artistName: String
+    let title: String
+    let artist: String
     let plays: Int
 }
 

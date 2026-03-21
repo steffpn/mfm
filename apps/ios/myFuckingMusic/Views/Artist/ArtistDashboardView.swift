@@ -139,12 +139,12 @@ struct ArtistDashboardView: View {
                     }
 
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(song.songTitle)
+                    Text(song.title)
                         .font(.headline)
                         .foregroundStyle(Color.rbTextPrimary)
                         .lineLimit(1)
 
-                    Text(song.artistName)
+                    Text(song.artist)
                         .font(.subheadline)
                         .foregroundStyle(Color.rbTextSecondary)
                         .lineLimit(1)
