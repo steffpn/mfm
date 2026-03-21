@@ -2,14 +2,13 @@
  * BullMQ detection processing worker.
  *
  * Transforms ACRCloud broadcast monitoring callbacks into Detection records
- * and deduplicates them into AirplayEvent aggregates using gap-tolerance logic.
+ * and deduplicates them into AirplayEvent aggregates using multi-layer matching:
+ *   1. Exact ISRC match
+ *   2. ISRC prefix match (first 9 chars — same recording, different version)
+ *   3. Exact normalized title+artist match
+ *   4. Fuzzy title+artist match (Jaro-Winkler)
  *
- * Flow per callback:
- *  1. Look up station by acrcloudStreamId
- *  2. Handle no-match callbacks (code 1001 or empty music array)
- *  3. Create Detection record with normalized metadata
- *  4. Deduplicate into AirplayEvent (ISRC-first, title+artist fallback)
- *  5. Update station lastHeartbeat
+ * Uses per-station Redis locks to prevent race conditions during dedup.
  */
 
 import { Worker, Queue } from "bullmq";
@@ -17,6 +16,8 @@ import { createRedisConnection } from "../lib/redis.js";
 import { redis } from "../lib/redis.js";
 import { prisma } from "../lib/prisma.js";
 import { normalizeTitle, normalizeArtist } from "../lib/normalization.js";
+import { filterDetection } from "../lib/false-positive-filter.js";
+import { isFuzzyMatch } from "../lib/fuzzy-match.js";
 import {
   CHANNELS,
   BACKFILL_KEY,
@@ -32,8 +33,47 @@ import pino from "pino";
 const logger = pino({ name: "detection-worker" });
 
 // ---- Module-scope snippet queue reference ----
-// Set by startDetectionWorker when a snippet queue is injected from the supervisor.
 let _snippetQueue: Queue | null = null;
+
+// ---- Per-station lock ----
+const LOCK_TTL_MS = 10_000; // 10s lock TTL
+
+async function acquireStationLock(stationId: number): Promise<boolean> {
+  const key = `dedup-lock:${stationId}`;
+  const result = await redis.set(key, "1", "PX", LOCK_TTL_MS, "NX");
+  return result === "OK";
+}
+
+async function releaseStationLock(stationId: number): Promise<void> {
+  const key = `dedup-lock:${stationId}`;
+  await redis.del(key);
+}
+
+async function withStationLock<T>(
+  stationId: number,
+  fn: () => Promise<T>,
+): Promise<T> {
+  // Retry acquiring lock up to 50 times (500ms total)
+  let acquired = false;
+  for (let i = 0; i < 50; i++) {
+    acquired = await acquireStationLock(stationId);
+    if (acquired) break;
+    await new Promise((r) => setTimeout(r, 10));
+  }
+
+  if (!acquired) {
+    logger.warn({ stationId }, "Failed to acquire station lock after retries");
+    // Proceed without lock rather than dropping the detection
+  }
+
+  try {
+    return await fn();
+  } finally {
+    if (acquired) {
+      await releaseStationLock(stationId);
+    }
+  }
+}
 
 // ---- Types ----
 
@@ -73,10 +113,6 @@ interface AcrCloudCallbackBody {
 
 // ---- Helpers ----
 
-/**
- * Normalize ISRC to a single string or null.
- * ACRCloud can return ISRC as string, array of strings, or undefined/null.
- */
 function normalizeIsrc(
   isrc: string | string[] | undefined | null,
 ): string | null {
@@ -91,15 +127,6 @@ function normalizeIsrc(
 
 // ---- Core Processor ----
 
-/**
- * Process a single ACRCloud callback.
- *
- * Steps:
- * 1. Station lookup by acrcloudStreamId
- * 2. No-match check (code 1001 or empty music array)
- * 3. For each music result: create Detection, deduplicate into AirplayEvent
- * 4. Update station lastHeartbeat
- */
 export async function processCallback(
   callback: AcrCloudCallbackBody,
 ): Promise<void> {
@@ -124,6 +151,11 @@ export async function processCallback(
         statusCode: data.status.code,
       },
     });
+    // Still update heartbeat on no-match
+    await prisma.station.update({
+      where: { id: station.id },
+      data: { lastHeartbeat: new Date(data.metadata?.timestamp_utc ?? new Date()) },
+    });
     return;
   }
 
@@ -131,7 +163,7 @@ export async function processCallback(
   const timestampUtc = data.metadata!.timestamp_utc;
   const detectedAt = new Date(timestampUtc);
 
-  const MIN_CONFIDENCE = 70; // ACRCloud score threshold (0-100)
+  const MIN_CONFIDENCE = 70;
 
   for (const music of data.metadata!.music!) {
     if (music.score < MIN_CONFIDENCE) {
@@ -141,10 +173,20 @@ export async function processCallback(
 
     const artistName = music.artists[0]?.name ?? "Unknown";
     const isrc = normalizeIsrc(music.external_ids?.isrc);
+
+    // --- False positive filter ---
+    const filterResult = filterDetection(music.title, artistName, music.score, isrc);
+    if (filterResult.filtered) {
+      logger.debug(
+        { title: music.title, artist: artistName, reason: filterResult.reason },
+        "Filtered as false positive",
+      );
+      continue;
+    }
+
     const confidence = music.score / 100;
     const rawCallbackId = `${stream_id}-${timestampUtc}`;
 
-    // Extract metadata fields from ACRCloud callback
     const albumTitle = music.album?.name ?? null;
     const label = music.label ?? null;
     const playedDuration = data.metadata?.played_duration ?? null;
@@ -168,160 +210,177 @@ export async function processCallback(
         },
       });
     } catch (err: unknown) {
-      // Handle duplicate rawCallbackId (unique constraint violation)
       if (
         err instanceof Error &&
         "code" in err &&
         (err as Record<string, unknown>).code === "P2002"
       ) {
-        logger.debug(
-          { rawCallbackId },
-          "Duplicate detection callback, skipping",
-        );
+        logger.debug({ rawCallbackId }, "Duplicate detection callback, skipping");
         continue;
       }
       throw err;
     }
 
-    // Deduplication: find recent AirplayEvent
-    let recentEvent;
+    // --- Deduplication with per-station lock ---
+    await withStationLock(station.id, async () => {
+      const cutoff = new Date(detectedAt.getTime() - DETECTION_GAP_TOLERANCE_MS);
+      let recentEvent;
 
-    if (isrc) {
-      // ISRC-based matching: direct query
-      recentEvent = await prisma.airplayEvent.findFirst({
-        where: {
-          stationId: station.id,
-          isrc,
-          endedAt: {
-            gte: new Date(detectedAt.getTime() - DETECTION_GAP_TOLERANCE_MS),
+      // Layer 1: Exact ISRC match
+      if (isrc) {
+        recentEvent = await prisma.airplayEvent.findFirst({
+          where: {
+            stationId: station.id,
+            isrc,
+            endedAt: { gte: cutoff },
           },
-        },
-        orderBy: { endedAt: "desc" },
-      });
-    } else {
-      // Title+artist fallback: query recent events for station, filter in JS
-      const candidates = await prisma.airplayEvent.findFirst({
-        where: {
-          stationId: station.id,
-          isrc: null,
-          endedAt: {
-            gte: new Date(detectedAt.getTime() - DETECTION_GAP_TOLERANCE_MS),
+          orderBy: { endedAt: "desc" },
+        });
+      }
+
+      // Layer 2: ISRC prefix match (first 9 chars = same recording)
+      if (!recentEvent && isrc && isrc.length >= 9) {
+        const isrcPrefix = isrc.substring(0, 9);
+        recentEvent = await prisma.airplayEvent.findFirst({
+          where: {
+            stationId: station.id,
+            isrc: { startsWith: isrcPrefix },
+            endedAt: { gte: cutoff },
           },
-        },
-        orderBy: { endedAt: "desc" },
-      });
+          orderBy: { endedAt: "desc" },
+        });
+      }
 
-      // Filter by normalized title+artist match
-      if (candidates) {
-        const normalizedIncoming = {
-          title: normalizeTitle(music.title),
-          artist: normalizeArtist(artistName),
-        };
-        const normalizedExisting = {
-          title: normalizeTitle(candidates.songTitle),
-          artist: normalizeArtist(candidates.artistName),
-        };
+      // Layer 3: Exact normalized title+artist match
+      if (!recentEvent) {
+        const normTitle = normalizeTitle(music.title);
+        const normArtist = normalizeArtist(artistName);
 
-        if (
-          normalizedIncoming.title === normalizedExisting.title &&
-          normalizedIncoming.artist === normalizedExisting.artist
-        ) {
-          recentEvent = candidates;
+        const candidates = await prisma.airplayEvent.findMany({
+          where: {
+            stationId: station.id,
+            endedAt: { gte: cutoff },
+          },
+          orderBy: { endedAt: "desc" },
+          take: 10,
+        });
+
+        for (const candidate of candidates) {
+          const candidateNormTitle = normalizeTitle(candidate.songTitle);
+          const candidateNormArtist = normalizeArtist(candidate.artistName);
+
+          // Exact normalized match
+          if (normTitle === candidateNormTitle && normArtist === candidateNormArtist) {
+            recentEvent = candidate;
+            break;
+          }
+        }
+
+        // Layer 4: Fuzzy title+artist match (Jaro-Winkler)
+        if (!recentEvent) {
+          for (const candidate of candidates) {
+            const candidateNormTitle = normalizeTitle(candidate.songTitle);
+            const candidateNormArtist = normalizeArtist(candidate.artistName);
+
+            if (isFuzzyMatch(normTitle, normArtist, candidateNormTitle, candidateNormArtist)) {
+              recentEvent = candidate;
+              logger.info(
+                {
+                  incoming: `${music.title} - ${artistName}`,
+                  existing: `${candidate.songTitle} - ${candidate.artistName}`,
+                },
+                "Fuzzy dedup match",
+              );
+              break;
+            }
+          }
         }
       }
-    }
 
-    if (recentEvent) {
-      // Extend existing AirplayEvent
-      const updateData: Record<string, unknown> = {
-        endedAt: detectedAt,
-        playCount: { increment: 1 },
-      };
-
-      // Higher confidence updates metadata
-      if (confidence > recentEvent.confidence) {
-        updateData.songTitle = music.title;
-        updateData.artistName = artistName;
-        updateData.confidence = confidence;
-        updateData.albumTitle = albumTitle;
-        updateData.label = label;
-        updateData.playedDuration = playedDuration;
-        updateData.deezerUrl = deezerUrl;
-        updateData.spotifyId = spotifyId;
-        updateData.youtubeId = youtubeId;
-      }
-
-      await prisma.airplayEvent.update({
-        where: { id: recentEvent.id },
-        data: updateData,
-      });
-    } else {
-      // Create new AirplayEvent
-      const newEvent = await prisma.airplayEvent.create({
-        data: {
-          stationId: station.id,
-          startedAt: detectedAt,
+      if (recentEvent) {
+        // Extend existing AirplayEvent
+        const updateData: Record<string, unknown> = {
           endedAt: detectedAt,
-          songTitle: music.title,
-          artistName,
-          isrc,
-          playCount: 1,
-          confidence,
-          albumTitle,
-          label,
-          playedDuration,
-          deezerUrl,
-          spotifyId,
-          youtubeId,
-        },
-      });
+          playCount: { increment: 1 },
+        };
 
-      // Enqueue snippet extraction job (best-effort, non-blocking)
-      if (process.env.SNIPPETS_ENABLED === "true" && _snippetQueue) {
-        try {
-          await _snippetQueue.add("extract", {
-            airplayEventId: newEvent.id,
+        if (confidence > recentEvent.confidence) {
+          updateData.songTitle = music.title;
+          updateData.artistName = artistName;
+          updateData.confidence = confidence;
+          updateData.albumTitle = albumTitle;
+          updateData.label = label;
+          updateData.playedDuration = playedDuration;
+          updateData.deezerUrl = deezerUrl;
+          updateData.spotifyId = spotifyId;
+          updateData.youtubeId = youtubeId;
+        }
+
+        await prisma.airplayEvent.update({
+          where: { id: recentEvent.id },
+          data: updateData,
+        });
+      } else {
+        // Create new AirplayEvent
+        const newEvent = await prisma.airplayEvent.create({
+          data: {
             stationId: station.id,
-            detectedAt: detectedAt.toISOString(),
-          });
+            startedAt: detectedAt,
+            endedAt: detectedAt,
+            songTitle: music.title,
+            artistName,
+            isrc,
+            playCount: 1,
+            confidence,
+            albumTitle,
+            label,
+            playedDuration,
+            deezerUrl,
+            spotifyId,
+            youtubeId,
+          },
+        });
+
+        // Enqueue snippet extraction
+        if (process.env.SNIPPETS_ENABLED === "true" && _snippetQueue) {
+          try {
+            await _snippetQueue.add("extract", {
+              airplayEventId: newEvent.id,
+              stationId: station.id,
+              detectedAt: detectedAt.toISOString(),
+            });
+          } catch (err) {
+            logger.error(
+              { airplayEventId: newEvent.id, err },
+              "Failed to enqueue snippet extraction job",
+            );
+          }
+        }
+
+        // Publish live detection event
+        try {
+          const liveEvent: LiveDetectionEvent = {
+            id: newEvent.id,
+            stationId: newEvent.stationId,
+            songTitle: newEvent.songTitle,
+            artistName,
+            isrc,
+            snippetUrl: newEvent.snippetUrl ?? null,
+            stationName: station.name,
+            startedAt: detectedAt.toISOString(),
+            publishedAt: new Date().toISOString(),
+          };
+          await redis.publish(CHANNELS.DETECTION_NEW, JSON.stringify(liveEvent));
+          await redis.zadd(BACKFILL_KEY, newEvent.id, JSON.stringify(liveEvent));
+          await redis.zremrangebyrank(BACKFILL_KEY, 0, -(BACKFILL_MAX + 1));
         } catch (err) {
           logger.error(
-            { airplayEventId: newEvent.id, err },
-            "Failed to enqueue snippet extraction job",
+            { err, airplayEventId: newEvent.id },
+            "Failed to publish live detection event",
           );
         }
       }
-
-      // Publish live detection event to Redis pub/sub (best-effort, non-blocking)
-      try {
-        const liveEvent: LiveDetectionEvent = {
-          id: newEvent.id,
-          stationId: newEvent.stationId,
-          songTitle: newEvent.songTitle,
-          artistName,
-          isrc,
-          snippetUrl: newEvent.snippetUrl ?? null,
-          stationName: station.name,
-          startedAt: detectedAt.toISOString(),
-          publishedAt: new Date().toISOString(),
-        };
-        await redis.publish(
-          CHANNELS.DETECTION_NEW,
-          JSON.stringify(liveEvent),
-        );
-        await redis.zadd(
-          BACKFILL_KEY,
-          newEvent.id,
-          JSON.stringify(liveEvent),
-        );
-        await redis.zremrangebyrank(BACKFILL_KEY, 0, -(BACKFILL_MAX + 1));
-      } catch (err) {
-        logger.error(
-          { err, airplayEventId: newEvent.id },
-          "Failed to publish live detection event",
-        );
-      }
-    }
+    });
   }
 
   // 4. Update station lastHeartbeat
@@ -333,23 +392,12 @@ export async function processCallback(
 
 // ---- Worker Lifecycle ----
 
-/**
- * Start the detection processing worker.
- *
- * Follows the same pattern as cleanup worker:
- * - Creates a BullMQ Queue for the DETECTION_QUEUE
- * - Creates a Worker with concurrency=10 (I/O-bound DB writes)
- * - Retry policy: 3 attempts with exponential backoff
- *
- * @returns Object with queue and worker references for graceful shutdown
- */
 export async function startDetectionWorker(options?: {
   snippetQueue?: Queue;
 }): Promise<{
   queue: Queue;
   worker: Worker;
 }> {
-  // Store snippet queue reference for processCallback to use
   _snippetQueue = options?.snippetQueue ?? null;
   const queue = new Queue(DETECTION_QUEUE, {
     connection: createRedisConnection(),
@@ -362,7 +410,7 @@ export async function startDetectionWorker(options?: {
     },
     {
       connection: createRedisConnection(),
-      concurrency: 10,
+      concurrency: 5, // Reduced from 10 — per-station locks serialize same-station work
       removeOnComplete: { count: 1000 },
       removeOnFail: { count: 5000 },
     },
@@ -372,7 +420,7 @@ export async function startDetectionWorker(options?: {
     logger.error({ jobId: job?.id, err }, "Detection job failed");
   });
 
-  logger.info("Detection worker started (concurrency: 10)");
+  logger.info("Detection worker started (concurrency: 5, with per-station locks)");
 
   return { queue, worker };
 }

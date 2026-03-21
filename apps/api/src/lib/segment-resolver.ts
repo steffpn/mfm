@@ -5,8 +5,8 @@
  * timestamps start from 0. When concatenated via concat:, the timeline
  * is sequential: seg1[0-10s] + seg2[10-20s] + seg3[20-30s] etc.
  *
- * We select only the segments that cover our 30s window and calculate
- * a small seek offset within those selected segments.
+ * We select segments covering a 22s window (7s before + 15s after detection)
+ * and calculate a seek offset within those selected segments.
  */
 
 import fs from "node:fs/promises";
@@ -53,8 +53,8 @@ export async function resolveSegments(
   segmentInfos.sort((a, b) => a.mtime - b.mtime);
 
   const targetMs = detectedAt.getTime();
-  const windowStart = targetMs - 25000; // 25s before
-  const windowEnd = targetMs + 5000;    // 5s after
+  const windowStart = targetMs - 7000;  // 7s before detection
+  const windowEnd = targetMs + 15000;   // 15s after detection
 
   // Find segments overlapping with [windowStart, windowEnd]
   // Each segment covers approximately [mtime - 10000, mtime]

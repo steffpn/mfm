@@ -1,17 +1,17 @@
 import SwiftUI
 
-/// Floating mini-player bar shown at the bottom of the screen while a broadcast snippet plays.
-/// Shows smooth progress, song info, detection marker at 50% (15s mark), and controls.
+/// Floating mini-player bar shown while a broadcast snippet plays.
 struct NowPlayingBar: View {
     @Environment(AudioPlayerManager.self) private var player
+    @State private var isSeeking = false
+    @State private var seekProgress: Double = 0
 
-    /// Detection happens at 25s into a 30s clip (5s before end)
     private let detectionPoint: Double = 25.0 / 30.0
 
     var body: some View {
         if player.currentlyPlayingId != nil && !player.isLoadingSnippet {
             VStack(spacing: 0) {
-                // Progress bar with detection marker
+                // Seekable progress bar - tall touch target
                 progressBar
 
                 // Controls row
@@ -24,7 +24,6 @@ struct NowPlayingBar: View {
                         Text("Broadcast Proof")
                             .font(.caption2.weight(.semibold))
                             .foregroundStyle(Color.rbTextPrimary)
-
                         Text(timeLabel)
                             .font(.system(size: 10, design: .monospaced))
                             .foregroundStyle(Color.rbTextTertiary)
@@ -32,10 +31,8 @@ struct NowPlayingBar: View {
 
                     Spacer()
 
-                    // Detection status
                     detectionLabel
 
-                    // Play/Pause
                     Button {
                         if player.isPlaying { player.pause() } else { player.resume() }
                     } label: {
@@ -45,7 +42,6 @@ struct NowPlayingBar: View {
                             .frame(width: 32, height: 32)
                     }
 
-                    // Stop
                     Button { player.stop() } label: {
                         Image(systemName: "xmark")
                             .font(.system(size: 12, weight: .bold))
@@ -61,7 +57,11 @@ struct NowPlayingBar: View {
         }
     }
 
-    // MARK: - Progress Bar (smooth)
+    // MARK: - Seekable Progress Bar
+
+    private var displayProgress: Double {
+        isSeeking ? seekProgress : player.playbackProgress
+    }
 
     private var progressBar: some View {
         GeometryReader { geo in
@@ -69,30 +69,46 @@ struct NowPlayingBar: View {
                 // Background
                 Color.rbSurfaceLight
 
-                // Smooth progress fill
+                // Progress fill - no animation while seeking
                 Color.rbAccent
-                    .frame(width: geo.size.width * CGFloat(player.playbackProgress))
-                    .animation(.linear(duration: 0.1), value: player.playbackProgress)
+                    .frame(width: geo.size.width * CGFloat(displayProgress))
 
-                // Detection marker (orange line at midpoint)
+                // Detection marker
                 Color.rbWarm
-                    .frame(width: 2)
+                    .frame(width: 2, height: isSeeking ? 20 : 14)
                     .offset(x: geo.size.width * CGFloat(detectionPoint) - 1)
             }
+            // Large touch target, thin visual bar centered vertically
+            .frame(height: isSeeking ? 20 : 4)
+            .frame(maxHeight: .infinity)
+            .contentShape(Rectangle())
+            .gesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { value in
+                        if !isSeeking {
+                            isSeeking = true
+                            seekProgress = player.playbackProgress
+                        }
+                        seekProgress = min(max(value.location.x / geo.size.width, 0), 1)
+                        player.seek(to: seekProgress)
+                    }
+                    .onEnded { _ in
+                        isSeeking = false
+                    }
+            )
+            .animation(.easeInOut(duration: 0.15), value: isSeeking)
         }
-        .frame(height: 3)
+        .frame(height: 30) // Tall touch target area
     }
 
     // MARK: - Detection Label
 
     private var detectionLabel: some View {
         Group {
-            if player.duration > 0 && player.playbackProgress < detectionPoint {
+            if player.duration > 0 && displayProgress < detectionPoint {
                 HStack(spacing: 4) {
-                    Circle()
-                        .fill(Color.rbWarm)
-                        .frame(width: 5, height: 5)
-                    Text("Detected in \(secondsUntilDetection)s")
+                    Circle().fill(Color.rbWarm).frame(width: 5, height: 5)
+                    Text("in \(secondsUntilDetection)s")
                         .font(.caption2)
                         .foregroundStyle(Color.rbWarm)
                 }
@@ -107,7 +123,6 @@ struct NowPlayingBar: View {
                 }
             }
         }
-        .animation(.easeInOut(duration: 0.3), value: player.playbackProgress >= detectionPoint)
     }
 
     // MARK: - Helpers

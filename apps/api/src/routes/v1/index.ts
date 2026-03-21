@@ -30,6 +30,21 @@ const v1Routes: FastifyPluginAsync = async (fastify) => {
   fastify.register(import("./competitors/index.js"), {
     prefix: "/competitors",
   });
+  fastify.register(import("./station/index.js"), {
+    prefix: "/station",
+  });
+  fastify.register(import("./artist/index.js"), {
+    prefix: "/artist",
+  });
+  fastify.register(import("./admin/missing-songs/index.js"), {
+    prefix: "/admin/missing-songs",
+  });
+  fastify.register(import("./admin/acrcloud-search/index.js"), {
+    prefix: "/admin/acrcloud-search",
+  });
+  fastify.register(import("./label/index.js"), {
+    prefix: "/label",
+  });
 };
 
 export default v1Routes;

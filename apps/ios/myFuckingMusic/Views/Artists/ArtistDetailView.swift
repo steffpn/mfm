@@ -211,6 +211,7 @@ struct ArtistDetailView: View {
     private func artistSongRow(event: AirplayEvent) -> some View {
         HStack(spacing: 12) {
             // Album artwork thumbnail
+            
             SongThumbnail(artist: event.artistName, title: event.songTitle)
 
             VStack(alignment: .leading, spacing: 3) {

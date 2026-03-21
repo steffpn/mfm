@@ -1,7 +1,7 @@
 /**
  * BullMQ snippet extraction worker.
  *
- * Extracts 5-second audio clips from the ring buffer at detection time,
+ * Extracts ~22-second audio clips (7s before + 15s after detection) from the ring buffer,
  * encodes them as AAC 128kbps via FFmpeg, uploads to Cloudflare R2, and
  * updates the AirplayEvent record with the R2 object key.
  *
@@ -68,7 +68,7 @@ async function extractSnippet(
         "-safe", "0",
         "-i", concatListPath,
         "-ss", String(seekOffsetSeconds),
-        "-t", "30",
+        "-t", "22",
         "-vn",
         "-c:a", "aac",
         "-b:a", "128k",

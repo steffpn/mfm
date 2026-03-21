@@ -4,6 +4,7 @@ import { prisma } from "../lib/prisma.js";
 export interface CurrentUser {
   id: number;
   email: string;
+  name: string;
   role: string;
   isActive: boolean;
   scopes: Array<{ entityType: string; entityId: number }>;
@@ -42,6 +43,7 @@ export async function authenticate(
     request.currentUser = {
       id: user.id,
       email: user.email,
+      name: user.name,
       role: user.role,
       isActive: user.isActive,
       scopes: user.scopes.map((s) => ({

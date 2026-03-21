@@ -145,6 +145,13 @@ final class AudioPlayerManager {
         isPlaying = true
     }
 
+    /// Seek to a specific progress point (0.0 to 1.0).
+    func seek(to progress: Double) {
+        guard let player, duration > 0 else { return }
+        let targetTime = CMTime(seconds: duration * progress, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+        player.seek(to: targetTime, toleranceBefore: .zero, toleranceAfter: .zero)
+    }
+
     /// Stop playback and reset all state.
     func stop() {
         // Remove time observer
