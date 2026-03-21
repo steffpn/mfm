@@ -40,6 +40,38 @@ enum APIEndpoint: Sendable {
     case deleteDeviceToken(token: String)
     case digestDetail(date: String, type: String)
 
+    // MARK: - Artist Role
+    case artistSongs
+    case addArtistSong(songTitle: String, artistName: String, isrc: String)
+    case artistDashboard
+    case artistWeeklyDigest
+    case songAnalytics(songId: Int)
+    case songStationBreakdown(songId: Int)
+    case songHourlyHeatmap(songId: Int)
+    case songPeakHours(songId: Int)
+    case songTrend(songId: Int)
+
+    // MARK: - Label Role
+    case labelArtists
+    case addLabelArtist(artistName: String)
+    case removeLabelArtist(id: Int)
+    case labelArtistSongs(artistId: Int)
+    case toggleLabelSongMonitoring(artistId: Int, songTitle: String, artistName: String, isrc: String, enabled: Bool)
+    case labelDashboard
+    case labelComparison(artistIds: [Int])
+    case labelStationAffinity
+    case labelReleaseTracker(songId: Int)
+
+    // MARK: - Station Analytics
+    case stationOverview(period: String)
+    case stationTopSongs(period: String, limit: Int)
+    case stationNewSongs(stationId: Int, period: String)
+    case stationExclusiveSongs(stationId: Int, period: String)
+    case stationPlaylistOverlap(competitorId: Int, period: String)
+    case stationGenreDistribution(period: String)
+    case stationRotation(period: String)
+    case stationDiscoveryScore(period: String)
+
     var path: String {
         switch self {
         case .health:
@@ -80,20 +112,81 @@ enum APIEndpoint: Sendable {
             return "/notifications/device-token"
         case .digestDetail(let date, _):
             return "/notifications/digest/\(date)"
+
+        // Artist Role
+        case .artistSongs, .addArtistSong:
+            return "/artist/songs"
+        case .artistDashboard:
+            return "/artist/dashboard"
+        case .artistWeeklyDigest:
+            return "/artist/weekly-digest"
+        case .songAnalytics(let id):
+            return "/artist/songs/\(id)/analytics"
+        case .songStationBreakdown(let id):
+            return "/artist/songs/\(id)/station-breakdown"
+        case .songHourlyHeatmap(let id):
+            return "/artist/songs/\(id)/hourly-heatmap"
+        case .songPeakHours(let id):
+            return "/artist/songs/\(id)/peak-hours"
+        case .songTrend(let id):
+            return "/artist/songs/\(id)/trend"
+
+        // Label Role
+        case .labelArtists, .addLabelArtist:
+            return "/label/artists"
+        case .removeLabelArtist(let id):
+            return "/label/artists/\(id)"
+        case .labelArtistSongs(let id):
+            return "/label/artists/\(id)/songs"
+        case .toggleLabelSongMonitoring(let id, _, _, _, _):
+            return "/label/artists/\(id)/songs"
+        case .labelDashboard:
+            return "/label/dashboard"
+        case .labelComparison:
+            return "/label/comparison"
+        case .labelStationAffinity:
+            return "/label/station-affinity"
+        case .labelReleaseTracker(let id):
+            return "/label/releases/\(id)/tracker"
+
+        // Station Analytics
+        case .stationOverview:
+            return "/station/overview"
+        case .stationTopSongs:
+            return "/station/top-songs"
+        case .stationNewSongs:
+            return "/station/new-songs"
+        case .stationExclusiveSongs:
+            return "/station/exclusive-songs"
+        case .stationPlaylistOverlap(let id, _):
+            return "/station/overlap/\(id)"
+        case .stationGenreDistribution:
+            return "/station/genre-distribution"
+        case .stationRotation:
+            return "/station/rotation"
+        case .stationDiscoveryScore:
+            return "/station/discovery-score"
         }
     }
 
     var method: HTTPMethod {
         switch self {
-        case .register, .login, .refresh, .logout, .addWatchedStation, .registerDeviceToken:
+        case .register, .login, .refresh, .logout, .addWatchedStation, .registerDeviceToken,
+             .addArtistSong, .addLabelArtist, .toggleLabelSongMonitoring:
             return .POST
         case .updateNotificationPreferences:
             return .PUT
-        case .removeWatchedStation, .deleteDeviceToken:
+        case .removeWatchedStation, .deleteDeviceToken, .removeLabelArtist:
             return .DELETE
         case .health, .dashboardSummary, .topStations, .airplayEvents, .snippetUrl, .stations,
              .watchedStations, .competitorSummary, .competitorDetail,
-             .exportCSV, .exportPDF, .notificationPreferences, .digestDetail:
+             .exportCSV, .exportPDF, .notificationPreferences, .digestDetail,
+             .artistSongs, .artistDashboard, .artistWeeklyDigest,
+             .songAnalytics, .songStationBreakdown, .songHourlyHeatmap, .songPeakHours, .songTrend,
+             .labelArtists, .labelArtistSongs, .labelDashboard, .labelComparison,
+             .labelStationAffinity, .labelReleaseTracker,
+             .stationOverview, .stationTopSongs, .stationNewSongs, .stationExclusiveSongs,
+             .stationPlaylistOverlap, .stationGenreDistribution, .stationRotation, .stationDiscoveryScore:
             return .GET
         }
     }
@@ -134,6 +227,18 @@ enum APIEndpoint: Sendable {
         case .deleteDeviceToken(let token):
             return try? encoder.encode(
                 DeleteDeviceTokenRequest(token: token)
+            )
+        case .addArtistSong(let title, let artist, let isrc):
+            return try? encoder.encode(
+                AddArtistSongRequest(songTitle: title, artistName: artist, isrc: isrc)
+            )
+        case .addLabelArtist(let name):
+            return try? encoder.encode(
+                AddLabelArtistRequest(artistName: name)
+            )
+        case .toggleLabelSongMonitoring(_, let title, let artist, let isrc, let enabled):
+            return try? encoder.encode(
+                ToggleLabelSongMonitoringRequest(songTitle: title, artistName: artist, isrc: isrc, enabled: enabled)
             )
         default:
             return nil
@@ -188,6 +293,37 @@ enum APIEndpoint: Sendable {
         case .digestDetail(_, let type):
             return [URLQueryItem(name: "type", value: type)]
 
+        // Station Analytics
+        case .stationOverview(let period):
+            return [URLQueryItem(name: "period", value: period)]
+        case .stationTopSongs(let period, let limit):
+            return [
+                URLQueryItem(name: "period", value: period),
+                URLQueryItem(name: "limit", value: String(limit)),
+            ]
+        case .stationNewSongs(let stationId, let period):
+            return [
+                URLQueryItem(name: "stationId", value: String(stationId)),
+                URLQueryItem(name: "period", value: period),
+            ]
+        case .stationExclusiveSongs(let stationId, let period):
+            return [
+                URLQueryItem(name: "stationId", value: String(stationId)),
+                URLQueryItem(name: "period", value: period),
+            ]
+        case .stationPlaylistOverlap(_, let period):
+            return [URLQueryItem(name: "period", value: period)]
+        case .stationGenreDistribution(let period):
+            return [URLQueryItem(name: "period", value: period)]
+        case .stationRotation(let period):
+            return [URLQueryItem(name: "period", value: period)]
+        case .stationDiscoveryScore(let period):
+            return [URLQueryItem(name: "period", value: period)]
+
+        // Label Comparison
+        case .labelComparison(let ids):
+            return [URLQueryItem(name: "artistIds", value: ids.map(String.init).joined(separator: ","))]
+
         default:
             return nil
         }
@@ -226,4 +362,21 @@ private struct RefreshRequest: Encodable {
 
 private struct LogoutRequest: Encodable {
     let refreshToken: String
+}
+
+private struct AddArtistSongRequest: Encodable {
+    let songTitle: String
+    let artistName: String
+    let isrc: String
+}
+
+private struct AddLabelArtistRequest: Encodable {
+    let artistName: String
+}
+
+private struct ToggleLabelSongMonitoringRequest: Encodable {
+    let songTitle: String
+    let artistName: String
+    let isrc: String
+    let enabled: Bool
 }

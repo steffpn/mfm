@@ -7,6 +7,7 @@ struct Station: Codable, Identifiable, Sendable {
     let streamUrl: String
     let status: StreamStatus
     let country: String
+    let logoUrl: String?
     let stationType: StationType
     let lastHeartbeat: Date?
     let restartCount: Int
