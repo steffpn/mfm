@@ -13,6 +13,7 @@ model Station {
   streamUrl        String    @map("stream_url")
   stationType      String    @map("station_type")
   acrcloudStreamId String    @unique @map("acrcloud_stream_id")
+  logoUrl          String?   @map("logo_url")
   country          String    @default("RO")
   status           String    @default("inactive")
   lastHeartbeat    DateTime? @map("last_heartbeat")
@@ -75,6 +76,9 @@ model AirplayEvent {
   station     Station  @relation(fields: [stationId], references: [id])
 
   @@index([stationId, startedAt])
+  @@index([stationId, isrc, endedAt])
+  @@index([stationId, endedAt])
+  @@index([isrc, startedAt])
   @@index([artistName, startedAt])
   @@map("airplay_events")
 }
@@ -111,6 +115,10 @@ model User {
   refreshTokens         RefreshToken[]
   deviceTokens          DeviceToken[]
   watchedStations       WatchedStation[]
+  missingSongReports    MissingSongReport[]
+  monitoredSongs        MonitoredSong[]  @relation("UserMonitoredSongs")
+  labelArtists          LabelArtist[]    @relation("LabelArtists")
+  artistLabelLinks      LabelArtist[]    @relation("ArtistLabels")
 
   @@map("users")
 }
@@ -204,4 +212,74 @@ model WatchedStation {
   @@unique([userId, stationId])
   @@index([userId])
   @@map("watched_stations")
+}
+
+model MissingSongReport {
+  id         Int      @id @default(autoincrement())
+  songTitle  String   @map("song_title")
+  artistName String   @map("artist_name")
+  isrc       String?
+  youtubeUrl String?  @map("youtube_url")
+  spotifyUrl String?  @map("spotify_url")
+  notes      String?
+  status     String   @default("pending")
+  reportedBy Int      @map("reported_by")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  reporter   User     @relation(fields: [reportedBy], references: [id])
+
+  @@index([status])
+  @@index([reportedBy])
+  @@map("missing_song_reports")
+}
+
+model MonitoredSong {
+  id          Int       @id @default(autoincrement())
+  userId      Int       @map("user_id")
+  songTitle   String    @map("song_title")
+  artistName  String    @map("artist_name")
+  isrc        String
+  activatedAt DateTime  @map("activated_at")
+  expiresAt   DateTime? @map("expires_at")
+  status      String    @default("active")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  user        User      @relation("UserMonitoredSongs", fields: [userId], references: [id], onDelete: Cascade)
+  labelMonitoredSongs LabelMonitoredSong[]
+
+  @@unique([userId, isrc])
+  @@index([userId, status])
+  @@index([isrc])
+  @@map("monitored_songs")
+}
+
+model LabelArtist {
+  id            Int       @id @default(autoincrement())
+  labelUserId   Int       @map("label_user_id")
+  artistUserId  Int?      @map("artist_user_id")
+  artistName    String    @map("artist_name")
+  addedAt       DateTime  @default(now()) @map("added_at")
+
+  labelUser     User      @relation("LabelArtists", fields: [labelUserId], references: [id], onDelete: Cascade)
+  artistUser    User?     @relation("ArtistLabels", fields: [artistUserId], references: [id])
+  monitoredSongs LabelMonitoredSong[]
+
+  @@unique([labelUserId, artistName])
+  @@index([labelUserId])
+  @@map("label_artists")
+}
+
+model LabelMonitoredSong {
+  id              Int       @id @default(autoincrement())
+  labelArtistId   Int       @map("label_artist_id")
+  monitoredSongId Int       @map("monitored_song_id")
+  addedAt         DateTime  @default(now()) @map("added_at")
+
+  labelArtist     LabelArtist   @relation(fields: [labelArtistId], references: [id], onDelete: Cascade)
+  monitoredSong   MonitoredSong @relation(fields: [monitoredSongId], references: [id], onDelete: Cascade)
+
+  @@unique([labelArtistId, monitoredSongId])
+  @@map("label_monitored_songs")
 }
