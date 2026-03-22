@@ -45,6 +45,10 @@ export async function createCheckout(
     return reply.status(400).send({ error: "Plan does not match your role" });
   }
 
+  if (!stripe) {
+    return reply.status(503).send({ error: "Stripe is not configured" });
+  }
+
   // Find or create Stripe customer
   let subscription = await prisma.subscription.findFirst({
     where: { userId: user.id },
@@ -109,6 +113,10 @@ export async function createPortalSession(
 
   if (!subscription?.stripeCustomerId) {
     return reply.status(404).send({ error: "No billing account found" });
+  }
+
+  if (!stripe) {
+    return reply.status(503).send({ error: "Stripe is not configured" });
   }
 
   const session = await stripe.billingPortal.sessions.create({

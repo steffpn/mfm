@@ -7,6 +7,10 @@ export async function handleStripeWebhook(
   request: FastifyRequest,
   reply: FastifyReply,
 ): Promise<void> {
+  if (!stripe) {
+    return reply.status(503).send({ error: "Stripe is not configured" });
+  }
+
   const sig = request.headers["stripe-signature"];
   if (!sig) {
     return reply.status(400).send({ error: "Missing stripe-signature header" });
@@ -56,7 +60,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const userId = Number(session.metadata?.userId);
   const planId = Number(session.metadata?.planId);
 
-  if (!userId || !planId) return;
+  if (!userId || !planId || !stripe) return;
 
   const stripeSubscription = await stripe.subscriptions.retrieve(
     session.subscription as string,
