@@ -1,3 +1,3 @@
-[build]
-builder = "DOCKERFILE"
-dockerfilePath = "apps/api/Dockerfile"
+# Build config is per-service via RAILWAY_DOCKERFILE_PATH env var
+# API service: RAILWAY_DOCKERFILE_PATH=apps/api/Dockerfile
+# Web service: RAILWAY_DOCKERFILE_PATH=apps/web/Dockerfile
