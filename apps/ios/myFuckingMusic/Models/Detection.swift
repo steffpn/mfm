@@ -24,6 +24,7 @@ struct AirplayEvent: Codable, Identifiable, Sendable {
     let songTitle: String
     let artistName: String
     let isrc: String?
+    let confidence: Double?
     let playCount: Int
     let snippetUrl: String?
     let createdAt: Date

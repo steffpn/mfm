@@ -45,6 +45,30 @@ const v1Routes: FastifyPluginAsync = async (fastify) => {
   fastify.register(import("./label/index.js"), {
     prefix: "/label",
   });
+  fastify.register(import("./admin/features/index.js"), {
+    prefix: "/admin/features",
+  });
+  fastify.register(import("./admin/plans/index.js"), {
+    prefix: "/admin/plans",
+  });
+  fastify.register(import("./admin/subscriptions/index.js"), {
+    prefix: "/admin/subscriptions",
+  });
+  fastify.register(import("./webhooks/stripe/index.js"), {
+    prefix: "/webhooks/stripe",
+  });
+  fastify.register(import("./reports/index.js"), {
+    prefix: "/reports",
+  });
+  fastify.register(import("./settings/index.js"), {
+    prefix: "/settings",
+  });
+  fastify.register(import("./curation/index.js"), {
+    prefix: "/curation",
+  });
+  fastify.register(import("./chart-alerts/index.js"), {
+    prefix: "/chart-alerts",
+  });
 };
 
 export default v1Routes;

@@ -26,6 +26,7 @@ model Station {
   snippets         AudioSnippet[]
   noMatchCallbacks NoMatchCallback[]
   watchedBy        WatchedStation[]
+  curationSongs    CurationSong[]
 
   @@map("stations")
 }
@@ -119,6 +120,10 @@ model User {
   monitoredSongs        MonitoredSong[]  @relation("UserMonitoredSongs")
   labelArtists          LabelArtist[]    @relation("LabelArtists")
   artistLabelLinks      LabelArtist[]    @relation("ArtistLabels")
+  subscriptions         Subscription[]
+  chartAlerts           ChartAlert[]
+  dailyReports          DailyReport[]
+  settings              UserSettings?
 
   @@map("users")
 }
@@ -283,4 +288,212 @@ model LabelMonitoredSong {
 
   @@unique([labelArtistId, monitoredSongId])
   @@map("label_monitored_songs")
+}
+
+// ─── Subscription & Feature Gating ─────────────────────────────────
+
+model Plan {
+  id              Int       @id @default(autoincrement())
+  name            String    // e.g. "Artist Free", "Artist Premium"
+  slug            String    @unique // e.g. "artist-free", "artist-premium"
+  role            String    // ARTIST, LABEL, STATION
+  tier            String    // FREE, PREMIUM
+  monthlyPriceCents Int     @default(0) @map("monthly_price_cents")
+  annualPriceCents  Int     @default(0) @map("annual_price_cents")
+  trialDays       Int       @default(7) @map("trial_days")
+  perSeatPriceCents Int     @default(0) @map("per_seat_price_cents") // per artist/station addon
+  perSeatLabel    String?   @map("per_seat_label") // e.g. "per artist", "per station"
+  stripeMonthlyPriceId String? @map("stripe_monthly_price_id")
+  stripeAnnualPriceId  String? @map("stripe_annual_price_id")
+  stripeProductId      String? @map("stripe_product_id")
+  isActive        Boolean   @default(true) @map("is_active")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  features        PlanFeature[]
+  subscriptions   Subscription[]
+
+  @@map("plans")
+}
+
+model Feature {
+  id          Int       @id @default(autoincrement())
+  key         String    @unique // e.g. "artist.detailed_analytics", "station.competitor_intel"
+  name        String    // Human readable name
+  description String    @default("")
+  category    String    // e.g. "analytics", "exports", "curation", "alerts"
+  roles       String[]  // Which roles this feature applies to: ["ARTIST"], ["STATION","LABEL"]
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  plans       PlanFeature[]
+
+  @@map("features")
+}
+
+model PlanFeature {
+  id        Int     @id @default(autoincrement())
+  planId    Int     @map("plan_id")
+  featureId Int     @map("feature_id")
+
+  plan      Plan    @relation(fields: [planId], references: [id], onDelete: Cascade)
+  feature   Feature @relation(fields: [featureId], references: [id], onDelete: Cascade)
+
+  @@unique([planId, featureId])
+  @@map("plan_features")
+}
+
+model Subscription {
+  id                    Int       @id @default(autoincrement())
+  userId                Int       @map("user_id")
+  planId                Int       @map("plan_id")
+  stripeCustomerId      String?   @map("stripe_customer_id")
+  stripeSubscriptionId  String?   @unique @map("stripe_subscription_id")
+  status                String    @default("active") // active, trialing, past_due, canceled, unpaid
+  billingInterval       String    @default("monthly") @map("billing_interval") // monthly, annual
+  trialEndsAt           DateTime? @map("trial_ends_at")
+  currentPeriodStart    DateTime? @map("current_period_start")
+  currentPeriodEnd      DateTime? @map("current_period_end")
+  cancelAtPeriodEnd     Boolean   @default(false) @map("cancel_at_period_end")
+  seatCount             Int       @default(0) @map("seat_count")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  user  User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan  Plan @relation(fields: [planId], references: [id])
+
+  @@index([userId])
+  @@index([stripeCustomerId])
+  @@map("subscriptions")
+}
+
+// ─── Song Curation ("Tinder") ──────────────────────────────────────
+
+model CurationSong {
+  id          Int       @id @default(autoincrement())
+  stationId   Int       @map("station_id")
+  songTitle   String    @map("song_title")
+  artistName  String    @map("artist_name")
+  isrc        String?
+  deezerTrackId String? @map("deezer_track_id")
+  previewUrl  String?   @map("preview_url") // Deezer 30s preview
+  coverUrl    String?   @map("cover_url")
+  artistPictureUrl String? @map("artist_picture_url")
+  source      String    @default("rotation") // rotation (from airplay) or manual (station picked)
+  isActive    Boolean   @default(true) @map("is_active")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  station     Station   @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  votes       CurationVote[]
+  score       CurationScore?
+
+  @@unique([stationId, isrc])
+  @@index([stationId, isActive])
+  @@map("curation_songs")
+}
+
+model CurationVote {
+  id              Int       @id @default(autoincrement())
+  curationSongId  Int       @map("curation_song_id")
+  sessionToken    String    @map("session_token") // anonymous voter identifier
+  vote            String    // keeper, skipper
+  votedAt         DateTime  @default(now()) @map("voted_at")
+
+  curationSong    CurationSong @relation(fields: [curationSongId], references: [id], onDelete: Cascade)
+
+  @@unique([curationSongId, sessionToken])
+  @@index([curationSongId])
+  @@map("curation_votes")
+}
+
+model CurationScore {
+  id              Int       @id @default(autoincrement())
+  curationSongId  Int       @unique @map("curation_song_id")
+  keeperCount     Int       @default(0) @map("keeper_count")
+  skipperCount    Int       @default(0) @map("skipper_count")
+  score           Float     @default(0) // keeper_count / total_votes * 100
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  curationSong    CurationSong @relation(fields: [curationSongId], references: [id], onDelete: Cascade)
+
+  @@map("curation_scores")
+}
+
+// ─── Chart Monitoring & Alerts ─────────────────────────────────────
+
+model ChartEntry {
+  id          Int       @id @default(autoincrement())
+  platform    String    // shazam, spotify, apple_music
+  country     String    // ISO country code
+  chartName   String    @map("chart_name") // e.g. "Top 50", "Top 200"
+  position    Int
+  songTitle   String    @map("song_title")
+  artistName  String    @map("artist_name")
+  isrc        String?
+  snapshotDate DateTime @map("snapshot_date") // date of the chart check
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  @@unique([platform, country, chartName, position, snapshotDate])
+  @@index([isrc, snapshotDate])
+  @@index([platform, country, snapshotDate])
+  @@map("chart_entries")
+}
+
+model ChartAlert {
+  id          Int       @id @default(autoincrement())
+  userId      Int       @map("user_id")
+  songTitle   String    @map("song_title")
+  artistName  String    @map("artist_name")
+  isrc        String?
+  platform    String    // shazam, spotify, apple_music
+  country     String
+  chartName   String    @map("chart_name")
+  position    Int
+  alertType   String    @map("alert_type") // entered, moved_up, peaked
+  message     String
+  isRead      Boolean   @default(false) @map("is_read")
+  sentAt      DateTime  @default(now()) @map("sent_at")
+
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, sentAt])
+  @@index([userId, isRead])
+  @@map("chart_alerts")
+}
+
+// ─── Daily Stats Report ────────────────────────────────────────────
+
+model DailyReport {
+  id          Int       @id @default(autoincrement())
+  userId      Int       @map("user_id")
+  reportDate  DateTime  @map("report_date")
+  content     Json      // full report payload
+  tips        String[]  // array of tip strings
+  isPremium   Boolean   @default(false) @map("is_premium")
+  deliveredVia String[] @default(["push"]) @map("delivered_via") // push, email
+  sentAt      DateTime  @default(now()) @map("sent_at")
+
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, reportDate])
+  @@index([userId])
+  @@map("daily_reports")
+}
+
+// ─── User Settings ─────────────────────────────────────────────────
+
+model UserSettings {
+  id                    Int       @id @default(autoincrement())
+  userId                Int       @unique @map("user_id")
+  dailyReportTime       String    @default("08:00") @map("daily_report_time") // HH:mm format
+  dailyReportTimezone   String    @default("Europe/Bucharest") @map("daily_report_timezone")
+  dailyReportEnabled    Boolean   @default(true) @map("daily_report_enabled")
+  chartAlertsEnabled    Boolean   @default(true) @map("chart_alerts_enabled")
+  chartAlertCountries   String[]  @default(["RO"]) @map("chart_alert_countries") // ISO country codes
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  user  User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_settings")
 }

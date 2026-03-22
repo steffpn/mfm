@@ -7,6 +7,7 @@ export interface CurrentUser {
   name: string;
   role: string;
   isActive: boolean;
+  isPremium: boolean;
   scopes: Array<{ entityType: string; entityId: number }>;
 }
 
@@ -32,7 +33,15 @@ export async function authenticate(
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      include: { scopes: true },
+      include: {
+        scopes: true,
+        subscriptions: {
+          where: { status: { in: ["active", "trialing"] } },
+          include: { plan: true },
+          orderBy: { createdAt: "desc" },
+          take: 1,
+        },
+      },
     });
 
     if (!user || !user.isActive) {
@@ -40,12 +49,16 @@ export async function authenticate(
       return;
     }
 
+    const activeSub = user.subscriptions[0];
+    const isPremium = activeSub?.plan?.tier === "PREMIUM";
+
     request.currentUser = {
       id: user.id,
       email: user.email,
       name: user.name,
       role: user.role,
       isActive: user.isActive,
+      isPremium,
       scopes: user.scopes.map((s) => ({
         entityType: s.entityType,
         entityId: s.entityId,

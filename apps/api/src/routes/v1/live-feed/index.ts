@@ -67,8 +67,10 @@ const liveFeedRoutes: FastifyPluginAsync = async (fastify) => {
       const currentUser: CurrentUser = {
         id: user.id,
         email: user.email,
+        name: user.name,
         role: user.role,
         isActive: user.isActive,
+        isPremium: false,
         scopes: user.scopes.map((s) => ({
           entityType: s.entityType,
           entityId: s.entityId,

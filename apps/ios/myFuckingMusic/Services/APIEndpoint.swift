@@ -74,6 +74,23 @@ enum APIEndpoint: Sendable {
     case stationRotation(period: String)
     case stationDiscoveryScore(period: String)
 
+    // MARK: - Settings
+    case userSettings
+    case updateSettings(dailyReportTime: String?, dailyReportTimezone: String?, dailyReportEnabled: Bool?, chartAlertsEnabled: Bool?, chartAlertCountries: [String]?)
+
+    // MARK: - Daily Reports
+    case dailyReports(limit: Int)
+    case todayReport
+
+    // MARK: - Chart Alerts
+    case chartAlerts(unreadOnly: Bool, limit: Int)
+    case markChartAlertsRead(alertIds: [Int])
+
+    // MARK: - Subscriptions
+    case mySubscription
+    case createCheckout(planId: Int, billingInterval: String, successUrl: String, cancelUrl: String)
+    case createPortal(returnUrl: String)
+
     var path: String {
         switch self {
         case .health:
@@ -172,16 +189,43 @@ enum APIEndpoint: Sendable {
             return "/station/rotation"
         case .stationDiscoveryScore:
             return "/station/discovery-score"
+
+        // Settings
+        case .userSettings, .updateSettings:
+            return "/settings"
+
+        // Daily Reports
+        case .dailyReports:
+            return "/reports"
+        case .todayReport:
+            return "/reports/today"
+
+        // Chart Alerts
+        case .chartAlerts:
+            return "/chart-alerts"
+        case .markChartAlertsRead:
+            return "/chart-alerts/mark-read"
+
+        // Subscriptions
+        case .mySubscription:
+            return "/admin/subscriptions/me"
+        case .createCheckout:
+            return "/admin/subscriptions/checkout"
+        case .createPortal:
+            return "/admin/subscriptions/portal"
         }
     }
 
     var method: HTTPMethod {
         switch self {
         case .register, .login, .refresh, .logout, .addWatchedStation, .registerDeviceToken,
-             .addArtistSong, .addLabelArtist, .toggleLabelSongMonitoring:
+             .addArtistSong, .addLabelArtist, .toggleLabelSongMonitoring,
+             .markChartAlertsRead, .createCheckout, .createPortal:
             return .POST
         case .updateNotificationPreferences:
             return .PUT
+        case .updateSettings:
+            return .PATCH
         case .removeWatchedStation, .deleteDeviceToken, .removeLabelArtist:
             return .DELETE
         case .health, .dashboardSummary, .topStations, .airplayEvents, .snippetUrl, .stations,
@@ -193,7 +237,8 @@ enum APIEndpoint: Sendable {
              .labelStationAffinity, .labelReleaseTracker,
              .browseArtists, .browseArtistTracks,
              .stationOverview, .stationTopSongs, .stationNewSongs, .stationExclusiveSongs,
-             .stationPlaylistOverlap, .stationGenreDistribution, .stationRotation, .stationDiscoveryScore:
+             .stationPlaylistOverlap, .stationGenreDistribution, .stationRotation, .stationDiscoveryScore,
+             .userSettings, .dailyReports, .todayReport, .chartAlerts, .mySubscription:
             return .GET
         }
     }
@@ -245,6 +290,22 @@ enum APIEndpoint: Sendable {
         case .toggleLabelSongMonitoring(_, let title, let artist, let isrc, let enabled):
             return try? encoder.encode(
                 ToggleLabelSongMonitoringRequest(songTitle: title, artistName: artist, isrc: isrc, enabled: enabled)
+            )
+        case .updateSettings(let time, let timezone, let reportEnabled, let alertsEnabled, let countries):
+            return try? encoder.encode(
+                UpdateSettingsRequest(dailyReportTime: time, dailyReportTimezone: timezone, dailyReportEnabled: reportEnabled, chartAlertsEnabled: alertsEnabled, chartAlertCountries: countries)
+            )
+        case .markChartAlertsRead(let alertIds):
+            return try? encoder.encode(
+                MarkChartAlertsReadRequest(alertIds: alertIds)
+            )
+        case .createCheckout(let planId, let billingInterval, let successUrl, let cancelUrl):
+            return try? encoder.encode(
+                CreateCheckoutRequest(planId: planId, billingInterval: billingInterval, successUrl: successUrl, cancelUrl: cancelUrl)
+            )
+        case .createPortal(let returnUrl):
+            return try? encoder.encode(
+                CreatePortalRequest(returnUrl: returnUrl)
             )
         default:
             return nil
@@ -332,6 +393,17 @@ enum APIEndpoint: Sendable {
         case .browseArtists(let q):
             return [URLQueryItem(name: "q", value: q), URLQueryItem(name: "limit", value: "30")]
 
+        // Daily Reports
+        case .dailyReports(let limit):
+            return [URLQueryItem(name: "limit", value: String(limit))]
+
+        // Chart Alerts
+        case .chartAlerts(let unreadOnly, let limit):
+            return [
+                URLQueryItem(name: "unreadOnly", value: String(unreadOnly)),
+                URLQueryItem(name: "limit", value: String(limit)),
+            ]
+
         default:
             return nil
         }
@@ -387,4 +459,27 @@ private struct ToggleLabelSongMonitoringRequest: Encodable {
     let artistName: String
     let isrc: String
     let enabled: Bool
+}
+
+private struct UpdateSettingsRequest: Encodable {
+    let dailyReportTime: String?
+    let dailyReportTimezone: String?
+    let dailyReportEnabled: Bool?
+    let chartAlertsEnabled: Bool?
+    let chartAlertCountries: [String]?
+}
+
+private struct MarkChartAlertsReadRequest: Encodable {
+    let alertIds: [Int]
+}
+
+private struct CreateCheckoutRequest: Encodable {
+    let planId: Int
+    let billingInterval: String
+    let successUrl: String
+    let cancelUrl: String
+}
+
+private struct CreatePortalRequest: Encodable {
+    let returnUrl: String
 }

@@ -1,0 +1,31 @@
+{
+  "name": "web",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev --port 3001",
+    "build": "next build",
+    "start": "next start --port 3001",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@myfuckingmusic/shared": "workspace:*",
+    "next": "^15.3.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "lucide-react": "^0.487.0",
+    "clsx": "^2.1.0",
+    "tailwind-merge": "^3.2.0"
+  },
+  "devDependencies": {
+    "@myfuckingmusic/tsconfig": "workspace:*",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "autoprefixer": "^10.4.0",
+    "postcss": "^8.5.0",
+    "tailwindcss": "^3.4.0",
+    "typescript": "^5.7.0",
+    "@tailwindcss/forms": "^0.5.0"
+  }
+}

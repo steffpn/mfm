@@ -57,6 +57,25 @@ struct SettingsView: View {
                 }
                 .listRowBackground(Color.rbSurface)
 
+                NavigationLink {
+                    DailyReportSettingsView()
+                } label: {
+                    Label("Daily Report", systemImage: "doc.text")
+                        .foregroundStyle(Color.rbTextPrimary)
+                }
+                .listRowBackground(Color.rbSurface)
+
+                if let role = authManager.currentUser?.role.uppercased(),
+                   role == "ARTIST" || role == "LABEL" {
+                    NavigationLink {
+                        ChartAlertSettingsView()
+                    } label: {
+                        Label("Chart Alerts", systemImage: "chart.line.uptrend.xyaxis")
+                            .foregroundStyle(Color.rbTextPrimary)
+                    }
+                    .listRowBackground(Color.rbSurface)
+                }
+
                 if authManager.currentUser?.role.uppercased() == "STATION" {
                     NavigationLink {
                         CompetitorListView()
@@ -77,6 +96,20 @@ struct SettingsView: View {
                 .listRowBackground(Color.rbSurface)
             } header: {
                 Text("RadioBug")
+                    .foregroundStyle(Color.rbTextSecondary)
+            }
+
+            // Plan & Billing section
+            Section {
+                NavigationLink {
+                    SubscriptionView()
+                } label: {
+                    Label("Subscription", systemImage: "creditcard")
+                        .foregroundStyle(Color.rbTextPrimary)
+                }
+                .listRowBackground(Color.rbSurface)
+            } header: {
+                Text("Plan & Billing")
                     .foregroundStyle(Color.rbTextSecondary)
             }
 

@@ -4,15 +4,27 @@ import { fileURLToPath } from "node:url";
 import Fastify from "fastify";
 import fastifyJwt from "@fastify/jwt";
 import fastifyStatic from "@fastify/static";
+import fastifyCors from "@fastify/cors";
 import { prisma } from "./lib/prisma.js";
 import { redis } from "./lib/redis.js";
 import { bootstrapAdmin } from "./lib/auth.js";
 import { startSupervisor } from "./services/supervisor/index.js";
+import { startDailyReportWorker } from "./workers/daily-report.js";
+import { startChartAlertsWorker } from "./workers/chart-alerts.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const server = Fastify({ logger: true });
+
+// CORS for web app
+server.register(fastifyCors, {
+  origin: [
+    "http://localhost:3001",
+    process.env.WEB_APP_URL || "http://localhost:3001",
+  ],
+  credentials: true,
+});
 
 // JWT authentication
 server.register(fastifyJwt, {
@@ -71,9 +83,15 @@ const start = async () => {
     const port = Number(process.env.PORT) || 3000;
     await server.listen({ port, host: "0.0.0.0" });
 
-    // Start supervisor in background -- don't await so the API is ready immediately
+    // Start background services -- don't await so the API is ready immediately
     startSupervisor().catch((err) =>
       server.log.error(err, "Supervisor failed to start"),
+    );
+    startDailyReportWorker().catch((err) =>
+      server.log.error(err, "Daily report worker failed to start"),
+    );
+    startChartAlertsWorker().catch((err) =>
+      server.log.error(err, "Chart alerts worker failed to start"),
     );
   } catch (err) {
     server.log.error(err);

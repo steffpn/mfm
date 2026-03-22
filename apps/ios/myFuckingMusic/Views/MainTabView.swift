@@ -67,6 +67,13 @@ struct MainTabView: View {
             }
 
             NavigationStack {
+                DailyReportView()
+            }
+            .tabItem {
+                Label("Reports", systemImage: "doc.text.fill")
+            }
+
+            NavigationStack {
                 SettingsView()
             }
             .tabItem {
@@ -91,6 +98,13 @@ struct MainTabView: View {
             }
             .tabItem {
                 Label("My Artists", systemImage: "person.2.fill")
+            }
+
+            NavigationStack {
+                DailyReportView()
+            }
+            .tabItem {
+                Label("Reports", systemImage: "doc.text.fill")
             }
 
             NavigationStack {

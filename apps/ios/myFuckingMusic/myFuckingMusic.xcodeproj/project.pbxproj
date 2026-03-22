@@ -106,6 +106,19 @@
 		D5B2C3E4F5061728394A5B6C /* DeezerModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4A1B2D3E4F5061728394A5B /* DeezerModels.swift */; };
 		F7D4E5061728394A5B6C7D8E /* BrowseArtistsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6C3D4F5061728394A5B6C7D /* BrowseArtistsViewModel.swift */; };
 		B9F607283940516C7D8E9FA0 /* ArtistPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8E5F6172839405B6C7D8E9F /* ArtistPickerView.swift */; };
+		AA1B2C3D4E5F607182930A01 /* SettingsModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1B2C3D4E5F607182930A01 /* SettingsModels.swift */; };
+		AA1B2C3D4E5F607182930A02 /* ChartAlertModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1B2C3D4E5F607182930A02 /* ChartAlertModels.swift */; };
+		AA1B2C3D4E5F607182930A03 /* DailyReportModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1B2C3D4E5F607182930A03 /* DailyReportModels.swift */; };
+		AA1B2C3D4E5F607182930A04 /* SubscriptionModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1B2C3D4E5F607182930A04 /* SubscriptionModels.swift */; };
+		DD1B2C3D4E5F607182930A01 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1B2C3D4E5F607182930A01 /* SettingsViewModel.swift */; };
+		DD1B2C3D4E5F607182930A02 /* ChartAlertsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1B2C3D4E5F607182930A02 /* ChartAlertsViewModel.swift */; };
+		DD1B2C3D4E5F607182930A03 /* DailyReportsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1B2C3D4E5F607182930A03 /* DailyReportsViewModel.swift */; };
+		DD1B2C3D4E5F607182930A04 /* SubscriptionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1B2C3D4E5F607182930A04 /* SubscriptionViewModel.swift */; };
+		DD1B2C3D4E5F607182930A05 /* DailyReportSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1B2C3D4E5F607182930A05 /* DailyReportSettingsView.swift */; };
+		DD1B2C3D4E5F607182930A06 /* ChartAlertSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1B2C3D4E5F607182930A06 /* ChartAlertSettingsView.swift */; };
+		DD1B2C3D4E5F607182930A07 /* ChartAlertsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1B2C3D4E5F607182930A07 /* ChartAlertsView.swift */; };
+		DD1B2C3D4E5F607182930A08 /* DailyReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1B2C3D4E5F607182930A08 /* DailyReportView.swift */; };
+		DD1B2C3D4E5F607182930A09 /* SubscriptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1B2C3D4E5F607182930A09 /* SubscriptionView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -209,6 +222,19 @@
 		C4A1B2D3E4F5061728394A5B /* DeezerModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeezerModels.swift; sourceTree = "<group>"; };
 		E6C3D4F5061728394A5B6C7D /* BrowseArtistsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowseArtistsViewModel.swift; sourceTree = "<group>"; };
 		A8E5F6172839405B6C7D8E9F /* ArtistPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtistPickerView.swift; sourceTree = "<group>"; };
+		BB1B2C3D4E5F607182930A01 /* SettingsModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsModels.swift; sourceTree = "<group>"; };
+		BB1B2C3D4E5F607182930A02 /* ChartAlertModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartAlertModels.swift; sourceTree = "<group>"; };
+		BB1B2C3D4E5F607182930A03 /* DailyReportModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyReportModels.swift; sourceTree = "<group>"; };
+		BB1B2C3D4E5F607182930A04 /* SubscriptionModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionModels.swift; sourceTree = "<group>"; };
+		CC1B2C3D4E5F607182930A01 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
+		CC1B2C3D4E5F607182930A02 /* ChartAlertsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartAlertsViewModel.swift; sourceTree = "<group>"; };
+		CC1B2C3D4E5F607182930A03 /* DailyReportsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyReportsViewModel.swift; sourceTree = "<group>"; };
+		CC1B2C3D4E5F607182930A04 /* SubscriptionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionViewModel.swift; sourceTree = "<group>"; };
+		CC1B2C3D4E5F607182930A05 /* DailyReportSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyReportSettingsView.swift; sourceTree = "<group>"; };
+		CC1B2C3D4E5F607182930A06 /* ChartAlertSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartAlertSettingsView.swift; sourceTree = "<group>"; };
+		CC1B2C3D4E5F607182930A07 /* ChartAlertsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartAlertsView.swift; sourceTree = "<group>"; };
+		CC1B2C3D4E5F607182930A08 /* DailyReportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyReportView.swift; sourceTree = "<group>"; };
+		CC1B2C3D4E5F607182930A09 /* SubscriptionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -265,6 +291,10 @@
 				B93B1E8372A13016BB6EB9A0 /* LabelRoleModels.swift */,
 				EBA0C005635A1D3AC9182C84 /* StationAnalyticsModels.swift */,
 				C4A1B2D3E4F5061728394A5B /* DeezerModels.swift */,
+				BB1B2C3D4E5F607182930A01 /* SettingsModels.swift */,
+				BB1B2C3D4E5F607182930A02 /* ChartAlertModels.swift */,
+				BB1B2C3D4E5F607182930A03 /* DailyReportModels.swift */,
+				BB1B2C3D4E5F607182930A04 /* SubscriptionModels.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -293,6 +323,10 @@
 				675888B1F1ACC855A55158A0 /* StationAnalyticsViewModel.swift */,
 				026E5787C3BE546D73C9D48C /* StationDashboardViewModel.swift */,
 				E6C3D4F5061728394A5B6C7D /* BrowseArtistsViewModel.swift */,
+				CC1B2C3D4E5F607182930A01 /* SettingsViewModel.swift */,
+				CC1B2C3D4E5F607182930A02 /* ChartAlertsViewModel.swift */,
+				CC1B2C3D4E5F607182930A03 /* DailyReportsViewModel.swift */,
+				CC1B2C3D4E5F607182930A04 /* SubscriptionViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -302,14 +336,17 @@
 			children = (
 				A50000010000000000000019 /* Artists */,
 				A50000010000000000000010 /* Auth */,
+				EE1B2C3D4E5F607182930A01 /* ChartAlerts */,
 				A50000010000000000000018 /* Competitors */,
 				A50000010000000000000012 /* Dashboard */,
 				A50000010000000000000014 /* Detections */,
 				A50000010000000000000016 /* LiveFeed */,
 				A50000010000000000000017 /* Notifications */,
+				EE1B2C3D4E5F607182930A02 /* Reports */,
 				A50000010000000000000015 /* Search */,
 				A50000010000000000000011 /* Settings */,
 				A50000010000000000000013 /* Shared */,
+				EE1B2C3D4E5F607182930A03 /* Subscription */,
 				4AF0E04CADEAE7DC25D37B42 /* Artist */,
 				4B817BF875DA825F540A4657 /* Label */,
 				A37AC97F8E42C297C2907476 /* Station */,
@@ -373,6 +410,8 @@
 			children = (
 				A20000010000000000000019 /* SettingsView.swift */,
 				A20000010000000000000047 /* NotificationsSettingsView.swift */,
+				CC1B2C3D4E5F607182930A05 /* DailyReportSettingsView.swift */,
+				CC1B2C3D4E5F607182930A06 /* ChartAlertSettingsView.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -502,6 +541,30 @@
 				74CBABE653158D03D90FC758 /* StationDashboardView.swift */,
 			);
 			path = Station;
+			sourceTree = "<group>";
+		};
+		EE1B2C3D4E5F607182930A01 /* ChartAlerts */ = {
+			isa = PBXGroup;
+			children = (
+				CC1B2C3D4E5F607182930A07 /* ChartAlertsView.swift */,
+			);
+			path = ChartAlerts;
+			sourceTree = "<group>";
+		};
+		EE1B2C3D4E5F607182930A02 /* Reports */ = {
+			isa = PBXGroup;
+			children = (
+				CC1B2C3D4E5F607182930A08 /* DailyReportView.swift */,
+			);
+			path = Reports;
+			sourceTree = "<group>";
+		};
+		EE1B2C3D4E5F607182930A03 /* Subscription */ = {
+			isa = PBXGroup;
+			children = (
+				CC1B2C3D4E5F607182930A09 /* SubscriptionView.swift */,
+			);
+			path = Subscription;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -661,6 +724,19 @@
 				D5B2C3E4F5061728394A5B6C /* DeezerModels.swift in Sources */,
 				F7D4E5061728394A5B6C7D8E /* BrowseArtistsViewModel.swift in Sources */,
 				B9F607283940516C7D8E9FA0 /* ArtistPickerView.swift in Sources */,
+				AA1B2C3D4E5F607182930A01 /* SettingsModels.swift in Sources */,
+				AA1B2C3D4E5F607182930A02 /* ChartAlertModels.swift in Sources */,
+				AA1B2C3D4E5F607182930A03 /* DailyReportModels.swift in Sources */,
+				AA1B2C3D4E5F607182930A04 /* SubscriptionModels.swift in Sources */,
+				DD1B2C3D4E5F607182930A01 /* SettingsViewModel.swift in Sources */,
+				DD1B2C3D4E5F607182930A02 /* ChartAlertsViewModel.swift in Sources */,
+				DD1B2C3D4E5F607182930A03 /* DailyReportsViewModel.swift in Sources */,
+				DD1B2C3D4E5F607182930A04 /* SubscriptionViewModel.swift in Sources */,
+				DD1B2C3D4E5F607182930A05 /* DailyReportSettingsView.swift in Sources */,
+				DD1B2C3D4E5F607182930A06 /* ChartAlertSettingsView.swift in Sources */,
+				DD1B2C3D4E5F607182930A07 /* ChartAlertsView.swift in Sources */,
+				DD1B2C3D4E5F607182930A08 /* DailyReportView.swift in Sources */,
+				DD1B2C3D4E5F607182930A09 /* SubscriptionView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
