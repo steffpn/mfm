@@ -308,15 +308,13 @@ enum APIEndpoint: Sendable {
                 URLQueryItem(name: "limit", value: String(limit)),
             ]
         case .stationNewSongs(let stationId, let period):
-            return [
-                URLQueryItem(name: "stationId", value: String(stationId)),
-                URLQueryItem(name: "period", value: period),
-            ]
+            var items = [URLQueryItem(name: "period", value: period)]
+            if stationId > 0 { items.append(URLQueryItem(name: "stationId", value: String(stationId))) }
+            return items
         case .stationExclusiveSongs(let stationId, let period):
-            return [
-                URLQueryItem(name: "stationId", value: String(stationId)),
-                URLQueryItem(name: "period", value: period),
-            ]
+            var items = [URLQueryItem(name: "period", value: period)]
+            if stationId > 0 { items.append(URLQueryItem(name: "stationId", value: String(stationId))) }
+            return items
         case .stationPlaylistOverlap(_, let period):
             return [URLQueryItem(name: "period", value: period)]
         case .stationGenreDistribution(let period):
