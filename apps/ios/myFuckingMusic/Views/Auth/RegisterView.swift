@@ -4,10 +4,12 @@ import SwiftUI
 /// On success, AuthManager.isAuthenticated triggers navigation to MainTabView.
 struct RegisterView: View {
     @Environment(AuthViewModel.self) private var viewModel
+    @State private var name = ""
+    @State private var email = ""
+    @State private var password = ""
+    @State private var confirmPassword = ""
 
     var body: some View {
-        @Bindable var viewModel = viewModel
-
         ZStack {
             Color.rbBackground
                 .ignoresSafeArea()
@@ -37,7 +39,7 @@ struct RegisterView: View {
                             Text("Name")
                                 .font(.caption)
                                 .foregroundStyle(Color.rbTextSecondary)
-                            TextField("", text: $viewModel.name, prompt: Text("Your name").foregroundStyle(Color.rbTextTertiary.opacity(0.6)))
+                            TextField("", text: $name, prompt: Text("Your name").foregroundStyle(Color.rbTextTertiary.opacity(0.6)))
                                 .padding(12)
                                 .background(Color.rbSurface)
                                 .foregroundStyle(Color.rbTextPrimary)
@@ -54,7 +56,7 @@ struct RegisterView: View {
                             Text("Email")
                                 .font(.caption)
                                 .foregroundStyle(Color.rbTextSecondary)
-                            TextField("", text: $viewModel.email, prompt: Text("email@example.com").foregroundStyle(Color.rbTextTertiary.opacity(0.6)))
+                            TextField("", text: $email, prompt: Text("email@example.com").foregroundStyle(Color.rbTextTertiary.opacity(0.6)))
                                 .padding(12)
                                 .background(Color.rbSurface)
                                 .foregroundStyle(Color.rbTextPrimary)
@@ -73,7 +75,7 @@ struct RegisterView: View {
                             Text("Password")
                                 .font(.caption)
                                 .foregroundStyle(Color.rbTextSecondary)
-                            SecureField("", text: $viewModel.password, prompt: Text("Minimum 8 characters").foregroundStyle(Color.rbTextTertiary.opacity(0.6)))
+                            SecureField("", text: $password, prompt: Text("Minimum 8 characters").foregroundStyle(Color.rbTextTertiary.opacity(0.6)))
                                 .padding(12)
                                 .background(Color.rbSurface)
                                 .foregroundStyle(Color.rbTextPrimary)
@@ -89,7 +91,7 @@ struct RegisterView: View {
                             Text("Confirm Password")
                                 .font(.caption)
                                 .foregroundStyle(Color.rbTextSecondary)
-                            SecureField("", text: $viewModel.confirmPassword, prompt: Text("Re-enter password").foregroundStyle(Color.rbTextTertiary.opacity(0.6)))
+                            SecureField("", text: $confirmPassword, prompt: Text("Re-enter password").foregroundStyle(Color.rbTextTertiary.opacity(0.6)))
                                 .padding(12)
                                 .background(Color.rbSurface)
                                 .foregroundStyle(Color.rbTextPrimary)
@@ -113,6 +115,10 @@ struct RegisterView: View {
 
                     // Create Account button
                     Button {
+                        viewModel.name = name
+                        viewModel.email = email
+                        viewModel.password = password
+                        viewModel.confirmPassword = confirmPassword
                         Task {
                             await viewModel.register()
                         }

@@ -4,10 +4,9 @@ import SwiftUI
 /// Validates format before allowing navigation to registration.
 struct InviteCodeView: View {
     @Environment(AuthViewModel.self) private var viewModel
+    @State private var inviteCode = ""
 
     var body: some View {
-        @Bindable var viewModel = viewModel
-
         ZStack {
             Color.rbBackground
                 .ignoresSafeArea()
@@ -34,7 +33,7 @@ struct InviteCodeView: View {
                 }
 
                 // Code input
-                TextField("XXXX-XXXX-XXXX", text: $viewModel.inviteCode)
+                TextField("XXXX-XXXX-XXXX", text: $inviteCode)
                     .padding(14)
                     .background(Color.rbSurface)
                     .foregroundStyle(Color.rbTextPrimary)
@@ -48,8 +47,11 @@ struct InviteCodeView: View {
                     .textInputAutocapitalization(.characters)
                     .autocorrectionDisabled()
                     .padding(.horizontal, 48)
-                    .onChange(of: viewModel.inviteCode) { _, newValue in
-                        viewModel.inviteCode = viewModel.formattedInviteCode
+                    .onChange(of: inviteCode) { _, newValue in
+                        // Format and sync to viewModel
+                        let formatted = formatInviteCode(newValue)
+                        inviteCode = formatted
+                        viewModel.inviteCode = formatted
                     }
 
                 // Error message
@@ -81,6 +83,14 @@ struct InviteCodeView: View {
         .navigationTitle("Invite Code")
         .navigationBarTitleDisplayMode(.inline)
         .toolbarColorScheme(.dark, for: .navigationBar)
+        .onAppear {
+            inviteCode = viewModel.inviteCode
+        }
+    }
+
+    private func formatInviteCode(_ raw: String) -> String {
+        let cleaned = raw.uppercased().filter { $0.isLetter || $0.isNumber || $0 == "-" }
+        return String(cleaned.prefix(20))
     }
 }
 

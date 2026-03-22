@@ -4,10 +4,10 @@ import SwiftUI
 /// On success, AuthManager.isAuthenticated triggers navigation to MainTabView.
 struct LoginView: View {
     @Environment(AuthViewModel.self) private var viewModel
+    @State private var email = ""
+    @State private var password = ""
 
     var body: some View {
-        @Bindable var viewModel = viewModel
-
         ZStack {
             Color.rbBackground
                 .ignoresSafeArea()
@@ -37,7 +37,7 @@ struct LoginView: View {
                             Text("Email")
                                 .font(.caption)
                                 .foregroundStyle(Color.rbTextSecondary)
-                            TextField("", text: $viewModel.email, prompt: Text("email@example.com").foregroundStyle(Color.rbTextTertiary.opacity(0.6)))
+                            TextField("", text: $email, prompt: Text("email@example.com").foregroundStyle(Color.rbTextTertiary.opacity(0.6)))
                                 .padding(12)
                                 .background(Color.rbSurface)
                                 .foregroundStyle(Color.rbTextPrimary)
@@ -56,7 +56,7 @@ struct LoginView: View {
                             Text("Password")
                                 .font(.caption)
                                 .foregroundStyle(Color.rbTextSecondary)
-                            SecureField("", text: $viewModel.password, prompt: Text("Enter password").foregroundStyle(Color.rbTextTertiary.opacity(0.6)))
+                            SecureField("", text: $password, prompt: Text("Enter password").foregroundStyle(Color.rbTextTertiary.opacity(0.6)))
                                 .padding(12)
                                 .background(Color.rbSurface)
                                 .foregroundStyle(Color.rbTextPrimary)
@@ -80,6 +80,8 @@ struct LoginView: View {
 
                     // Login button
                     Button {
+                        viewModel.email = email
+                        viewModel.password = password
                         Task {
                             await viewModel.login()
                         }
@@ -110,7 +112,6 @@ struct LoginView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbarColorScheme(.dark, for: .navigationBar)
         .onAppear {
-            // Reset login-specific fields when view appears
             viewModel.errorMessage = nil
         }
     }
