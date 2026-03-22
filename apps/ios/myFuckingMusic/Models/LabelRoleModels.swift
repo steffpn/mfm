@@ -54,7 +54,13 @@ struct LabelCatalogSong: Codable, Identifiable, Sendable {
     let artistName: String
     let isrc: String
     let totalPlays: Int
-    let stationCount: Int
+    let stationCount: Int?
+    let activatedAt: Date?
+
+    // Extra fields from API that we ignore for Identifiable
+    private enum CodingKeys: String, CodingKey {
+        case songTitle, artistName, isrc, totalPlays, stationCount, activatedAt
+    }
 
     var id: String { isrc }
 }

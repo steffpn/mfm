@@ -34,7 +34,29 @@ struct LabelArtistDetailView: View {
                         artistHeader
 
                         ForEach(viewModel.songs) { song in
-                            songRow(song)
+                            if song.isMonitored {
+                                NavigationLink {
+                                    SongAnalyticsView(
+                                        song: MonitoredSong(
+                                            id: song.id,
+                                            songTitle: song.songTitle,
+                                            artistName: song.artistName,
+                                            isrc: song.isrc,
+                                            activatedAt: song.activatedAt ?? Date(),
+                                            expiresAt: nil,
+                                            status: "active",
+                                            totalPlays: song.totalPlays,
+                                            stationCount: song.stationCount,
+                                            trend: nil
+                                        )
+                                    )
+                                } label: {
+                                    songRow(song)
+                                }
+                                .buttonStyle(.plain)
+                            } else {
+                                songRow(song)
+                            }
 
                             Divider()
                                 .overlay(Color.rbSurfaceLight.opacity(0.5))
