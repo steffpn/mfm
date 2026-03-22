@@ -7,6 +7,7 @@ import type {
   ToggleSongBody,
   ComparisonQuery,
   SongIdParams,
+  BrowseArtistsQuery,
 } from "./schema.js";
 
 /**
@@ -691,4 +692,123 @@ export async function getReleaseTracker(
     dailyPlays,
     totalFirstWeek,
   });
+}
+
+/**
+ * GET /label/browse-artists?q=vescan&limit=20
+ * Search for artists globally via Deezer API.
+ * Returns artist name, photo, fan count.
+ */
+export async function browseArtists(
+  request: FastifyRequest<{ Querystring: BrowseArtistsQuery }>,
+  reply: FastifyReply,
+): Promise<void> {
+  const { q, limit = 20 } = request.query;
+
+  if (!q || q.trim().length === 0) {
+    return reply.send([]);
+  }
+
+  try {
+    const params = new URLSearchParams({
+      q: q.trim(),
+      limit: String(limit),
+    });
+
+    const response = await fetch(
+      `https://api.deezer.com/search/artist?${params}`,
+    );
+
+    if (!response.ok) {
+      return reply.status(502).send({ error: "Deezer API error" });
+    }
+
+    const data = (await response.json()) as {
+      data?: Array<{
+        id: number;
+        name: string;
+        picture_medium: string;
+        picture_big: string;
+        nb_fan: number;
+        nb_album: number;
+      }>;
+    };
+
+    const results = (data.data || []).map((a) => ({
+      deezerId: a.id,
+      name: a.name,
+      pictureUrl: a.picture_medium,
+      pictureBigUrl: a.picture_big,
+      fanCount: a.nb_fan,
+      albumCount: a.nb_album,
+    }));
+
+    return reply.send(results);
+  } catch {
+    return reply.status(502).send({ error: "Failed to search artists" });
+  }
+}
+
+/**
+ * GET /label/browse-artists/:deezerId/tracks
+ * Get an artist's top tracks from Deezer with ISRC codes.
+ */
+export async function browseArtistTracks(
+  request: FastifyRequest<{ Params: { deezerId: string } }>,
+  reply: FastifyReply,
+): Promise<void> {
+  const { deezerId } = request.params;
+
+  try {
+    // Get top tracks
+    const topResponse = await fetch(
+      `https://api.deezer.com/artist/${deezerId}/top?limit=50`,
+    );
+
+    if (!topResponse.ok) {
+      return reply.status(502).send({ error: "Deezer API error" });
+    }
+
+    const topData = (await topResponse.json()) as {
+      data?: Array<{
+        id: number;
+        title: string;
+        duration: number;
+        album?: { title?: string; cover_medium?: string };
+      }>;
+    };
+
+    // Fetch ISRC for each track (Deezer top endpoint doesn't include it)
+    const tracks = await Promise.all(
+      (topData.data || []).map(async (t) => {
+        let isrc: string | null = null;
+        try {
+          const trackResponse = await fetch(
+            `https://api.deezer.com/track/${t.id}`,
+          );
+          if (trackResponse.ok) {
+            const trackData = (await trackResponse.json()) as {
+              isrc?: string;
+            };
+            isrc = trackData.isrc || null;
+          }
+        } catch {
+          // Best effort
+        }
+
+        return {
+          deezerTrackId: t.id,
+          title: t.title,
+          duration: t.duration,
+          isrc,
+          albumTitle: t.album?.title || null,
+          albumCoverUrl: t.album?.cover_medium || null,
+        };
+      }),
+    );
+
+    return reply.send(tracks);
+  } catch {
+    return reply.status(502).send({ error: "Failed to fetch artist tracks" });
+  }
 }

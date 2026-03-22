@@ -103,6 +103,9 @@
 		A58FD004B38B5E50A5BAFB9B /* PlaylistOverlapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 118D03F8BE04147BA3CD73FC /* PlaylistOverlapView.swift */; };
 		55C00EA32BA7DBF0114517E9 /* RotationAnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02C5AD836186244A41A0722A /* RotationAnalysisView.swift */; };
 		5020694513135BD1E778B144 /* StationDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74CBABE653158D03D90FC758 /* StationDashboardView.swift */; };
+		D5B2C3E4F5061728394A5B6C /* DeezerModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4A1B2D3E4F5061728394A5B /* DeezerModels.swift */; };
+		F7D4E5061728394A5B6C7D8E /* BrowseArtistsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6C3D4F5061728394A5B6C7D /* BrowseArtistsViewModel.swift */; };
+		B9F607283940516C7D8E9FA0 /* ArtistPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8E5F6172839405B6C7D8E9F /* ArtistPickerView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -203,6 +206,9 @@
 		118D03F8BE04147BA3CD73FC /* PlaylistOverlapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistOverlapView.swift; sourceTree = "<group>"; };
 		02C5AD836186244A41A0722A /* RotationAnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RotationAnalysisView.swift; sourceTree = "<group>"; };
 		74CBABE653158D03D90FC758 /* StationDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationDashboardView.swift; sourceTree = "<group>"; };
+		C4A1B2D3E4F5061728394A5B /* DeezerModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeezerModels.swift; sourceTree = "<group>"; };
+		E6C3D4F5061728394A5B6C7D /* BrowseArtistsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowseArtistsViewModel.swift; sourceTree = "<group>"; };
+		A8E5F6172839405B6C7D8E9F /* ArtistPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtistPickerView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -258,6 +264,7 @@
 				9585692FE6A80C873E715E6D /* ArtistRoleModels.swift */,
 				B93B1E8372A13016BB6EB9A0 /* LabelRoleModels.swift */,
 				EBA0C005635A1D3AC9182C84 /* StationAnalyticsModels.swift */,
+				C4A1B2D3E4F5061728394A5B /* DeezerModels.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -285,6 +292,7 @@
 				59BCC52224E2E859C5ADB5E2 /* StationAffinityViewModel.swift */,
 				675888B1F1ACC855A55158A0 /* StationAnalyticsViewModel.swift */,
 				026E5787C3BE546D73C9D48C /* StationDashboardViewModel.swift */,
+				E6C3D4F5061728394A5B6C7D /* BrowseArtistsViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -479,6 +487,7 @@
 				DA3B68362CE1AE491AC9B069 /* LabelArtistListView.swift */,
 				098E17B1C7B5E0020D09EF6F /* LabelDashboardView.swift */,
 				B27D0560E3753AAEE47511F0 /* StationAffinityView.swift */,
+				A8E5F6172839405B6C7D8E9F /* ArtistPickerView.swift */,
 			);
 			path = Label;
 			sourceTree = "<group>";
@@ -649,6 +658,9 @@
 				A58FD004B38B5E50A5BAFB9B /* PlaylistOverlapView.swift in Sources */,
 				55C00EA32BA7DBF0114517E9 /* RotationAnalysisView.swift in Sources */,
 				5020694513135BD1E778B144 /* StationDashboardView.swift in Sources */,
+				D5B2C3E4F5061728394A5B6C /* DeezerModels.swift in Sources */,
+				F7D4E5061728394A5B6C7D8E /* BrowseArtistsViewModel.swift in Sources */,
+				B9F607283940516C7D8E9FA0 /* ArtistPickerView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

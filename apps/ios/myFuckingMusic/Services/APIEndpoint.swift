@@ -61,6 +61,8 @@ enum APIEndpoint: Sendable {
     case labelComparison(artistIds: [Int])
     case labelStationAffinity
     case labelReleaseTracker(songId: Int)
+    case browseArtists(query: String)
+    case browseArtistTracks(deezerId: Int)
 
     // MARK: - Station Analytics
     case stationOverview(period: String)
@@ -148,6 +150,10 @@ enum APIEndpoint: Sendable {
             return "/label/station-affinity"
         case .labelReleaseTracker(let id):
             return "/label/releases/\(id)/tracker"
+        case .browseArtists:
+            return "/label/browse-artists"
+        case .browseArtistTracks(let id):
+            return "/label/browse-artists/\(id)/tracks"
 
         // Station Analytics
         case .stationOverview:
@@ -185,6 +191,7 @@ enum APIEndpoint: Sendable {
              .songAnalytics, .songStationBreakdown, .songHourlyHeatmap, .songPeakHours, .songTrend,
              .labelArtists, .labelArtistSongs, .labelDashboard, .labelComparison,
              .labelStationAffinity, .labelReleaseTracker,
+             .browseArtists, .browseArtistTracks,
              .stationOverview, .stationTopSongs, .stationNewSongs, .stationExclusiveSongs,
              .stationPlaylistOverlap, .stationGenreDistribution, .stationRotation, .stationDiscoveryScore:
             return .GET
@@ -323,6 +330,10 @@ enum APIEndpoint: Sendable {
         // Label Comparison
         case .labelComparison(let ids):
             return [URLQueryItem(name: "artistIds", value: ids.map(String.init).joined(separator: ","))]
+
+        // Browse Artists
+        case .browseArtists(let q):
+            return [URLQueryItem(name: "q", value: q), URLQueryItem(name: "limit", value: "30")]
 
         default:
             return nil

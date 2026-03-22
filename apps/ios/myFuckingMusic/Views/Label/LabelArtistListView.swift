@@ -5,8 +5,7 @@ import SwiftUI
 /// Supports adding new artists and swipe-to-delete.
 struct LabelArtistListView: View {
     @State private var viewModel = LabelArtistListViewModel()
-    @State private var showingAddAlert = false
-    @State private var newArtistName = ""
+    @State private var showingArtistPicker = false
 
     var body: some View {
         ZStack {
@@ -62,26 +61,19 @@ struct LabelArtistListView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
-                    newArtistName = ""
-                    showingAddAlert = true
+                    showingArtistPicker = true
                 } label: {
                     Image(systemName: "plus")
                         .foregroundStyle(Color.rbAccent)
                 }
             }
         }
-        .alert("Add Artist", isPresented: $showingAddAlert) {
-            TextField("Artist name", text: $newArtistName)
-            Button("Cancel", role: .cancel) { }
-            Button("Add") {
-                let name = newArtistName.trimmingCharacters(in: .whitespacesAndNewlines)
-                guard !name.isEmpty else { return }
+        .sheet(isPresented: $showingArtistPicker) {
+            ArtistPickerView { name in
                 Task {
                     _ = await viewModel.addArtist(name: name)
                 }
             }
-        } message: {
-            Text("Enter the name of the artist to add to your label.")
         }
         .task {
             await viewModel.loadArtists()

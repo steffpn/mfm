@@ -7,6 +7,7 @@ import {
   ToggleSongBodySchema,
   ComparisonQuerySchema,
   SongIdParamsSchema,
+  BrowseArtistsQuerySchema,
 } from "./schema.js";
 import {
   getLabelArtists,
@@ -18,6 +19,8 @@ import {
   getArtistComparison,
   getStationAffinity,
   getReleaseTracker,
+  browseArtists,
+  browseArtistTracks,
 } from "./handlers.js";
 
 const labelRoutes: FastifyPluginAsync = async (fastify) => {
@@ -100,6 +103,16 @@ const labelRoutes: FastifyPluginAsync = async (fastify) => {
     },
     getReleaseTracker,
   );
+
+  // GET /browse-artists - Search artists via Deezer
+  fastify.get(
+    "/browse-artists",
+    { schema: { querystring: BrowseArtistsQuerySchema } },
+    browseArtists,
+  );
+
+  // GET /browse-artists/:deezerId/tracks - Get artist tracks from Deezer
+  fastify.get("/browse-artists/:deezerId/tracks", browseArtistTracks);
 };
 
 export default labelRoutes;

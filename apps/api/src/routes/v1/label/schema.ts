@@ -49,3 +49,10 @@ export const PeriodQuerySchema = Type.Object({
 });
 
 export type PeriodQuery = Static<typeof PeriodQuerySchema>;
+
+export const BrowseArtistsQuerySchema = Type.Object({
+  q: Type.Optional(Type.String()),
+  limit: Type.Optional(Type.Number({ minimum: 1, maximum: 100 })),
+});
+
+export type BrowseArtistsQuery = Static<typeof BrowseArtistsQuerySchema>;
