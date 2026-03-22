@@ -168,100 +168,8 @@ struct ArtistComparisonView: View {
 
     @ViewBuilder
     private func comparisonChart(_ comparison: ArtistComparisonResponse) -> some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack {
-                Image(systemName: "chart.bar.fill")
-                    .font(.system(size: 14))
-                    .foregroundStyle(Color.rbAccent)
-
-                Text("Daily Plays Comparison")
-                    .font(.headline)
-                    .foregroundStyle(Color.rbTextPrimary)
-            }
-
-            Chart {
-                ForEach(Array(comparison.artists.enumerated()), id: \.element.id) { index, artist in
-                    let recentDays = artist.dailyPlays.suffix(7)
-                    ForEach(Array(recentDays), id: \.id) { day in
-                        BarMark(
-                            x: .value("Date", dayLabel(day.date)),
-                            y: .value("Plays", day.count)
-                        )
-                        .foregroundStyle(by: .value("Artist", artist.artistName))
-                        .position(by: .value("Artist", artist.artistName))
-                        .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
-                    }
-                }
-            }
-            .chartForegroundStyleScale(
-                domain: comparison.artists.map(\.artistName),
-                range: Array(seriesColors.prefix(comparison.artists.count))
-            )
-            .chartLegend(position: .bottom, alignment: .center, spacing: 12) {
-                HStack(spacing: 16) {
-                    ForEach(Array(comparison.artists.enumerated()), id: \.element.id) { index, artist in
-                        HStack(spacing: 6) {
-                            RoundedRectangle(cornerRadius: 3, style: .continuous)
-                                .fill(seriesColors[index % seriesColors.count])
-                                .frame(width: 12, height: 12)
-
-                            Text(artist.artistName)
-                                .font(.caption2)
-                                .foregroundStyle(Color.rbTextSecondary)
-                                .lineLimit(1)
-                        }
-                    }
-                }
-            }
-            .chartXAxis {
-                AxisMarks(values: .automatic(desiredCount: 7)) { _ in
-                    AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
-                        .foregroundStyle(Color.rbSurfaceLight)
-                    AxisValueLabel(orientation: .vertical)
-                        .foregroundStyle(Color.rbTextTertiary)
-                        .font(.caption2)
-                }
-            }
-            .chartYAxis {
-                AxisMarks { _ in
-                    AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
-                        .foregroundStyle(Color.rbSurfaceLight)
-                    AxisValueLabel()
-                        .foregroundStyle(Color.rbTextTertiary)
-                        .font(.caption2)
-                }
-            }
-            .frame(height: 260)
-        }
-        .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(.ultraThinMaterial)
-                .opacity(0.6)
-        )
-        .background(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(Color.rbSurface.opacity(0.5))
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .strokeBorder(Color.rbSurfaceLight, lineWidth: 1)
-        )
-        .padding(.horizontal, 16)
-    }
-
-    // MARK: - Helpers
-
-    /// Abbreviate a date string to just the day number (e.g. "18/03" -> "18").
-    private func dayLabel(_ dateString: String) -> String {
-        if let slashIndex = dateString.firstIndex(of: "/") {
-            return String(dateString[dateString.startIndex..<slashIndex])
-        }
-        // Fallback: return last 2 characters or the original string.
-        if dateString.count > 2 {
-            return String(dateString.suffix(2))
-        }
-        return dateString
+        ComparisonChartCard(comparison: comparison, seriesColors: seriesColors)
+            .padding(.horizontal, 16)
     }
 
     private func toggleArtistSelection(_ artistId: Int) {
@@ -270,6 +178,102 @@ struct ArtistComparisonView: View {
         } else if viewModel.selectedArtistIds.count < 3 {
             viewModel.selectedArtistIds.append(artistId)
         }
+    }
+}
+
+// MARK: - Extracted Chart Card (fixes type-checker timeout)
+
+private struct ComparisonChartCard: View {
+    let comparison: ArtistComparisonResponse
+    let seriesColors: [Color]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            chartHeader
+            chartContent
+            chartLegend
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(.ultraThinMaterial).opacity(0.6)
+        )
+        .background(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(Color.rbSurface.opacity(0.5))
+        )
+    }
+
+    private var chartHeader: some View {
+        HStack {
+            Image(systemName: "chart.bar.fill")
+                .font(.system(size: 14))
+                .foregroundStyle(Color.rbAccent)
+            Text("Daily Plays Comparison")
+                .font(.headline)
+                .foregroundStyle(Color.rbTextPrimary)
+        }
+    }
+
+    private var chartContent: some View {
+        Chart {
+            ForEach(comparison.artists) { artist in
+                let days = Array(artist.dailyPlays.suffix(7))
+                ForEach(days) { day in
+                    BarMark(
+                        x: .value("Date", dayLabel(day.date)),
+                        y: .value("Plays", day.count)
+                    )
+                    .foregroundStyle(by: .value("Artist", artist.artistName))
+                    .position(by: .value("Artist", artist.artistName))
+                    .cornerRadius(4)
+                }
+            }
+        }
+        .chartForegroundStyleScale(
+            domain: comparison.artists.map(\.artistName),
+            range: Array(seriesColors.prefix(comparison.artists.count))
+        )
+        .chartLegend(.hidden)
+        .chartXAxis {
+            AxisMarks { _ in
+                AxisValueLabel()
+                    .foregroundStyle(Color.rbTextTertiary)
+                    .font(.caption2)
+            }
+        }
+        .chartYAxis {
+            AxisMarks { _ in
+                AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
+                    .foregroundStyle(Color.rbSurfaceLight)
+                AxisValueLabel()
+                    .foregroundStyle(Color.rbTextTertiary)
+                    .font(.caption2)
+            }
+        }
+        .frame(height: 260)
+    }
+
+    private var chartLegend: some View {
+        HStack(spacing: 16) {
+            ForEach(Array(comparison.artists.enumerated()), id: \.element.id) { index, artist in
+                HStack(spacing: 6) {
+                    Circle()
+                        .fill(seriesColors[index % seriesColors.count])
+                        .frame(width: 10, height: 10)
+                    Text(artist.artistName)
+                        .font(.caption2)
+                        .foregroundStyle(Color.rbTextSecondary)
+                        .lineLimit(1)
+                }
+            }
+        }
+    }
+
+    private func dayLabel(_ dateString: String) -> String {
+        let parts = dateString.split(separator: "-")
+        if parts.count == 3 { return String(parts[2]) }
+        return String(dateString.suffix(2))
     }
 }
 
