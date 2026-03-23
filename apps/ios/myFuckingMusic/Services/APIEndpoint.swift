@@ -74,6 +74,9 @@ enum APIEndpoint: Sendable {
     case stationRotation(period: String)
     case stationDiscoveryScore(period: String)
 
+    // MARK: - Config
+    case appConfig
+
     // MARK: - Settings
     case userSettings
     case updateSettings(dailyReportTime: String?, dailyReportTimezone: String?, dailyReportEnabled: Bool?, chartAlertsEnabled: Bool?, chartAlertCountries: [String]?)
@@ -190,6 +193,10 @@ enum APIEndpoint: Sendable {
         case .stationDiscoveryScore:
             return "/station/discovery-score"
 
+        // Config
+        case .appConfig:
+            return "/config"
+
         // Settings
         case .userSettings, .updateSettings:
             return "/settings"
@@ -238,7 +245,8 @@ enum APIEndpoint: Sendable {
              .browseArtists, .browseArtistTracks,
              .stationOverview, .stationTopSongs, .stationNewSongs, .stationExclusiveSongs,
              .stationPlaylistOverlap, .stationGenreDistribution, .stationRotation, .stationDiscoveryScore,
-             .userSettings, .dailyReports, .todayReport, .chartAlerts, .mySubscription:
+             .userSettings, .dailyReports, .todayReport, .chartAlerts, .mySubscription,
+             .appConfig:
             return .GET
         }
     }
@@ -414,7 +422,7 @@ enum APIEndpoint: Sendable {
     /// Logout requires a token (per backend: authenticate preHandler).
     var requiresAuth: Bool {
         switch self {
-        case .health, .register, .login, .refresh:
+        case .health, .register, .login, .refresh, .appConfig:
             return false
         default:
             return true
