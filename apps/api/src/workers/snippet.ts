@@ -175,11 +175,11 @@ export async function processSnippetJob(
     logger.info({ airplayEventId, segmentCount: segments.length, seekOffsetSeconds: Math.round(seekOffsetSeconds * 10) / 10 }, "Extracting snippet");
     await extractSnippet(segments, seekOffsetSeconds, tempPath);
 
-    // 4. Verify duration is at least 20s (target 22s, allow 2s tolerance)
+    // 4. Verify duration is at least 22s (target 25s)
     const duration = await getAudioDuration(tempPath);
-    if (duration < 20) {
+    if (duration < 22) {
       throw new Error(
-        `Snippet too short: ${duration.toFixed(1)}s (min 20s) for event=${airplayEventId}. Will retry.`,
+        `Snippet too short: ${duration.toFixed(1)}s (min 22s) for event=${airplayEventId}. Will retry.`,
       );
     }
 
@@ -214,6 +214,40 @@ export async function processSnippetJob(
   }
 }
 
+// ---- Recovery: find events missing snippets and re-enqueue ----
+
+async function recoverMissingSnippets(queue: Queue): Promise<void> {
+  if (process.env.SNIPPETS_ENABLED === "false") return;
+
+  // Find events from last 24h that have no snippet
+  const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const missing = await prisma.airplayEvent.findMany({
+    where: {
+      snippetUrl: null,
+      startedAt: { gte: cutoff },
+    },
+    select: { id: true, stationId: true, startedAt: true },
+    orderBy: { startedAt: "desc" },
+    take: 50,
+  });
+
+  if (missing.length === 0) return;
+
+  logger.warn({ count: missing.length }, "Found events missing snippets, re-enqueuing");
+
+  for (const event of missing) {
+    await queue.add("extract", {
+      airplayEventId: event.id,
+      stationId: event.stationId,
+      detectedAt: event.startedAt.toISOString(),
+    }, {
+      attempts: 20,
+      backoff: { type: "exponential", delay: 3000 },
+      jobId: `recovery-${event.id}`, // prevent duplicates
+    }).catch(() => {}); // skip if already queued
+  }
+}
+
 // ---- Worker Lifecycle ----
 
 /**
@@ -234,10 +268,21 @@ export async function startSnippetWorker(): Promise<{
     connection: createRedisConnection(),
   });
 
+  // Recovery cron: every 15 minutes, find events missing snippets and re-enqueue
+  await queue.upsertJobScheduler(
+    "snippet-recovery-scheduler",
+    { pattern: "*/15 * * * *" },
+    { name: "recovery", data: {} },
+  );
+
   const worker = new Worker(
     SNIPPET_QUEUE,
     async (job) => {
-      await processSnippetJob(job.data);
+      if (job.name === "recovery") {
+        await recoverMissingSnippets(queue);
+      } else {
+        await processSnippetJob(job.data);
+      }
     },
     {
       connection: createRedisConnection(),
@@ -246,18 +291,18 @@ export async function startSnippetWorker(): Promise<{
       removeOnFail: { count: 2000 },
       settings: {
         backoffStrategy: (attemptsMade: number) => {
-          // Exponential backoff: 5s, 15s, 45s, 2min, 5min
-          return Math.min(5000 * Math.pow(3, attemptsMade), 300000);
+          // Exponential backoff: 3s, 9s, 27s, 81s, 4min, capped at 10min
+          return Math.min(3000 * Math.pow(3, attemptsMade), 600000);
         },
       },
     },
   );
 
   worker.on("failed", (job, err) => {
-    logger.error({ jobId: job?.id, err }, "Snippet extraction job failed");
+    logger.error({ jobId: job?.id, data: job?.data, attemptsMade: job?.attemptsMade, err }, "Snippet job failed");
   });
 
-  logger.info("Snippet worker started (concurrency: 2)");
+  logger.info("Snippet worker started (concurrency: 2, recovery every 15min, 20 retries per job)");
 
   return { queue, worker };
 }

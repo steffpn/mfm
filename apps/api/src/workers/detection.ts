@@ -349,8 +349,8 @@ export async function processCallback(
               stationId: station.id,
               detectedAt: detectedAt.toISOString(),
             }, {
-              attempts: 5,
-              backoff: { type: "exponential", delay: 5000 },
+              attempts: 20,
+              backoff: { type: "exponential", delay: 3000 },
             });
           } catch (err) {
             logger.error(
