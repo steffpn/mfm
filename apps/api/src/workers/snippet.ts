@@ -1,7 +1,7 @@
 /**
  * BullMQ snippet extraction worker.
  *
- * Extracts ~22-second audio clips (7s before + 15s after detection) from the ring buffer,
+ * Extracts ~25-second audio clips (10s before + 15s after detection) from the ring buffer,
  * encodes them as AAC 128kbps via FFmpeg, uploads to Cloudflare R2, and
  * updates the AirplayEvent record with the R2 object key.
  *
@@ -68,7 +68,7 @@ async function extractSnippet(
         "-safe", "0",
         "-i", concatListPath,
         "-ss", String(seekOffsetSeconds),
-        "-t", "22",
+        "-t", "25",
         "-vn",
         "-c:a", "aac",
         "-b:a", "128k",
@@ -91,6 +91,40 @@ async function extractSnippet(
 
       if (code === 0) resolve();
       else reject(new Error(`FFmpeg exited with code ${code}: ${stderr.slice(-500)}`));
+    });
+
+    proc.on("error", reject);
+  });
+}
+
+/**
+ * Get audio file duration in seconds using ffprobe.
+ */
+async function getAudioDuration(filePath: string): Promise<number> {
+  return new Promise((resolve, reject) => {
+    const proc = spawn(
+      "ffprobe",
+      [
+        "-v", "error",
+        "-show_entries", "format=duration",
+        "-of", "default=noprint_wrappers=1:nokey=1",
+        filePath,
+      ],
+      { stdio: ["ignore", "pipe", "ignore"] },
+    );
+
+    let stdout = "";
+    proc.stdout?.on("data", (data: Buffer) => {
+      stdout += data.toString();
+    });
+
+    proc.on("close", (code) => {
+      if (code === 0) {
+        const duration = parseFloat(stdout.trim());
+        resolve(isNaN(duration) ? 0 : duration);
+      } else {
+        reject(new Error(`ffprobe failed with code ${code}`));
+      }
     });
 
     proc.on("error", reject);
@@ -141,14 +175,21 @@ export async function processSnippetJob(
     logger.info({ airplayEventId, segmentCount: segments.length, seekOffsetSeconds: Math.round(seekOffsetSeconds * 10) / 10 }, "Extracting snippet");
     await extractSnippet(segments, seekOffsetSeconds, tempPath);
 
-    // 4. Read and upload to R2
+    // 4. Verify duration is at least 20s (target 22s, allow 2s tolerance)
+    const duration = await getAudioDuration(tempPath);
+    if (duration < 20) {
+      throw new Error(
+        `Snippet too short: ${duration.toFixed(1)}s (min 20s) for event=${airplayEventId}. Will retry.`,
+      );
+    }
+
+    // 5. Read and upload to R2
     const fileBuffer = await fs.readFile(tempPath);
     const fileSizeKB = Math.round(fileBuffer.length / 1024);
     const r2Key = `snippets/${stationId}/${formatDate(detectedAt)}/${airplayEventId}.aac`;
 
     if (fileBuffer.length === 0) {
-      logger.error({ airplayEventId, stationId }, "Snippet file is empty after extraction");
-      return;
+      throw new Error(`Snippet file is empty for event=${airplayEventId}. Will retry.`);
     }
 
     await uploadToR2(r2Key, fileBuffer, "audio/aac");
