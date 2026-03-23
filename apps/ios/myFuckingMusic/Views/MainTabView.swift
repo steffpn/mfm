@@ -66,12 +66,10 @@ struct MainTabView: View {
                 Label("My Songs", systemImage: "music.note.list")
             }
 
-            NavigationStack {
-                DailyReportView()
-            }
-            .tabItem {
-                Label("Reports", systemImage: "doc.text.fill")
-            }
+            DetectionsView()
+                .tabItem {
+                    Label("Detections", systemImage: "antenna.radiowaves.left.and.right")
+                }
 
             NavigationStack {
                 SettingsView()
@@ -100,12 +98,10 @@ struct MainTabView: View {
                 Label("My Artists", systemImage: "person.2.fill")
             }
 
-            NavigationStack {
-                DailyReportView()
-            }
-            .tabItem {
-                Label("Reports", systemImage: "doc.text.fill")
-            }
+            DetectionsView()
+                .tabItem {
+                    Label("Detections", systemImage: "antenna.radiowaves.left.and.right")
+                }
 
             NavigationStack {
                 LabelInsightsView()

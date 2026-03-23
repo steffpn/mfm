@@ -110,8 +110,32 @@ export async function listEvents(
 
     // Override any explicit stationId with scope constraint
     where.stationId = { in: stationScopes };
+  } else if (currentUser.role === "ARTIST") {
+    // Artists only see events matching their monitored song ISRCs
+    const monitored = await prisma.monitoredSong.findMany({
+      where: { userId: currentUser.id, status: "active" },
+      select: { isrc: true },
+    });
+    const isrcs = monitored.map((m) => m.isrc);
+    if (isrcs.length > 0) {
+      where.isrc = { in: isrcs };
+    } else {
+      return reply.send({ data: [], nextCursor: null });
+    }
+  } else if (currentUser.role === "LABEL") {
+    // Labels see events for their managed artists' monitored songs
+    const labelSongs = await prisma.labelMonitoredSong.findMany({
+      where: { labelArtist: { labelUserId: currentUser.id } },
+      include: { monitoredSong: { select: { isrc: true } } },
+    });
+    const isrcs = labelSongs.map((ls) => ls.monitoredSong.isrc);
+    if (isrcs.length > 0) {
+      where.isrc = { in: isrcs };
+    } else {
+      return reply.send({ data: [], nextCursor: null });
+    }
   }
-  // ADMIN, ARTIST, LABEL: no additional scope filter
+  // ADMIN: no additional scope filter
 
   // Fetch limit + 1 to determine if there are more results
   const events = await prisma.airplayEvent.findMany({
